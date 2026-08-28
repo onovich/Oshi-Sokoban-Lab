@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "initializedMarker": "codex-project-git-workflow: initialized",
+  "initializedAt": "2026-08-28 12:50:12 +08:00",
+  "projectName": "LearnSokoban",
+  "repoRoot": "D:\\LabProjects\\LearnSokoban",
+  "safeDirectory": "D:/LabProjects/LearnSokoban",
+  "statusCommand": "git -c safe.directory=D:/LabProjects/LearnSokoban status --short --branch",
+  "validationCommands": [
+    "npm test",
+    "npm run typecheck",
+    "npm run build"
+  ],
+  "stagingPolicy": "selected files only",
+  "commitCommand": "",
+  "pushCommand": "git -c safe.directory=D:/LabProjects/LearnSokoban push -u origin HEAD",
+  "docsRequirement": "",
+  "forbiddenCommands": "Do not force-push or run destructive reset without explicit user approval."
+}

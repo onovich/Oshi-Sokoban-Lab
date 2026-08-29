@@ -2,7 +2,7 @@
 
 [English](README.md)
 
-这是一个非官方、可游玩的 Web 机制实验室，用来研究受 Oshi 启发的网格推箱子规则。它只还原推箱子玩法层：不包含视觉小说叙事、原始美术或音频资源，也不宣称与原作存在官方关联。
+这是由 Oshi 原作者创建的可游玩 Web 机制实验室，用于还原并拓展 Oshi 的网格推箱子玩法。项目只聚焦推箱子玩法层，不包含视觉小说叙事及原始美术、音频资源，并以测试驱动的方式研究机制还原与关卡设计。
 
 ![Oshi-Sokoban-Lab 社交预览图：暗场网格推箱子棋盘，包含方块与成对 Gate](docs/social-preview-v2.png)
 
@@ -44,11 +44,11 @@ npm run build
 
 ## 状态与范围
 
-可游玩的核心流程与首批 12 个单机制关卡已经实现并在本地验证。完整的 60 关课程仍是路线图；在满足可读性要求前，Path Spike 会刻意排除在主教学路线之外。本仓库是机制研究项目，并不替代原作游戏。
+可游玩的核心流程与首批 12 个单机制关卡已经实现并在本地验证。完整的 60 关课程仍是路线图；在满足可读性要求前，Path Spike 会刻意排除在主教学路线之外。本仓库是原作者用于研究机制和关卡设计的实验室，并非 Oshi 的完整 Web 移植版。
 
 ## 调研依据
 
-规则依据 Oshi 官方公开仓库的 [`main @ 4afe6809`](https://github.com/onovich/Oshi/tree/4afe6809aaef0894b5f27b543dff84b437bebb45) 调研。证据与后续工作可参阅 [Web demo 规格](research/04-oshi-mechanics-web-demo-spec.md)、[机制一致性审计](research/10-mechanics-conformance-audit.md) 与 [关卡族课程蓝图](docs/level-family-curriculum-plan.md)。
+实现依据原作者公开的 Oshi 源码快照 [`main @ 4afe6809`](https://github.com/onovich/Oshi/tree/4afe6809aaef0894b5f27b543dff84b437bebb45) 核对。证据与后续工作可参阅 [Web demo 规格](research/04-oshi-mechanics-web-demo-spec.md)、[机制一致性审计](research/10-mechanics-conformance-audit.md) 与 [关卡族课程蓝图](docs/level-family-curriculum-plan.md)。
 
 ## 许可证
 

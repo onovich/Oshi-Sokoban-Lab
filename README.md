@@ -2,7 +2,7 @@
 
 [简体中文](README.zh-CN.md)
 
-An unofficial, playable web lab for studying Oshi-inspired grid-push mechanics. It reimplements the puzzle layer only: no visual-novel narrative, original art or audio assets, or claim of affiliation with the original game.
+A playable web lab created by the original author of Oshi to reconstruct and extend its grid-push mechanics. It focuses on the puzzle layer only—without the visual-novel narrative or original art and audio assets—and provides a test-driven space for mechanics fidelity and level-design research.
 
 ![Oshi-Sokoban-Lab social preview: a dark grid-push board with blocks and paired gates](docs/social-preview-v2.png)
 
@@ -44,11 +44,11 @@ The project uses React, TypeScript, and Vite. The rule engine lives in [`src/eng
 
 ## Status and scope
 
-The playable core and the first 12 single-mechanic lessons are implemented and verified locally. The larger 60-level curriculum remains a roadmap; Path Spike is intentionally outside the main teaching route until its readability requirements are met. This repository is a mechanics study, not a replacement for the original game.
+The playable core and the first 12 single-mechanic lessons are implemented and verified locally. The larger 60-level curriculum remains a roadmap; Path Spike is intentionally outside the main teaching route until its readability requirements are met. This is the original creator's mechanics and level-design lab, not a full web port of Oshi.
 
 ## Research basis
 
-The rules are researched against the public Oshi source snapshot [`main @ 4afe6809`](https://github.com/onovich/Oshi/tree/4afe6809aaef0894b5f27b543dff84b437bebb45). See the [web-demo specification](research/04-oshi-mechanics-web-demo-spec.md), [mechanics conformance audit](research/10-mechanics-conformance-audit.md), and [level-family curriculum plan](docs/level-family-curriculum-plan.md) for evidence and planned work.
+The implementation is verified against the creator's public Oshi source snapshot [`main @ 4afe6809`](https://github.com/onovich/Oshi/tree/4afe6809aaef0894b5f27b543dff84b437bebb45). See the [web-demo specification](research/04-oshi-mechanics-web-demo-spec.md), [mechanics conformance audit](research/10-mechanics-conformance-audit.md), and [level-family curriculum plan](docs/level-family-curriculum-plan.md) for evidence and planned work.
 
 ## License
 

@@ -10,14 +10,14 @@ const walkthroughs: Readonly<Record<string, readonly Direction[]>> = {
   'push-01': ['right', 'right'],
   'shape-02': ['right', 'right'],
   'match-03': ['right', 'right'],
-  'fake-04': ['right'],
-  'spike-05': ['right'],
+  'fake-04': ['down', 'right', 'up', 'right'],
+  'spike-05': ['right', 'right', 'left', 'left'],
   'rain-06': ['right', 'right'],
   'goal-07': ['right', 'right', 'right', 'right'],
   'gate-08': ['right', 'down', 'left'],
   'gate-push-09': ['right', 'down', 'right'],
   'path-loop-10': ['down', 'up', 'right', 'right'],
-  'path-pingpong-11': ['down', 'right', 'right'],
+  'path-pingpong-11': ['up', 'down', 'right', 'down'],
   'budget-12': ['right', 'right'],
 };
 

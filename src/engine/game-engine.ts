@@ -100,6 +100,7 @@ function canPlaceBlock(state: GameState, block: PositionedEntity<BlockDefinition
     (cell) =>
       isInBounds(state.level, cell) &&
       !isWall(state.level, cell) &&
+      !cellsEqual(state.player, cell) &&
       !state.blocks.some((other) => other.id !== block.id && occupies(other, cell)) &&
       !state.gates.some((gate) => occupies(gate, cell)),
   );
@@ -111,6 +112,7 @@ function canPlaceGoal(state: GameState, goal: PositionedEntity<GoalDefinition>, 
     (cell) =>
       isInBounds(state.level, cell) &&
       !isWall(state.level, cell) &&
+      !cellsEqual(state.player, cell) &&
       !isTerrainGoal(state.level, cell) &&
       !state.blocks.some((block) => occupies(block, cell)) &&
       !state.goals.some((other) => other.id !== goal.id && occupies(other, cell)) &&
@@ -124,6 +126,7 @@ function canResetGoal(state: GameState, goal: PositionedEntity<GoalDefinition>):
     (cell) =>
       isInBounds(state.level, cell) &&
       !isWall(state.level, cell) &&
+      !cellsEqual(state.player, cell) &&
       !isTerrainGoal(state.level, cell) &&
       !state.goals.some((other) => other.id !== goal.id && occupies(other, cell)) &&
       !state.gates.some((gate) => occupies(gate, cell)),
@@ -131,6 +134,23 @@ function canResetGoal(state: GameState, goal: PositionedEntity<GoalDefinition>):
 }
 
 function canPlaceGate(state: GameState, gate: PositionedEntity<GateDefinition>, position: Cell): boolean {
+  const candidate = { ...gate, position };
+  return entityCells(candidate).every(
+    (cell) =>
+      isInBounds(state.level, cell) &&
+      !isWall(state.level, cell) &&
+      !cellsEqual(state.player, cell) &&
+      !state.blocks.some((block) => occupies(block, cell)) &&
+      !state.gates.some((other) => other.id !== gate.id && occupies(other, cell)),
+  );
+}
+
+/**
+ * Gate traversal projects the role beyond the paired exit. That projection is
+ * not a physical Gate placement: the role's own departure cell is therefore
+ * open, while walls, Blocks, and other Gates still block the exit.
+ */
+function canUseGateExit(state: GameState, gate: PositionedEntity<GateDefinition>, position: Cell): boolean {
   const candidate = { ...gate, position };
   return entityCells(candidate).every(
     (cell) =>
@@ -153,7 +173,7 @@ function canTraverseGate(state: GameState, gate: PositionedEntity<GateDefinition
   if (!exit) {
     return false;
   }
-  return canPlaceGate(state, exit, { x: exit.position.x + offset.x, y: exit.position.y + offset.y });
+  return canUseGateExit(state, exit, { x: exit.position.x + offset.x, y: exit.position.y + offset.y });
 }
 
 function findRainDestination(state: GameState, offset: Cell): Cell {
@@ -285,7 +305,6 @@ function canMovePathSpike(
         isInBounds(state.level, cell) &&
         !isWall(state.level, cell) &&
         !isTerrainSpike(state.level, cell) &&
-        !cellsEqual(state.player, cell) &&
         !state.blocks.some((block) => occupies(block, cell)) &&
         !state.spikes.some((other) => other.id !== spike.id && occupies(other, cell))
       );
@@ -323,7 +342,7 @@ function advancePaths(state: GameState): GameState {
 
 function resolveTurn(state: GameState, playerTouchedSpike: boolean): ResetResolution {
   if (playerTouchedSpike) {
-    return { state: { ...state, status: 'lost' } };
+    return { state: resetAfterSpikeDeath(state) };
   }
   const resetResolution = resetHazardObjects(state);
   if (resetResolution.conflict) {
@@ -331,7 +350,7 @@ function resolveTurn(state: GameState, playerTouchedSpike: boolean): ResetResolu
   }
   const afterPaths = advancePaths(resetResolution.state);
   if (isSpikeAt(afterPaths, afterPaths.player)) {
-    return { state: { ...afterPaths, status: 'lost' } };
+    return { state: resetAfterSpikeDeath(afterPaths) };
   }
   if (afterPaths.level.stepLimit !== undefined && afterPaths.moves >= afterPaths.level.stepLimit) {
     return { state: { ...afterPaths, status: 'lost' } };
@@ -357,6 +376,22 @@ export function createGame(level: LevelDefinition): GameState {
     paths: level.paths.map((path) => ({ id: path.id, currentNodeIndex: 0, direction: 1 })),
     moves: 0,
     remainingSeconds: level.timeLimitSeconds,
+    status: 'playing',
+    history: [],
+  };
+}
+
+function resetAfterSpikeDeath(state: GameState): GameState {
+  return {
+    ...state,
+    player: copyCell(state.level.player),
+    blocks: state.level.blocks.map(cloneEntity),
+    goals: state.level.goals.map(cloneEntity),
+    gates: state.level.gates.map(cloneEntity),
+    spikes: state.level.spikes.map(cloneEntity),
+    paths: state.level.paths.map((path) => ({ id: path.id, currentNodeIndex: 0, direction: 1 })),
+    moves: 0,
+    remainingSeconds: state.level.timeLimitSeconds,
     status: 'playing',
     history: [],
   };
@@ -440,7 +475,7 @@ export function move(state: GameState, direction: Direction): MoveResult {
     }
   }
 
-  if (cellsEqual(target, state.player)) {
+  if (cellsEqual(target, state.player) && !gateEntry) {
     return { state, didMove: false };
   }
 

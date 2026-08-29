@@ -15,5 +15,8 @@ describe('RulesPanel', () => {
     expect(container.textContent).not.toContain('↔');
     expect(container.textContent).not.toContain('内部箭头');
     expect(container.textContent).not.toContain('橙色角标');
+    expect(container.textContent).toContain('外框包围实心能量窗');
+    expect(container.textContent).not.toContain('双层方框');
+    expect(container.textContent).toContain('会重置当前关');
   });
 });

@@ -1,0 +1,96 @@
+﻿{
+    "schemaVersion":  1,
+    "initializedMarker":  "codex-project-ops-workflow: initialized",
+    "initializedAt":  "2026-08-29 02:19:57 +08:00",
+    "projectName":  "LearnSokoban",
+    "repoRoot":  "D:/LabProjects/LearnSokoban",
+    "validateSequence":  [
+                             "typecheck",
+                             "build",
+                             "test"
+                         ],
+    "operations":  {
+                       "envCheck":  {
+                                        "commands":  [
+                                                       "node --version",
+                                                       "npm --version"
+                                                     ]
+                                    },
+                       "restoreDeps":  {
+                                           "commands":  [
+
+                                                        ]
+                                       },
+                       "installDeps":  {
+                                           "commands":  [
+
+                                                        ]
+                                       },
+                       "build":  {
+                                     "commands":  [
+                                                       "npm run build"
+                                                  ]
+                                 },
+                       "test":  {
+                                    "commands":  [
+                                                       "npm test"
+                                                 ]
+                                },
+                       "lint":  {
+                                    "commands":  [
+
+                                                 ]
+                                },
+                       "format":  {
+                                      "commands":  [
+
+                                                   ]
+                                  },
+                       "typecheck":  {
+                                         "commands":  [
+                                                       "npm run typecheck"
+                                                      ]
+                                     },
+                       "structureCheck":  {
+                                              "commands":  [
+
+                                                           ]
+                                          },
+                       "codegen":  {
+                                       "commands":  [
+
+                                                    ]
+                                   },
+                       "docsCheck":  {
+                                         "commands":  [
+
+                                                      ]
+                                     },
+                       "smoke":  {
+                                     "urls":  [
+                                                  "http://127.0.0.1:5174/"
+                                              ],
+                                     "commands":  [
+
+                                                  ]
+                                 },
+                       "package":  {
+                                       "commands":  [
+
+                                                    ]
+                                   },
+                       "releaseDryRun":  {
+                                             "commands":  [
+
+                                                          ]
+                                         }
+                   },
+    "devServer":  {
+                      "startCommand":  "npm run dev -- --host 127.0.0.1 --port 5174",
+                      "healthUrl":  "http://127.0.0.1:5174/",
+                      "readyText":  "Oshi mechanics web demo",
+                      "startupTimeoutSeconds":  30,
+                      "pidFile":  ".codex/project-ops-devserver.pid"
+                  },
+    "forbiddenPolicy":  "Do not run destructive clean/reset/deploy commands unless the user explicitly asks."
+}

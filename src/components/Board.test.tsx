@@ -66,6 +66,28 @@ describe('Board glyph system', () => {
     expect(container.querySelectorAll('.game-glyph__portal-energy')).toHaveLength(2);
   });
 
+  it('projects the source Gate mask as an outer frame around a solid energy core', () => {
+    const { container } = render(<Board state={gameFor('gate-08')} />);
+    const portal = container.querySelector('[data-glyph="gate-blue"]');
+    const frame = portal?.querySelector('.game-glyph__gate-mask-frame');
+    const core = portal?.querySelector('.game-glyph__gate-energy-core');
+    const energy = portal?.querySelector('.game-glyph__portal-energy');
+
+    expect(portal?.getAttribute('data-portal-mask')).toBe('spr-gate-001');
+    expect(portal?.querySelector('[data-portal-shader="twirl-voronoi"]')).toBeTruthy();
+    expect(energy?.getAttribute('data-portal-mask-layer')).toBe('frame-and-core');
+    expect(energy?.getAttribute('data-portal-parameters')).toBe('speed-0.5 strength-8 density-2 brightness-2');
+    expect(frame?.getAttribute('x')).toBe('2');
+    expect(frame?.getAttribute('y')).toBe('2');
+    expect(frame?.getAttribute('width')).toBe('28');
+    expect(frame?.getAttribute('height')).toBe('28');
+    expect(core?.getAttribute('x')).toBe('6');
+    expect(core?.getAttribute('y')).toBe('6');
+    expect(core?.getAttribute('width')).toBe('20');
+    expect(core?.getAttribute('height')).toBe('20');
+    expect(portal?.querySelector('.game-glyph__gate-inner')).toBeNull();
+  });
+
   it('lays the player, Blocks, and Goals on one shared grid unit', () => {
     const { container } = render(<Board state={gameFor('match-03')} />);
 
@@ -73,6 +95,23 @@ describe('Board glyph system', () => {
     expect(container.querySelector('[data-entity-id="block-two"]')?.getAttribute('data-grid-cell')).toBe('1:1');
     expect(container.querySelector('[data-entity-id="goal-two"]')?.getAttribute('data-grid-cell')).toBe('3:1');
     expect(container.querySelectorAll('[data-grid-unit="1"]')).toHaveLength(3);
+  });
+
+  it('renders solid moving pieces to fill their complete grid cells', () => {
+    const { container } = render(<Board state={gameFor('push-01')} />);
+
+    for (const entityId of ['role', 'push-block']) {
+      const entity = container.querySelector(`[data-entity-id="${entityId}"]`);
+      const glyph = entity?.querySelector('[data-glyph]');
+      const square = glyph?.querySelector('.game-glyph__flat-square');
+
+      expect(entity?.getAttribute('data-grid-unit')).toBe('1');
+      expect(glyph?.getAttribute('data-cell-footprint')).toBe('full');
+      expect(square?.getAttribute('x')).toBe('0');
+      expect(square?.getAttribute('y')).toBe('0');
+      expect(square?.getAttribute('width')).toBe('32');
+      expect(square?.getAttribute('height')).toBe('32');
+    }
   });
 
   it('tweens each moved entity from its prior logical grid cell', () => {
@@ -87,6 +126,25 @@ describe('Board glyph system', () => {
     expect(container.querySelector('[data-entity-id="role"]')?.getAttribute('data-motion-to')).toBe('1:1');
     expect(container.querySelector('[data-entity-id="push-block"]')?.getAttribute('data-motion-from')).toBe('1:1');
     expect(container.querySelector('[data-entity-id="push-block"]')?.getAttribute('data-motion-to')).toBe('2:1');
+  });
+
+  it('renders a Gate traversal as an entry segment followed by an exit segment', () => {
+    const initial = gameFor('gate-08');
+    const afterGate = move(initial, 'right').state;
+    const { container, rerender } = render(<Board state={initial} />);
+
+    rerender(<Board state={afterGate} />);
+
+    const entry = container.querySelector('[data-teleport-phase="entry"]');
+    const exit = container.querySelector('[data-teleport-phase="exit"]');
+
+    expect(entry?.getAttribute('data-entity-id')).toBe('role-teleport-entry');
+    expect(entry?.getAttribute('data-motion-from')).toBe('0:1');
+    expect(entry?.getAttribute('data-motion-to')).toBe('1:1');
+    expect(exit?.getAttribute('data-entity-id')).toBe('role');
+    expect(exit?.getAttribute('data-motion-from')).toBe('3:0');
+    expect(exit?.getAttribute('data-motion-to')).toBe('4:0');
+    expect(exit?.getAttribute('data-motion-from')).not.toBe('0:1');
   });
 
   it('does not make the whole board focusable when global keyboard controls are active', () => {

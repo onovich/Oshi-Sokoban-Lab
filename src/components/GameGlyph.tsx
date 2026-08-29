@@ -24,7 +24,16 @@ type GameGlyphProps = Readonly<{
 }>;
 
 function GoalCorners() {
-  return <path className="game-glyph__goal-corners" d="M5 12V5h7M20 5h7v7M27 20v7h-7M12 27H5v-7" />;
+  return <path className="game-glyph__goal-corners" d="M2 12V2h10M20 2h10v10M30 20v10H20M12 30H2V20" />;
+}
+
+function fillsCell(kind: GameGlyphKind): boolean {
+  return kind === 'player'
+    || kind === 'block'
+    || kind === 'fake-block'
+    || kind === 'goal'
+    || kind === 'movable-goal'
+    || kind === 'terrain-goal';
 }
 
 function GlyphShape({ kind }: Pick<GameGlyphProps, 'kind'>) {
@@ -32,7 +41,7 @@ function GlyphShape({ kind }: Pick<GameGlyphProps, 'kind'>) {
     case 'player':
     case 'block':
     case 'fake-block':
-      return <rect className="game-glyph__flat-square" height="24" width="24" x="4" y="4" />;
+      return <rect className="game-glyph__flat-square" height="32" width="32" x="0" y="0" />;
     case 'goal':
     case 'movable-goal':
     case 'terrain-goal':
@@ -46,8 +55,8 @@ function GlyphShape({ kind }: Pick<GameGlyphProps, 'kind'>) {
     case 'gate-orange':
       return (
         <>
-          <rect className="game-glyph__gate-frame" height="26" width="26" x="3" y="3" />
-          <rect className="game-glyph__gate-inner" height="16" width="16" x="8" y="8" />
+          <rect className="game-glyph__gate-mask-frame" height="28" width="28" x="2" y="2" />
+          <rect className="game-glyph__gate-energy-core" height="20" width="20" x="6" y="6" />
         </>
       );
   }
@@ -55,16 +64,29 @@ function GlyphShape({ kind }: Pick<GameGlyphProps, 'kind'>) {
 
 export function GameGlyph({ isComplete = false, kind, number }: GameGlyphProps) {
   const isGate = kind === 'gate-blue' || kind === 'gate-orange';
+  const isCellFilling = fillsCell(kind);
 
   return (
     <span
       aria-hidden="true"
-      className={`game-glyph game-glyph--${kind}${isComplete ? ' game-glyph--complete' : ''}`}
+      className={`game-glyph game-glyph--${kind}${isCellFilling ? ' game-glyph--cell-filling' : ''}${isComplete ? ' game-glyph--complete' : ''}`}
+      data-cell-footprint={isCellFilling ? 'full' : 'mark'}
       data-glyph={kind}
       data-mark="oshi-primitive"
+      data-portal-mask={isGate ? 'spr-gate-001' : undefined}
       data-state={isComplete ? 'complete' : undefined}
     >
-      {isGate ? <span className="game-glyph__portal-energy" /> : null}
+      {isGate ? (
+        <span
+          className="game-glyph__portal-energy"
+          data-portal-mask-layer="frame-and-core"
+          data-portal-parameters="speed-0.5 strength-8 density-2 brightness-2"
+          data-portal-shader="twirl-voronoi"
+        >
+          <span className="game-glyph__portal-voronoi" />
+          <span className="game-glyph__portal-vortex" />
+        </span>
+      ) : null}
       <svg className="game-glyph__svg" focusable="false" viewBox="0 0 32 32">
         <GlyphShape kind={kind} />
       </svg>

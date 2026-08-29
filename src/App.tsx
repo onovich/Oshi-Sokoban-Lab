@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { Board } from './components/Board';
 import { GameControls } from './components/GameControls';
+import { LessonBriefing } from './components/LessonBriefing';
 import { RulesPanel } from './components/RulesPanel';
 import { createGame, move, restart, tick, undo } from './engine/game-engine';
 import type { Direction, GameState } from './engine/types';
@@ -31,34 +32,43 @@ function lessonIndexFor(state: GameState): number {
 
 export function App() {
   const [state, setState] = useState<GameState>(() => createGame(demoLevels[0]!));
+  const [isBriefingOpen, setIsBriefingOpen] = useState(true);
   const activeLessonIndex = lessonIndexFor(state);
   const nextLesson = demoLevels[activeLessonIndex + 1];
 
   const loadLesson = useCallback((id: string) => {
     const level = demoLevels.find((candidate) => candidate.id === id);
-    if (level) setState(createGame(level));
+    if (!level) return;
+    setState(createGame(level));
+    setIsBriefingOpen(true);
   }, []);
 
   const applyMove = useCallback((direction: Direction) => {
+    if (isBriefingOpen) return;
     setState((previous) => move(previous, direction).state);
-  }, []);
+  }, [isBriefingOpen]);
 
   const applyUndo = useCallback(() => {
+    if (isBriefingOpen) return;
     setState((previous) => undo(previous));
-  }, []);
+  }, [isBriefingOpen]);
 
   const applyRestart = useCallback(() => {
+    if (isBriefingOpen) return;
     setState((previous) => restart(previous));
-  }, []);
+  }, [isBriefingOpen]);
 
   const advanceLesson = useCallback(() => {
-    if (nextLesson) setState(createGame(nextLesson));
+    if (!nextLesson) return;
+    setState(createGame(nextLesson));
+    setIsBriefingOpen(true);
   }, [nextLesson]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target;
       if (target instanceof Element && target.matches('select, input, textarea')) return;
+      if (isBriefingOpen) return;
 
       const direction = keyDirections[event.key.toLowerCase()] ?? keyDirections[event.key];
       if (direction) {
@@ -78,7 +88,7 @@ export function App() {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [advanceLesson, applyMove, applyRestart, applyUndo, nextLesson, state.status]);
+  }, [applyMove, applyRestart, applyUndo, isBriefingOpen]);
 
   useEffect(() => {
     if (state.remainingSeconds === undefined || state.status !== 'playing') return undefined;
@@ -116,29 +126,35 @@ export function App() {
       </section>
 
       <div className="game-layout">
-        <section aria-labelledby="lesson-title" className="play-area">
-          <div className="play-area__heading">
-            <div>
-              <p className="eyebrow">CURRENT LESSON</p>
-              <h2 id="lesson-title">{state.level.title}</h2>
-            </div>
-            <p aria-live="polite" className={`result result--${state.status}`} role="status">
-              {moveCounter} · {statusLabel(state)}
-              {state.remainingSeconds !== undefined ? ` · 时间: ${state.remainingSeconds}s` : ''}
-            </p>
-          </div>
-          <p className="lesson-description">{resultMessage}</p>
-          <Board state={state} />
-          <GameControls
-            nextLessonTitle={nextLesson?.title}
-            onMove={applyMove}
-            onNext={state.status === 'won' ? advanceLesson : undefined}
-            onRestart={applyRestart}
-            onUndo={applyUndo}
-            state={state}
-          />
-        </section>
-        <RulesPanel hint={state.level.hint} mechanics={state.level.mechanics ?? []} objective={state.level.objective} />
+        {isBriefingOpen ? (
+          <LessonBriefing key={state.level.id} level={state.level} onStart={() => setIsBriefingOpen(false)} />
+        ) : (
+          <>
+            <section aria-labelledby="lesson-title" className="play-area">
+              <div className="play-area__heading">
+                <div>
+                  <p className="eyebrow">CURRENT LESSON</p>
+                  <h2 id="lesson-title">{state.level.title}</h2>
+                </div>
+                <p aria-live="polite" className={`result result--${state.status}`} role="status">
+                  {moveCounter} · {statusLabel(state)}
+                  {state.remainingSeconds !== undefined ? ` · 时间: ${state.remainingSeconds}s` : ''}
+                </p>
+              </div>
+              <p className="lesson-description">{resultMessage}</p>
+              <Board state={state} />
+              <GameControls
+                nextLessonTitle={nextLesson?.title}
+                onMove={applyMove}
+                onNext={state.status === 'won' ? advanceLesson : undefined}
+                onRestart={applyRestart}
+                onUndo={applyUndo}
+                state={state}
+              />
+            </section>
+            <RulesPanel hint={state.level.hint} mechanics={state.level.mechanics ?? []} objective={state.level.objective} />
+          </>
+        )}
       </div>
     </main>
   );

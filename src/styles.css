@@ -210,6 +210,79 @@ kbd {
   margin: 0 auto;
 }
 
+.lesson-briefing {
+  width: min(100%, 42rem);
+  margin: 0 auto;
+  border: 1px solid #565b55;
+  border-left: 0.25rem solid var(--role-yellow);
+  padding: clamp(1.25rem, 4vw, 2rem);
+  background: rgb(27 29 28 / 82%);
+  box-shadow: 0 0 2.5rem rgb(0 0 0 / 24%);
+}
+
+.lesson-briefing h2 {
+  margin: 0.35rem 0 0;
+  color: var(--text-main);
+  font-size: clamp(1.25rem, 3.1vw, 1.8rem);
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  line-height: 1.08;
+}
+
+.lesson-briefing__rule {
+  max-width: 40rem;
+  margin: 1rem 0 0;
+  color: #d6d9d2;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.lesson-briefing__details {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1rem 1.5rem;
+  margin-top: 1.25rem;
+  border-top: 1px solid #444944;
+  padding-top: 1rem;
+}
+
+.lesson-briefing__details h3 {
+  margin: 0;
+  color: #d7d9d2;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.lesson-briefing__details p {
+  margin: 0.55rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+
+.lesson-briefing__start {
+  width: 100%;
+  margin-top: 1.5rem;
+  border-color: var(--role-yellow);
+  color: #191b18;
+  background: var(--role-yellow);
+  font-weight: 800;
+}
+
+.lesson-briefing__start:hover:not(:disabled) {
+  border-color: #ffff8a;
+  background: #ffff4b;
+}
+
+.lesson-briefing__input {
+  margin: 0.75rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
 .play-area__heading {
   display: flex;
   align-items: end;
@@ -261,6 +334,8 @@ kbd {
   grid-template-columns: repeat(var(--board-columns), minmax(0, 1fr));
   grid-template-rows: repeat(var(--board-rows), minmax(0, 1fr));
   --board-motion-duration: 200ms;
+  --board-gate-segment-duration: 160ms;
+  --board-gate-hop-delay: 44ms;
   overflow: hidden;
   margin: 0 auto;
   border: 0.125rem solid var(--line-bright);
@@ -371,6 +446,19 @@ kbd {
   animation: oshi-entity-tween var(--board-motion-duration) cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
+.board__entity--teleport-entry,
+.board__entity--teleport-exit {
+  will-change: opacity, transform;
+}
+
+.board__entity--teleport-entry {
+  animation: oshi-gate-entry var(--board-gate-segment-duration) cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.board__entity--teleport-exit {
+  animation: oshi-gate-exit var(--board-gate-segment-duration) calc(var(--board-gate-segment-duration) + var(--board-gate-hop-delay)) cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
 .board__path {
   fill: none;
   stroke: var(--path-red);
@@ -410,6 +498,11 @@ kbd {
   color: var(--line-bright);
 }
 
+.game-glyph--cell-filling {
+  width: 100%;
+  height: 100%;
+}
+
 .game-glyph__svg {
   position: relative;
   z-index: 1;
@@ -425,8 +518,6 @@ kbd {
 
 .game-glyph--player {
   z-index: 5;
-  width: 88%;
-  height: 88%;
   color: var(--role-yellow);
   filter: drop-shadow(0 0 0.42rem rgb(252 255 0 / 76%));
 }
@@ -442,8 +533,6 @@ kbd {
 
 .game-glyph--block {
   z-index: 4;
-  width: 88%;
-  height: 88%;
   color: #f4f4ee;
 }
 
@@ -453,8 +542,6 @@ kbd {
 
 .game-glyph--fake-block {
   z-index: 4;
-  width: 88%;
-  height: 88%;
   color: #6c6c6c;
 }
 
@@ -462,8 +549,6 @@ kbd {
 .game-glyph--terrain-goal,
 .game-glyph--movable-goal {
   z-index: 2;
-  width: 96%;
-  height: 96%;
   filter: drop-shadow(0 0 0.22rem rgb(244 244 238 / 38%));
 }
 
@@ -504,8 +589,15 @@ kbd {
 .game-glyph--gate-orange {
   z-index: 3;
   isolation: isolate;
-  width: 82%;
-  height: 82%;
+  width: 100%;
+  height: 100%;
+  /* Mat_Portal_*: _Speed=.5, _Strength=8, _Denstity=2, _Brightness=2. */
+  --portal-speed: 0.5;
+  --portal-strength: 8;
+  --portal-density: 2;
+  --portal-brightness: 2;
+  /* One full 2π phase at Time × .5. */
+  --portal-cycle: 12.566s;
   filter: drop-shadow(0 0 0.38rem currentColor);
 }
 
@@ -517,30 +609,67 @@ kbd {
   color: var(--gate-orange);
 }
 
-.game-glyph__gate-frame {
-  fill: rgb(0 0 0 / 15%);
+.game-glyph__gate-mask-frame {
+  fill: none;
+  stroke: rgb(255 255 255 / 20%);
   stroke-width: 2;
 }
 
 .game-glyph__portal-energy {
   position: absolute;
   z-index: 0;
-  inset: 26%;
+  inset: 0;
   overflow: hidden;
-  opacity: 0.72;
-  background:
-    repeating-conic-gradient(from 30deg, rgb(255 255 255 / 42%) 0deg 13deg, transparent 13deg 28deg),
-    radial-gradient(circle at 35% 35%, rgb(255 255 255 / 88%), currentColor 28%, rgb(0 0 0 / 8%) 69%);
-  mix-blend-mode: screen;
-  filter: blur(0.04rem);
-  animation: oshi-portal-energy 2.2s linear infinite reverse;
+  isolation: isolate;
+  background: currentColor;
+  /* Exact 16px Spr_Gate_001 alpha: outer 1px frame + 10px core. */
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' fill-rule='evenodd' clip-rule='evenodd' d='M1 1h14v14H1z M2 2h12v12H2z M3 3h10v10H3z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' fill-rule='evenodd' clip-rule='evenodd' d='M1 1h14v14H1z M2 2h12v12H2z M3 3h10v10H3z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  box-shadow: inset 0 0 0.18rem rgb(0 0 0 / 24%), inset 0 0 0.48rem rgb(255 255 255 / 22%);
 }
 
-.game-glyph__gate-inner {
-  fill: none;
-  stroke-dasharray: 4 3;
-  stroke-width: 1.5;
-  animation: oshi-portal 1.35s linear infinite;
+.game-glyph__gate-energy-core {
+  fill: transparent;
+  stroke: none;
+}
+
+.game-glyph__portal-voronoi,
+.game-glyph__portal-vortex {
+  position: absolute;
+  pointer-events: none;
+}
+
+.game-glyph__portal-voronoi {
+  /* Density 2: deliberately large, sparse cells rather than tiled noise. */
+  inset: -18%;
+  opacity: 0.96;
+  background:
+    radial-gradient(ellipse 34% 29% at 22% 23%, rgb(255 255 255 / 92%) 0 16%, transparent 50%),
+    radial-gradient(ellipse 38% 33% at 75% 27%, rgb(0 0 0 / 44%) 0 21%, transparent 57%),
+    radial-gradient(ellipse 43% 31% at 39% 74%, rgb(255 255 255 / 61%) 0 17%, transparent 55%),
+    radial-gradient(ellipse 31% 39% at 82% 79%, rgb(0 0 0 / 52%) 0 18%, transparent 57%),
+    currentColor;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  filter: contrast(1.62) saturate(1.25);
+  animation: oshi-portal-voronoi var(--portal-cycle) linear infinite alternate;
+}
+
+.game-glyph__portal-vortex {
+  inset: -36%;
+  opacity: 0.4;
+  background: conic-gradient(
+    from 0.08turn at 50% 50%,
+    transparent 0deg 38deg,
+    rgb(255 255 255 / 54%) 68deg,
+    transparent 106deg 168deg,
+    rgb(0 0 0 / 36%) 204deg,
+    transparent 244deg 320deg,
+    rgb(255 255 255 / 38%) 348deg,
+    transparent 360deg
+  );
+  mix-blend-mode: screen;
+  animation: oshi-portal-twirl calc(var(--portal-cycle) * 1.5) linear infinite;
 }
 
 .game-glyph__number {
@@ -734,15 +863,51 @@ kbd {
   }
 }
 
-@keyframes oshi-portal {
+@keyframes oshi-gate-entry {
+  from {
+    opacity: 1;
+    transform: translate(var(--motion-x), var(--motion-y));
+  }
+
+  84% {
+    opacity: 1;
+  }
+
   to {
-    stroke-dashoffset: -14;
+    opacity: 0;
+    transform: translate(0, 0);
   }
 }
 
-@keyframes oshi-portal-energy {
+@keyframes oshi-gate-exit {
+  0% {
+    opacity: 0;
+    transform: translate(var(--motion-x), var(--motion-y));
+  }
+
+  1% {
+    opacity: 1;
+  }
+
   to {
-    transform: rotate(1turn) scale(1.12);
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes oshi-portal-voronoi {
+  from {
+    transform: translate3d(-10%, -7%, 0) scale(1.08);
+  }
+
+  to {
+    transform: translate3d(10%, 7%, 0) scale(1.17);
+  }
+}
+
+@keyframes oshi-portal-twirl {
+  to {
+    transform: rotate(1turn) scale(1.08);
   }
 }
 
@@ -751,8 +916,8 @@ kbd {
   .board__weather-film,
   .board__entity--moving,
   .game-glyph--moving-spike .game-glyph__svg,
-  .game-glyph__gate-inner,
-  .game-glyph__portal-energy {
+  .game-glyph__portal-voronoi,
+  .game-glyph__portal-vortex {
     animation: none;
   }
 }
@@ -779,6 +944,10 @@ kbd {
   .lesson-strip__progress,
   .lesson-strip__weather {
     grid-column: span 1;
+  }
+
+  .lesson-briefing__details {
+    grid-template-columns: 1fr;
   }
 
   .legend {

@@ -29,6 +29,11 @@ type EntityMotion = Readonly<{
   offsetY: number;
 }>;
 
+type GateTransition = Readonly<{
+  entry: Cell;
+  exit: Cell;
+}>;
+
 const unitShape: readonly Cell[] = [{ x: 0, y: 0 }];
 
 function sameCell(left: Cell, right: Cell): boolean {
@@ -161,11 +166,49 @@ function motionFor(entity: VisualEntity, previousEntities: ReadonlyMap<string, V
   const previous = previousEntities.get(entity.id);
   if (!previous) return { offsetX: 0, offsetY: 0 };
 
+  return motionBetween(previous.position, entity.position);
+}
+
+function motionBetween(from: Cell, to: Cell): EntityMotion {
   return {
-    from: previous.position,
-    offsetX: previous.position.x - entity.position.x,
-    offsetY: previous.position.y - entity.position.y,
+    from,
+    offsetX: from.x - to.x,
+    offsetY: from.y - to.y,
   };
+}
+
+function isAlongDirection(from: Cell, to: Cell, direction: Cell): boolean {
+  const deltaX = to.x - from.x;
+  const deltaY = to.y - from.y;
+  if (direction.x !== 0) {
+    return deltaY === 0 && deltaX !== 0 && Math.sign(deltaX) === direction.x;
+  }
+  return deltaX === 0 && deltaY !== 0 && Math.sign(deltaY) === direction.y;
+}
+
+function findGateTransition(previousState: GameState, state: GameState): GateTransition | undefined {
+  if (previousState.level.id !== state.level.id) return undefined;
+
+  for (const gate of previousState.gates) {
+    if (!gate.nextGateId) continue;
+    const exit = previousState.gates.find((candidate) => candidate.id === gate.nextGateId);
+    if (!exit) continue;
+
+    const direction = {
+      x: state.player.x - exit.position.x,
+      y: state.player.y - exit.position.y,
+    };
+    if (Math.abs(direction.x) + Math.abs(direction.y) !== 1) continue;
+
+    for (const localCell of gate.shape) {
+      const entry = { x: gate.position.x + localCell.x, y: gate.position.y + localCell.y };
+      if (isAlongDirection(previousState.player, entry, direction)) {
+        return { entry, exit: exit.position };
+      }
+    }
+  }
+
+  return undefined;
 }
 
 function isOriginCell(localCell: Cell): boolean {
@@ -179,6 +222,39 @@ function entityCellStyle(cell: Cell, motion: EntityMotion): CSSProperties {
     '--motion-x': `${motion.offsetX * 100}%`,
     '--motion-y': `${motion.offsetY * 100}%`,
   } as CSSProperties;
+}
+
+function EntityCells({
+  entity,
+  motion,
+  teleportPhase,
+}: Readonly<{
+  entity: VisualEntity;
+  motion: EntityMotion;
+  teleportPhase?: 'entry' | 'exit';
+}>) {
+  const isMoving = motion.offsetX !== 0 || motion.offsetY !== 0;
+
+  return entity.shape.map((localCell) => {
+    const cell = { x: entity.position.x + localCell.x, y: entity.position.y + localCell.y };
+    const number = isOriginCell(localCell) ? entity.number : undefined;
+    return (
+      <span
+        className={`board__entity board__entity--${entity.kind}${isMoving ? ' board__entity--moving' : ''}${teleportPhase ? ` board__entity--teleport-${teleportPhase}` : ''}`}
+        data-entity-id={entity.id}
+        data-grid-cell={`${cell.x}:${cell.y}`}
+        data-grid-unit="1"
+        data-motion={isMoving ? 'moving' : undefined}
+        data-motion-from={isMoving ? `${motion.from!.x}:${motion.from!.y}` : undefined}
+        data-motion-to={isMoving ? `${entity.position.x}:${entity.position.y}` : undefined}
+        data-teleport-phase={teleportPhase}
+        key={`${entity.id}:${cell.x}:${cell.y}`}
+        style={entityCellStyle(cell, motion)}
+      >
+        <GameGlyph isComplete={entity.isComplete} kind={entity.kind} number={number} />
+      </span>
+    );
+  });
 }
 
 function usePreviousState(state: GameState): GameState {
@@ -211,32 +287,34 @@ function EntityLayer({ previousState, state }: Readonly<{ previousState: GameSta
   const previousEntities = previousState.level.id === state.level.id
     ? new Map(visualEntitiesFor(previousState).map((entity) => [entity.id, entity]))
     : new Map<string, VisualEntity>();
+  const gateTransition = findGateTransition(previousState, state);
 
   return (
     <div aria-hidden="true" className="board__entity-layer">
       {entities.flatMap((entity) => {
-        const motion = motionFor(entity, previousEntities);
-        const isMoving = motion.offsetX !== 0 || motion.offsetY !== 0;
+        if (entity.id === 'role' && gateTransition) {
+          const entryEntity: VisualEntity = {
+            id: 'role-teleport-entry',
+            kind: 'player',
+            position: gateTransition.entry,
+            shape: unitShape,
+          };
+          return [
+            ...EntityCells({
+              entity: entryEntity,
+              motion: motionBetween(previousState.player, gateTransition.entry),
+              teleportPhase: 'entry',
+            }),
+            ...EntityCells({
+              entity,
+              motion: motionBetween(gateTransition.exit, entity.position),
+              teleportPhase: 'exit',
+            }),
+          ];
+        }
 
-        return entity.shape.map((localCell) => {
-          const cell = { x: entity.position.x + localCell.x, y: entity.position.y + localCell.y };
-          const number = isOriginCell(localCell) ? entity.number : undefined;
-          return (
-            <span
-              className={`board__entity board__entity--${entity.kind}${isMoving ? ' board__entity--moving' : ''}`}
-              data-entity-id={entity.id}
-              data-grid-cell={`${cell.x}:${cell.y}`}
-              data-grid-unit="1"
-              data-motion={isMoving ? 'moving' : undefined}
-              data-motion-from={isMoving ? `${motion.from!.x}:${motion.from!.y}` : undefined}
-              data-motion-to={isMoving ? `${entity.position.x}:${entity.position.y}` : undefined}
-              key={`${entity.id}:${cell.x}:${cell.y}`}
-              style={entityCellStyle(cell, motion)}
-            >
-              <GameGlyph isComplete={entity.isComplete} kind={entity.kind} number={number} />
-            </span>
-          );
-        });
+        const motion = motionFor(entity, previousEntities);
+        return EntityCells({ entity, motion });
       })}
     </div>
   );

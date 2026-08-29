@@ -37,7 +37,7 @@ export function RulesPanel({ mechanics, objective, hint }: RulesPanelProps) {
           <div><dt><GameGlyph kind="movable-goal" /></dt><dd>可推动 Goal：黄色四角框；被 Block 挡住时角色可穿过。</dd></div>
           <div><dt><GameGlyph kind="terrain-goal" /></dt><dd>地面 Goal：白色四角框，是地形而非另一个物体。</dd></div>
           <div><dt><GameGlyph kind="moving-spike" /></dt><dd>Spike：红色爆裂星；碰到角色会重置当前关，细红线是它每回合经过的路径。</dd></div>
-          <div><dt><GameGlyph kind="gate-blue" /></dt><dd>Gate：蓝、橙外框包围实心能量窗，成对后进入会保持移动方向。</dd></div>
+          <div><dt><GameGlyph kind="gate-blue" /></dt><dd>Gate：蓝、橙成对，呈现持续流动的能量场；进入后会保持移动方向。</dd></div>
           <div><dt><GameGlyph kind="wall" /></dt><dd>Wall：一笔白色边框围出不可穿过的区域。</dd></div>
         </dl>
       </section>

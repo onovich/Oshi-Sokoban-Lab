@@ -435,6 +435,7 @@ export function move(state: GameState, direction: Direction): MoveResult {
   let goals = state.goals;
   let gates = state.gates;
   let gateEntry: Cell | undefined;
+  let gateExit: Cell | undefined;
 
   if (block) {
     const nextPosition = { x: block.position.x + offset.x, y: block.position.y + offset.y };
@@ -460,6 +461,7 @@ export function move(state: GameState, direction: Direction): MoveResult {
           const exit = linkedGate(state, gate);
           if (exit) {
             gateEntry = target;
+            gateExit = exit.position;
             target = { x: exit.position.x + offset.x, y: exit.position.y + offset.y };
           }
         } else if (cellsEqual(target, adjacent)) {
@@ -499,7 +501,19 @@ export function move(state: GameState, direction: Direction): MoveResult {
   if (resolution.conflict) {
     return { state, didMove: false, event: resolution.conflict };
   }
-  return { state: resolution.state, didMove: true };
+  return {
+    state: resolution.state,
+    didMove: true,
+    gateTraversal: gateEntry && gateExit
+      ? {
+          direction,
+          from: copyCell(state.player),
+          entry: copyCell(gateEntry),
+          exit: copyCell(gateExit),
+          to: copyCell(target),
+        }
+      : undefined,
+  };
 }
 
 export function undo(state: GameState): GameState {

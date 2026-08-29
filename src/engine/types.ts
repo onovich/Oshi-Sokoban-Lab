@@ -105,8 +105,17 @@ export type GameState = GameSnapshot &
     history: readonly GameSnapshot[];
   }>;
 
+export type GateTraversal = Readonly<{
+  direction: Direction;
+  from: Cell;
+  entry: Cell;
+  exit: Cell;
+  to: Cell;
+}>;
+
 export type MoveResult = Readonly<{
   state: GameState;
   didMove: boolean;
   event?: string;
+  gateTraversal?: GateTraversal;
 }>;

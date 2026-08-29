@@ -270,6 +270,42 @@ describe('game engine', () => {
     expect(pushed.gates.find((gate) => gate.id === 'entry')?.position).toEqual({ x: 2, y: 1 });
   });
 
+  it('reports the exact Gate route when the final displacement is diagonal', () => {
+    const result = move(
+      createGame({
+        ...basicLevel,
+        width: 5,
+        height: 3,
+        player: { x: 3, y: 1 },
+        blocks: [],
+        gates: [
+          {
+            id: 'blue-gate',
+            position: { x: 2, y: 1 },
+            shape: [{ x: 0, y: 0 }],
+            nextGateId: 'orange-gate',
+          },
+          {
+            id: 'orange-gate',
+            position: { x: 3, y: 0 },
+            shape: [{ x: 0, y: 0 }],
+            nextGateId: 'blue-gate',
+          },
+        ],
+      }),
+      'up',
+    );
+
+    expect(result.state.player).toEqual({ x: 2, y: 0 });
+    expect(result.gateTraversal).toEqual({
+      direction: 'up',
+      from: { x: 3, y: 1 },
+      entry: { x: 3, y: 0 },
+      exit: { x: 2, y: 1 },
+      to: { x: 2, y: 0 },
+    });
+  });
+
   it('lets a linked Gate exit back onto the role departure cell and still consumes the move', () => {
     const result = move(
       createGame({

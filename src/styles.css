@@ -9,8 +9,8 @@
   --role-yellow: #fcff00;
   --spike-red: #ff1d12;
   --path-red: rgb(255 31 24 / 46%);
-  --gate-blue: #3cbfdb;
-  --gate-orange: #ff6a1a;
+  --gate-blue: #93eaff;
+  --gate-orange: #ff9600;
   --number-orange: #ff5900;
   color: var(--text-main);
   background: var(--field-black);
@@ -609,14 +609,10 @@ kbd {
   isolation: isolate;
   width: 100%;
   height: 100%;
-  /* Mat_Portal_*: _Speed=.5, _Strength=8, _Denstity=2, _Brightness=2. */
-  --portal-speed: 0.5;
-  --portal-strength: 8;
-  --portal-density: 2;
-  --portal-brightness: 2;
-  /* One full 2π phase at Time × .5. */
-  --portal-cycle: 12.566s;
-  filter: drop-shadow(0 0 0.38rem currentColor);
+  /* Web projection of the source URP Bloom: threshold 1, intensity .3, HQ. */
+  filter:
+    drop-shadow(0 0 0.16rem currentColor)
+    drop-shadow(0 0 0.42rem color-mix(in srgb, currentColor 62%, transparent));
 }
 
 .game-glyph--gate-blue {
@@ -627,12 +623,6 @@ kbd {
   color: var(--gate-orange);
 }
 
-.game-glyph__gate-mask-frame {
-  fill: none;
-  stroke: rgb(255 255 255 / 20%);
-  stroke-width: 2;
-}
-
 .game-glyph__portal-energy {
   position: absolute;
   z-index: 0;
@@ -640,54 +630,17 @@ kbd {
   overflow: hidden;
   isolation: isolate;
   background: currentColor;
-  /* Exact 16px Spr_Gate_001 alpha: outer 1px frame + 10px core. */
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' fill-rule='evenodd' clip-rule='evenodd' d='M1 1h14v14H1z M2 2h12v12H2z M3 3h10v10H3z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' fill-rule='evenodd' clip-rule='evenodd' d='M1 1h14v14H1z M2 2h12v12H2z M3 3h10v10H3z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
-  box-shadow: inset 0 0 0.18rem rgb(0 0 0 / 24%), inset 0 0 0.48rem rgb(255 255 255 / 22%);
 }
 
-.game-glyph__gate-energy-core {
-  fill: transparent;
-  stroke: none;
+.game-glyph__portal-energy[data-portal-renderer-status='running'] {
+  background: transparent;
 }
 
-.game-glyph__portal-voronoi,
-.game-glyph__portal-vortex {
-  position: absolute;
+.game-glyph__portal-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
-}
-
-.game-glyph__portal-voronoi {
-  /* Density 2: deliberately large, sparse cells rather than tiled noise. */
-  inset: -18%;
-  opacity: 0.96;
-  background:
-    radial-gradient(ellipse 34% 29% at 22% 23%, rgb(255 255 255 / 92%) 0 16%, transparent 50%),
-    radial-gradient(ellipse 38% 33% at 75% 27%, rgb(0 0 0 / 44%) 0 21%, transparent 57%),
-    radial-gradient(ellipse 43% 31% at 39% 74%, rgb(255 255 255 / 61%) 0 17%, transparent 55%),
-    radial-gradient(ellipse 31% 39% at 82% 79%, rgb(0 0 0 / 52%) 0 18%, transparent 57%),
-    currentColor;
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  filter: contrast(1.62) saturate(1.25);
-  animation: oshi-portal-voronoi var(--portal-cycle) linear infinite alternate;
-}
-
-.game-glyph__portal-vortex {
-  inset: -36%;
-  opacity: 0.4;
-  background: conic-gradient(
-    from 0.08turn at 50% 50%,
-    transparent 0deg 38deg,
-    rgb(255 255 255 / 54%) 68deg,
-    transparent 106deg 168deg,
-    rgb(0 0 0 / 36%) 204deg,
-    transparent 244deg 320deg,
-    rgb(255 255 255 / 38%) 348deg,
-    transparent 360deg
-  );
-  mix-blend-mode: screen;
-  animation: oshi-portal-twirl calc(var(--portal-cycle) * 1.5) linear infinite;
 }
 
 .game-glyph__number {
@@ -913,29 +866,11 @@ kbd {
   }
 }
 
-@keyframes oshi-portal-voronoi {
-  from {
-    transform: translate3d(-10%, -7%, 0) scale(1.08);
-  }
-
-  to {
-    transform: translate3d(10%, 7%, 0) scale(1.17);
-  }
-}
-
-@keyframes oshi-portal-twirl {
-  to {
-    transform: rotate(1turn) scale(1.08);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .app-shell--rain::before,
   .board__weather-film,
   .board__entity--moving,
-  .game-glyph--moving-spike .game-glyph__svg,
-  .game-glyph__portal-voronoi,
-  .game-glyph__portal-vortex {
+  .game-glyph--moving-spike .game-glyph__svg {
     animation: none;
   }
 }

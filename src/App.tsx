@@ -5,7 +5,7 @@ import { GameControls } from './components/GameControls';
 import { LessonBriefing } from './components/LessonBriefing';
 import { RulesPanel } from './components/RulesPanel';
 import { createGame, move, restart, tick, undo } from './engine/game-engine';
-import type { Direction, GameState } from './engine/types';
+import type { Direction, GameState, GateTraversal } from './engine/types';
 import { demoLevels } from './levels/demo-levels';
 import './styles.css';
 
@@ -30,37 +30,46 @@ function lessonIndexFor(state: GameState): number {
   return Math.max(0, demoLevels.findIndex((level) => level.id === state.level.id));
 }
 
+type GameView = Readonly<{
+  state: GameState;
+  gateTraversal?: GateTraversal;
+}>;
+
 export function App() {
-  const [state, setState] = useState<GameState>(() => createGame(demoLevels[0]!));
+  const [gameView, setGameView] = useState<GameView>(() => ({ state: createGame(demoLevels[0]!) }));
   const [isBriefingOpen, setIsBriefingOpen] = useState(true);
+  const { gateTraversal, state } = gameView;
   const activeLessonIndex = lessonIndexFor(state);
   const nextLesson = demoLevels[activeLessonIndex + 1];
 
   const loadLesson = useCallback((id: string) => {
     const level = demoLevels.find((candidate) => candidate.id === id);
     if (!level) return;
-    setState(createGame(level));
+    setGameView({ state: createGame(level) });
     setIsBriefingOpen(true);
   }, []);
 
   const applyMove = useCallback((direction: Direction) => {
     if (isBriefingOpen) return;
-    setState((previous) => move(previous, direction).state);
+    setGameView((previous) => {
+      const result = move(previous.state, direction);
+      return { state: result.state, gateTraversal: result.gateTraversal };
+    });
   }, [isBriefingOpen]);
 
   const applyUndo = useCallback(() => {
     if (isBriefingOpen) return;
-    setState((previous) => undo(previous));
+    setGameView((previous) => ({ state: undo(previous.state) }));
   }, [isBriefingOpen]);
 
   const applyRestart = useCallback(() => {
     if (isBriefingOpen) return;
-    setState((previous) => restart(previous));
+    setGameView((previous) => ({ state: restart(previous.state) }));
   }, [isBriefingOpen]);
 
   const advanceLesson = useCallback(() => {
     if (!nextLesson) return;
-    setState(createGame(nextLesson));
+    setGameView({ state: createGame(nextLesson) });
     setIsBriefingOpen(true);
   }, [nextLesson]);
 
@@ -92,7 +101,10 @@ export function App() {
 
   useEffect(() => {
     if (state.remainingSeconds === undefined || state.status !== 'playing') return undefined;
-    const timer = window.setInterval(() => setState((previous) => tick(previous, 1)), 1000);
+    const timer = window.setInterval(
+      () => setGameView((previous) => ({ state: tick(previous.state, 1) })),
+      1000,
+    );
     return () => window.clearInterval(timer);
   }, [state.remainingSeconds, state.status]);
 
@@ -142,7 +154,7 @@ export function App() {
                 </p>
               </div>
               <p className="lesson-description">{resultMessage}</p>
-              <Board state={state} />
+              <Board gateTraversal={gateTraversal} state={state} />
               <GameControls
                 nextLessonTitle={nextLesson?.title}
                 onMove={applyMove}

@@ -1,3 +1,5 @@
+import { PortalShader } from './PortalShader';
+
 /**
  * Oshi renders gameplay with primitive sprite masks, not a general-purpose
  * icon library: a role is a yellow square, a Block is a white square, and the
@@ -53,12 +55,7 @@ function GlyphShape({ kind }: Pick<GameGlyphProps, 'kind'>) {
       return <polygon className="game-glyph__spike-burst" points="15,1 19,8 26,3 23,11 31,10 25,16 31,22 23,21 26,29 18,24 15,31 13,23 6,29 9,21 1,22 7,16 1,10 9,11 6,3 13,8" />;
     case 'gate-blue':
     case 'gate-orange':
-      return (
-        <>
-          <rect className="game-glyph__gate-mask-frame" height="28" width="28" x="2" y="2" />
-          <rect className="game-glyph__gate-energy-core" height="20" width="20" x="6" y="6" />
-        </>
-      );
+      return null;
   }
 }
 
@@ -73,23 +70,16 @@ export function GameGlyph({ isComplete = false, kind, number }: GameGlyphProps) 
       data-cell-footprint={isCellFilling ? 'full' : 'mark'}
       data-glyph={kind}
       data-mark="oshi-primitive"
-      data-portal-mask={isGate ? 'spr-gate-001' : undefined}
+      data-portal-mask-alpha-consumed={isGate ? 'false' : undefined}
+      data-portal-texture={isGate ? 'spr-gate-001' : undefined}
       data-state={isComplete ? 'complete' : undefined}
     >
-      {isGate ? (
-        <span
-          className="game-glyph__portal-energy"
-          data-portal-mask-layer="frame-and-core"
-          data-portal-parameters="speed-0.5 strength-8 density-2 brightness-2"
-          data-portal-shader="twirl-voronoi"
-        >
-          <span className="game-glyph__portal-voronoi" />
-          <span className="game-glyph__portal-vortex" />
-        </span>
+      {isGate ? <PortalShader variant={kind === 'gate-blue' ? 'blue' : 'orange'} /> : null}
+      {!isGate ? (
+        <svg className="game-glyph__svg" focusable="false" viewBox="0 0 32 32">
+          <GlyphShape kind={kind} />
+        </svg>
       ) : null}
-      <svg className="game-glyph__svg" focusable="false" viewBox="0 0 32 32">
-        <GlyphShape kind={kind} />
-      </svg>
       {number ? <span className="game-glyph__number" data-number-style="centered">{number}</span> : null}
     </span>
   );

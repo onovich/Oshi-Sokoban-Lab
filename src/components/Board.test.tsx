@@ -134,26 +134,28 @@ describe('Board glyph system', () => {
     expect(container.querySelectorAll('.game-glyph__portal-energy')).toHaveLength(2);
   });
 
-  it('projects the source Gate mask as an outer frame around a solid energy core', () => {
+  it('projects the source Gate shader over FullRect geometry without consuming texture alpha', () => {
     const { container } = render(<Board state={gameFor(gateLevel)} />);
     const portal = container.querySelector('[data-glyph="gate-blue"]');
-    const frame = portal?.querySelector('.game-glyph__gate-mask-frame');
-    const core = portal?.querySelector('.game-glyph__gate-energy-core');
     const energy = portal?.querySelector('.game-glyph__portal-energy');
+    const canvas = portal?.querySelector('canvas');
 
-    expect(portal?.getAttribute('data-portal-mask')).toBe('spr-gate-001');
-    expect(portal?.querySelector('[data-portal-shader="twirl-voronoi"]')).toBeTruthy();
-    expect(energy?.getAttribute('data-portal-mask-layer')).toBe('frame-and-core');
+    expect(portal?.getAttribute('data-portal-texture')).toBe('spr-gate-001');
+    expect(portal?.getAttribute('data-portal-mask-alpha-consumed')).toBe('false');
+    expect(portal?.getAttribute('data-portal-mask')).toBeNull();
+    expect(portal?.querySelector('[data-portal-shader="unity-14-twirl-voronoi"]')).toBeTruthy();
+    expect(energy?.getAttribute('data-portal-geometry')).toBe('full-rect');
+    expect(energy?.getAttribute('data-portal-texture-sample')).toBe('rgba');
+    expect(energy?.getAttribute('data-portal-alpha-source')).toBe('product-r');
+    expect(energy?.getAttribute('data-portal-mask-layer')).toBeNull();
     expect(energy?.getAttribute('data-portal-parameters')).toBe('speed-0.5 strength-8 density-2 brightness-2');
-    expect(frame?.getAttribute('x')).toBe('2');
-    expect(frame?.getAttribute('y')).toBe('2');
-    expect(frame?.getAttribute('width')).toBe('28');
-    expect(frame?.getAttribute('height')).toBe('28');
-    expect(core?.getAttribute('x')).toBe('6');
-    expect(core?.getAttribute('y')).toBe('6');
-    expect(core?.getAttribute('width')).toBe('20');
-    expect(core?.getAttribute('height')).toBe('20');
-    expect(portal?.querySelector('.game-glyph__gate-inner')).toBeNull();
+    expect(energy?.getAttribute('data-portal-postprocess')).toBe('bloom-threshold-1 intensity-0.3 high-quality');
+    expect(canvas?.getAttribute('data-portal-renderer')).toBe('webgl2');
+    expect(canvas?.getAttribute('data-portal-animation')).toBe('continuous');
+    expect(canvas?.getAttribute('data-portal-color-conversion')).toBe('unity-linear-to-srgb');
+    expect(canvas?.getAttribute('data-portal-time-conversion')).toBe('milliseconds-to-seconds');
+    expect(portal?.querySelector('.game-glyph__portal-voronoi')).toBeNull();
+    expect(portal?.querySelector('.game-glyph__portal-vortex')).toBeNull();
   });
 
   it('lays the player, Blocks, and Goals on one shared grid unit', () => {
@@ -198,10 +200,10 @@ describe('Board glyph system', () => {
 
   it('renders a Gate traversal as an entry segment followed by an exit segment', () => {
     const initial = gameFor(gateLevel);
-    const afterGate = move(initial, 'right').state;
+    const result = move(initial, 'right');
     const { container, rerender } = render(<Board state={initial} />);
 
-    rerender(<Board state={afterGate} />);
+    rerender(<Board gateTraversal={result.gateTraversal} state={result.state} />);
 
     const entry = container.querySelector('[data-teleport-phase="entry"]');
     const exit = container.querySelector('[data-teleport-phase="exit"]');

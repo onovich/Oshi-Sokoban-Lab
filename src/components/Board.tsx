@@ -1,12 +1,13 @@
 import { useEffect, useRef, type CSSProperties } from 'react';
 
 import { isBlockSolved } from '../engine/game-engine';
-import type { Cell, GameState, PathDefinition, ShapedEntityDefinition } from '../engine/types';
+import type { Cell, Direction, GameState, GateTraversal, PathDefinition, ShapedEntityDefinition } from '../engine/types';
 import { GameGlyph } from './GameGlyph';
 import type { GameGlyphKind } from './GameGlyph';
 
 type BoardProps = Readonly<{
   state: GameState;
+  gateTraversal?: GateTraversal;
 }>;
 
 type GlyphDefinition = Readonly<{
@@ -27,11 +28,6 @@ type EntityMotion = Readonly<{
   from?: Cell;
   offsetX: number;
   offsetY: number;
-}>;
-
-type GateTransition = Readonly<{
-  entry: Cell;
-  exit: Cell;
 }>;
 
 const unitShape: readonly Cell[] = [{ x: 0, y: 0 }];
@@ -177,40 +173,6 @@ function motionBetween(from: Cell, to: Cell): EntityMotion {
   };
 }
 
-function isAlongDirection(from: Cell, to: Cell, direction: Cell): boolean {
-  const deltaX = to.x - from.x;
-  const deltaY = to.y - from.y;
-  if (direction.x !== 0) {
-    return deltaY === 0 && deltaX !== 0 && Math.sign(deltaX) === direction.x;
-  }
-  return deltaX === 0 && deltaY !== 0 && Math.sign(deltaY) === direction.y;
-}
-
-function findGateTransition(previousState: GameState, state: GameState): GateTransition | undefined {
-  if (previousState.level.id !== state.level.id) return undefined;
-
-  for (const gate of previousState.gates) {
-    if (!gate.nextGateId) continue;
-    const exit = previousState.gates.find((candidate) => candidate.id === gate.nextGateId);
-    if (!exit) continue;
-
-    const direction = {
-      x: state.player.x - exit.position.x,
-      y: state.player.y - exit.position.y,
-    };
-    if (Math.abs(direction.x) + Math.abs(direction.y) !== 1) continue;
-
-    for (const localCell of gate.shape) {
-      const entry = { x: gate.position.x + localCell.x, y: gate.position.y + localCell.y };
-      if (isAlongDirection(previousState.player, entry, direction)) {
-        return { entry, exit: exit.position };
-      }
-    }
-  }
-
-  return undefined;
-}
-
 function isOriginCell(localCell: Cell): boolean {
   return localCell.x === 0 && localCell.y === 0;
 }
@@ -227,10 +189,12 @@ function entityCellStyle(cell: Cell, motion: EntityMotion): CSSProperties {
 function EntityCells({
   entity,
   motion,
+  teleportDirection,
   teleportPhase,
 }: Readonly<{
   entity: VisualEntity;
   motion: EntityMotion;
+  teleportDirection?: Direction;
   teleportPhase?: 'entry' | 'exit';
 }>) {
   const isMoving = motion.offsetX !== 0 || motion.offsetY !== 0;
@@ -247,6 +211,7 @@ function EntityCells({
         data-motion={isMoving ? 'moving' : undefined}
         data-motion-from={isMoving ? `${motion.from!.x}:${motion.from!.y}` : undefined}
         data-motion-to={isMoving ? `${entity.position.x}:${entity.position.y}` : undefined}
+        data-teleport-direction={teleportDirection}
         data-teleport-phase={teleportPhase}
         key={`${entity.id}:${cell.x}:${cell.y}`}
         style={entityCellStyle(cell, motion)}
@@ -282,32 +247,44 @@ function PathLayer({ state }: BoardProps) {
   );
 }
 
-function EntityLayer({ previousState, state }: Readonly<{ previousState: GameState; state: GameState }>) {
+function EntityLayer({
+  gateTraversal,
+  previousState,
+  state,
+}: Readonly<{
+  gateTraversal?: GateTraversal;
+  previousState: GameState;
+  state: GameState;
+}>) {
   const entities = visualEntitiesFor(state);
   const previousEntities = previousState.level.id === state.level.id
     ? new Map(visualEntitiesFor(previousState).map((entity) => [entity.id, entity]))
     : new Map<string, VisualEntity>();
-  const gateTransition = findGateTransition(previousState, state);
+  const activeGateTraversal = gateTraversal && sameCell(gateTraversal.to, state.player)
+    ? gateTraversal
+    : undefined;
 
   return (
     <div aria-hidden="true" className="board__entity-layer">
       {entities.flatMap((entity) => {
-        if (entity.id === 'role' && gateTransition) {
+        if (entity.id === 'role' && activeGateTraversal) {
           const entryEntity: VisualEntity = {
             id: 'role-teleport-entry',
             kind: 'player',
-            position: gateTransition.entry,
+            position: activeGateTraversal.entry,
             shape: unitShape,
           };
           return [
             ...EntityCells({
               entity: entryEntity,
-              motion: motionBetween(previousState.player, gateTransition.entry),
+              motion: motionBetween(activeGateTraversal.from, activeGateTraversal.entry),
+              teleportDirection: activeGateTraversal.direction,
               teleportPhase: 'entry',
             }),
             ...EntityCells({
               entity,
-              motion: motionBetween(gateTransition.exit, entity.position),
+              motion: motionBetween(activeGateTraversal.exit, activeGateTraversal.to),
+              teleportDirection: activeGateTraversal.direction,
               teleportPhase: 'exit',
             }),
           ];
@@ -320,7 +297,7 @@ function EntityLayer({ previousState, state }: Readonly<{ previousState: GameSta
   );
 }
 
-export function Board({ state }: BoardProps) {
+export function Board({ gateTraversal, state }: BoardProps) {
   const previousState = usePreviousState(state);
   const cells = Array.from({ length: state.level.width * state.level.height }, (_, index) => ({
     x: index % state.level.width,
@@ -340,7 +317,7 @@ export function Board({ state }: BoardProps) {
       style={boardStyle}
     >
       <PathLayer state={state} />
-      <EntityLayer previousState={previousState} state={state} />
+      <EntityLayer gateTraversal={gateTraversal} previousState={previousState} state={state} />
       {state.level.weather === 'rain' ? <span aria-hidden="true" className="board__weather-film" /> : null}
       {cells.map((cell) => {
         const tokens = cellTokens(state, cell);

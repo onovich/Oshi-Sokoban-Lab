@@ -1,5 +1,7 @@
 # Oshi Unity Gate：视觉与渲染一手源码审计
 
+> **2026-08-30 更正：** 本文对 `Spr_Gate_001.png` alpha 轮廓的资产审计仍然有效，但据此推导出的“运行时外框 + 实心核心”结论无效。后续版本级核对确认原 Graph 采样 RGBA 后没有消费 A 通道，最终 Alpha 取乘积的 R 通道，Sprite 又使用 FullRect 网格。运行时等价结论与公式以 [`14-gate-shader-web-equivalence.md`](./14-gate-shader-web-equivalence.md) 为准。
+
 调研日期：2026-08-28  
 官方核验版本：[Oshi <code>4afe6809aaef0894b5f27b543dff84b437bebb45</code>](https://github.com/onovich/Oshi/commit/4afe6809aaef0894b5f27b543dff84b437bebb45)  
 本地审计副本：<code>D:\UnityProjects\Oshi</code>，提交 <code>a41dba58d2009bcf2c30e5012cfb2f5f059b44ff</code>  

@@ -7,18 +7,18 @@ import { demoLevels } from './demo-levels';
 const directions: readonly Direction[] = ['up', 'right', 'down', 'left'];
 const maximumExploredStates = 50_000;
 const walkthroughs: Readonly<Record<string, readonly Direction[]>> = {
-  'push-01': ['right', 'right'],
-  'shape-02': ['right', 'right'],
-  'match-03': ['right', 'right'],
-  'fake-04': ['down', 'right', 'up', 'right'],
-  'spike-05': ['right', 'right', 'left', 'left'],
-  'rain-06': ['right', 'right'],
-  'goal-07': ['right', 'right', 'right', 'right'],
-  'gate-08': ['right', 'down', 'left'],
-  'gate-push-09': ['right', 'down', 'right'],
-  'path-loop-10': ['down', 'up', 'right', 'right'],
-  'path-pingpong-11': ['up', 'down', 'right', 'down'],
-  'budget-12': ['right', 'right'],
+  'occupancy-guide-01': ['right', 'right'],
+  'occupancy-verify-02': ['down', 'down', 'right', 'up', 'left', 'up', 'up', 'right'],
+  'occupancy-challenge-03': ['right', 'up', 'right', 'down', 'left', 'down', 'right'],
+  'spike-guide-04': ['right', 'right', 'left', 'left'],
+  'spike-verify-05': ['left', 'left', 'right', 'right'],
+  'spike-challenge-06': ['right', 'right', 'right', 'left', 'left', 'left'],
+  'movable-goal-guide-07': ['right', 'up', 'right'],
+  'movable-goal-verify-08': ['right', 'right'],
+  'movable-goal-challenge-09': ['right', 'right', 'up', 'right', 'down'],
+  'gate-guide-10': ['right', 'down', 'left'],
+  'gate-verify-11': ['right', 'down', 'right'],
+  'gate-challenge-12': ['right', 'right', 'down', 'down', 'left', 'up', 'left', 'up', 'left', 'down', 'right', 'left', 'down', 'right'],
 };
 
 type SearchResult = Readonly<{

@@ -2,18 +2,86 @@ import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { createGame, move } from '../engine/game-engine';
-import { demoLevels } from '../levels/demo-levels';
+import type { LevelDefinition } from '../engine/types';
 import { Board } from './Board';
 
-function gameFor(id: string) {
-  const level = demoLevels.find((candidate) => candidate.id === id);
-  if (!level) throw new Error(`Missing demo level: ${id}`);
+const oneCell = [{ x: 0, y: 0 }] as const;
+
+const baseLevel: LevelDefinition = {
+  id: 'board-fixture',
+  title: 'Board fixture',
+  width: 5,
+  height: 3,
+  weather: 'clear',
+  player: { x: 0, y: 1 },
+  walls: [],
+  terrainGoals: [{ x: 3, y: 1 }],
+  terrainSpikes: [],
+  blocks: [{ id: 'board-block', position: { x: 1, y: 1 }, shape: oneCell, number: 0, isFake: false }],
+  goals: [],
+  gates: [],
+  spikes: [],
+  paths: [],
+};
+
+const rainLevel: LevelDefinition = {
+  ...baseLevel,
+  id: 'board-rain',
+  weather: 'rain',
+  walls: [{ x: 4, y: 1 }],
+  blocks: [{ id: 'rain-block', position: { x: 2, y: 1 }, shape: oneCell, number: 0, isFake: false }],
+};
+
+const numberedLevel: LevelDefinition = {
+  ...baseLevel,
+  id: 'board-numbered',
+  terrainGoals: [],
+  blocks: [{ id: 'block-two', position: { x: 1, y: 1 }, shape: oneCell, number: 2, isFake: false }],
+  goals: [{ id: 'goal-two', position: { x: 3, y: 1 }, shape: oneCell, number: 2, movable: false }],
+};
+
+const fakeLevel: LevelDefinition = {
+  ...baseLevel,
+  id: 'board-fake',
+  blocks: [{ id: 'fake-block', position: { x: 1, y: 1 }, shape: oneCell, number: 0, isFake: true }],
+};
+
+const pathLevel: LevelDefinition = {
+  ...baseLevel,
+  id: 'board-path',
+  terrainGoals: [],
+  blocks: [{ id: 'path-block', position: { x: 4, y: 2 }, shape: oneCell, number: 0, isFake: false }],
+  spikes: [{ id: 'loop-spike', position: { x: 1, y: 1 }, shape: oneCell }],
+  paths: [
+    {
+      id: 'loop-path',
+      travelerId: 'loop-spike',
+      nodes: [{ x: 1, y: 1 }, { x: 1, y: 2 }, { x: 2, y: 2 }],
+      loop: 'loop',
+    },
+  ],
+};
+
+const gateLevel: LevelDefinition = {
+  ...baseLevel,
+  id: 'board-gate',
+  player: { x: 0, y: 1 },
+  walls: [{ x: 0, y: 0 }, { x: 0, y: 2 }],
+  terrainGoals: [{ x: 2, y: 1 }],
+  blocks: [{ id: 'gate-block', position: { x: 3, y: 1 }, shape: oneCell, number: 0, isFake: false }],
+  gates: [
+    { id: 'entry-gate', position: { x: 1, y: 1 }, shape: oneCell, nextGateId: 'exit-gate' },
+    { id: 'exit-gate', position: { x: 3, y: 0 }, shape: oneCell, nextGateId: 'entry-gate' },
+  ],
+};
+
+function gameFor(level: LevelDefinition) {
   return createGame(level);
 }
 
 describe('Board glyph system', () => {
   it('renders Oshi projection marks instead of Unicode symbols or a visible grid', () => {
-    const { container } = render(<Board state={gameFor('rain-06')} />);
+    const { container } = render(<Board state={gameFor(rainLevel)} />);
 
     expect(container.querySelector('[data-visual-language="oshi-projection"]')).toBeTruthy();
     expect(container.querySelector('[data-glyph="player"]')).toBeTruthy();
@@ -27,7 +95,7 @@ describe('Board glyph system', () => {
   });
 
   it('uses flat source-style entities instead of the previous decorative arrows, badges, and fake cutout', () => {
-    const numbered = render(<Board state={gameFor('match-03')} />);
+    const numbered = render(<Board state={gameFor(numberedLevel)} />);
     const player = numbered.container.querySelector('[data-glyph="player"]');
     const block = numbered.container.querySelector('[data-glyph="block"]');
     const goal = numbered.container.querySelector('[data-glyph="goal"]');
@@ -39,19 +107,19 @@ describe('Board glyph system', () => {
     expect(block?.textContent).not.toContain('B2');
     expect(goal?.textContent).not.toContain('G2');
 
-    const fake = render(<Board state={gameFor('fake-04')} />).container.querySelector('[data-glyph="fake-block"]');
+    const fake = render(<Board state={gameFor(fakeLevel)} />).container.querySelector('[data-glyph="fake-block"]');
     expect(fake?.querySelector('.game-glyph__fake-cut')).toBeNull();
   });
 
   it('draws the runtime Path as a thin red line behind a moving Spike', () => {
-    const { container } = render(<Board state={gameFor('path-loop-10')} />);
+    const { container } = render(<Board state={gameFor(pathLevel)} />);
 
     expect(container.querySelector('[data-path="loop-path"]')).toBeTruthy();
     expect(container.querySelector('[data-glyph="moving-spike"]')).toBeTruthy();
   });
 
   it('only gives a real Block the Bloom state after it covers a matching Goal', () => {
-    const initial = gameFor('push-01');
+    const initial = gameFor(baseLevel);
     const solved = move(move(initial, 'right').state, 'right').state;
 
     expect(render(<Board state={initial} />).container.querySelector('[data-glyph="block"]')?.getAttribute('data-state')).toBeNull();
@@ -59,7 +127,7 @@ describe('Board glyph system', () => {
   });
 
   it('uses a paired blue/orange portal treatment for a Gate lesson', () => {
-    const { container } = render(<Board state={gameFor('gate-08')} />);
+    const { container } = render(<Board state={gameFor(gateLevel)} />);
 
     expect(container.querySelector('[data-glyph="gate-blue"]')).toBeTruthy();
     expect(container.querySelector('[data-glyph="gate-orange"]')).toBeTruthy();
@@ -67,7 +135,7 @@ describe('Board glyph system', () => {
   });
 
   it('projects the source Gate mask as an outer frame around a solid energy core', () => {
-    const { container } = render(<Board state={gameFor('gate-08')} />);
+    const { container } = render(<Board state={gameFor(gateLevel)} />);
     const portal = container.querySelector('[data-glyph="gate-blue"]');
     const frame = portal?.querySelector('.game-glyph__gate-mask-frame');
     const core = portal?.querySelector('.game-glyph__gate-energy-core');
@@ -89,7 +157,7 @@ describe('Board glyph system', () => {
   });
 
   it('lays the player, Blocks, and Goals on one shared grid unit', () => {
-    const { container } = render(<Board state={gameFor('match-03')} />);
+    const { container } = render(<Board state={gameFor(numberedLevel)} />);
 
     expect(container.querySelector('[data-entity-id="role"]')?.getAttribute('data-grid-cell')).toBe('0:1');
     expect(container.querySelector('[data-entity-id="block-two"]')?.getAttribute('data-grid-cell')).toBe('1:1');
@@ -98,9 +166,9 @@ describe('Board glyph system', () => {
   });
 
   it('renders solid moving pieces to fill their complete grid cells', () => {
-    const { container } = render(<Board state={gameFor('push-01')} />);
+    const { container } = render(<Board state={gameFor(baseLevel)} />);
 
-    for (const entityId of ['role', 'push-block']) {
+    for (const entityId of ['role', 'board-block']) {
       const entity = container.querySelector(`[data-entity-id="${entityId}"]`);
       const glyph = entity?.querySelector('[data-glyph]');
       const square = glyph?.querySelector('.game-glyph__flat-square');
@@ -115,7 +183,7 @@ describe('Board glyph system', () => {
   });
 
   it('tweens each moved entity from its prior logical grid cell', () => {
-    const initial = gameFor('push-01');
+    const initial = gameFor(baseLevel);
     const afterPush = move(initial, 'right').state;
     const { container, rerender } = render(<Board state={initial} />);
 
@@ -124,12 +192,12 @@ describe('Board glyph system', () => {
     expect(container.querySelector('[data-entity-id="role"]')?.getAttribute('data-motion')).toBe('moving');
     expect(container.querySelector('[data-entity-id="role"]')?.getAttribute('data-motion-from')).toBe('0:1');
     expect(container.querySelector('[data-entity-id="role"]')?.getAttribute('data-motion-to')).toBe('1:1');
-    expect(container.querySelector('[data-entity-id="push-block"]')?.getAttribute('data-motion-from')).toBe('1:1');
-    expect(container.querySelector('[data-entity-id="push-block"]')?.getAttribute('data-motion-to')).toBe('2:1');
+    expect(container.querySelector('[data-entity-id="board-block"]')?.getAttribute('data-motion-from')).toBe('1:1');
+    expect(container.querySelector('[data-entity-id="board-block"]')?.getAttribute('data-motion-to')).toBe('2:1');
   });
 
   it('renders a Gate traversal as an entry segment followed by an exit segment', () => {
-    const initial = gameFor('gate-08');
+    const initial = gameFor(gateLevel);
     const afterGate = move(initial, 'right').state;
     const { container, rerender } = render(<Board state={initial} />);
 
@@ -148,7 +216,7 @@ describe('Board glyph system', () => {
   });
 
   it('does not make the whole board focusable when global keyboard controls are active', () => {
-    const { container } = render(<Board state={gameFor('push-01')} />);
+    const { container } = render(<Board state={gameFor(baseLevel)} />);
 
     expect(container.querySelector('[role="grid"]')?.getAttribute('tabindex')).toBeNull();
   });

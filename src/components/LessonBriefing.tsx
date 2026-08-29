@@ -1,5 +1,11 @@
 import type { LevelDefinition } from '../engine/types';
 
+const phaseLabels = {
+  guide: '引导/学习关',
+  verify: '验证关',
+  challenge: '难题关',
+} as const;
+
 type LessonBriefingProps = Readonly<{
   level: LevelDefinition;
   onStart: () => void;
@@ -11,6 +17,13 @@ export function LessonBriefing({ level, onStart }: LessonBriefingProps) {
       <p className="eyebrow">BEFORE YOU PLAY</p>
       <h2>{level.title}</h2>
       <p className="lesson-briefing__rule">{level.description ?? '先理解这一关新增的规则，再开始解题。'}</p>
+      {level.curriculum ? (
+        <p className="lesson-briefing__curriculum">
+          <span>关卡族：{level.curriculum.familyTitle}</span>
+          <span>技巧组：{level.curriculum.techniqueTitle}</span>
+          <span>阶段：{phaseLabels[level.curriculum.phase]}</span>
+        </p>
+      ) : null}
 
       <div className="lesson-briefing__details">
         <section aria-labelledby="lesson-briefing-mechanics">

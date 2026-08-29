@@ -40,6 +40,16 @@ export type PathDefinition = Readonly<{
   loop: 'once' | 'loop' | 'pingPong';
 }>;
 
+export type LessonPhase = 'guide' | 'verify' | 'challenge';
+
+export type CurriculumDefinition = Readonly<{
+  familyId: string;
+  familyTitle: string;
+  techniqueId: string;
+  techniqueTitle: string;
+  phase: LessonPhase;
+}>;
+
 export type LevelDefinition = Readonly<{
   id: string;
   title: string;
@@ -47,6 +57,7 @@ export type LevelDefinition = Readonly<{
   mechanics?: readonly string[];
   objective?: string;
   hint?: string;
+  curriculum?: CurriculumDefinition;
   width: number;
   height: number;
   weather: Weather;

@@ -111,7 +111,7 @@ export function App() {
       <header className="masthead">
         <p className="eyebrow">WEB MECHANICS DEMO · NO VN</p>
         <h1>OSHI / PUSH STUDIES</h1>
-        <p className="masthead__lede">离散回合、多格 footprint 与可预测环境回合的推箱子实验。</p>
+        <p className="masthead__lede">离散回合、整块占格与可预测状态变化的推箱子实验。</p>
       </header>
 
       <section className="lesson-strip" aria-label="Lesson selection">

@@ -75,4 +75,28 @@ describe('Oshi demo interface', () => {
       vi.useRealTimers();
     }
   });
+
+  it.each([
+    ['directly', []],
+    ['after moving right and left', ['ArrowRight', 'ArrowLeft']],
+  ] as const)('animates an upward Gate traversal through its actual entrance and exit %s', async (_case, detour) => {
+    const user = userEvent.setup();
+    const { container } = render(<App />);
+
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Lesson' }), 'gate-verify-11');
+    await user.click(screen.getByRole('button', { name: '开始关卡' }));
+
+    for (const key of ['ArrowRight', 'ArrowUp', 'ArrowRight', 'ArrowRight', ...detour]) {
+      fireEvent.keyDown(window, { key });
+    }
+    fireEvent.keyDown(window, { key: 'ArrowUp' });
+
+    const entry = container.querySelector('[data-teleport-phase="entry"]');
+    const exit = container.querySelector('[data-teleport-phase="exit"]');
+
+    expect(entry?.getAttribute('data-motion-from')).toBe('3:1');
+    expect(entry?.getAttribute('data-motion-to')).toBe('3:0');
+    expect(exit?.getAttribute('data-motion-from')).toBe('2:1');
+    expect(exit?.getAttribute('data-motion-to')).toBe('2:0');
+  });
 });

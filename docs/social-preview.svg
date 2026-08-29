@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title description">
+  <title id="title">Oshi-Sokoban-Lab — Push Studies</title>
+  <desc id="description">A dark geometric social preview for Oshi-Sokoban-Lab featuring a playable grid-push board with a yellow player, white blocks, goals, and cyan-orange paired gates.</desc>
+  <defs>
+    <radialGradient id="field" cx="70%" cy="44%" r="76%">
+      <stop offset="0" stop-color="#2a2d2b"/>
+      <stop offset="0.52" stop-color="#151816"/>
+      <stop offset="1" stop-color="#0b0d0d"/>
+    </radialGradient>
+    <linearGradient id="board-field" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#303331"/>
+      <stop offset="1" stop-color="#202321"/>
+    </linearGradient>
+    <radialGradient id="cyan-core" cx="34%" cy="30%" r="82%">
+      <stop offset="0" stop-color="#dcffff"/>
+      <stop offset="0.28" stop-color="#5fe9ff"/>
+      <stop offset="0.72" stop-color="#178ca8"/>
+      <stop offset="1" stop-color="#0b5265"/>
+    </radialGradient>
+    <radialGradient id="orange-core" cx="34%" cy="30%" r="82%">
+      <stop offset="0" stop-color="#fff0bd"/>
+      <stop offset="0.28" stop-color="#ffb34f"/>
+      <stop offset="0.72" stop-color="#e94d16"/>
+      <stop offset="1" stop-color="#80300f"/>
+    </radialGradient>
+    <filter id="cyan-glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="orange-glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <style>
+      .mono { font-family: Arial, Helvetica, sans-serif; }
+      .eyebrow { fill: #b8bdb5; font-size: 17px; font-weight: 700; letter-spacing: 4px; }
+      .repo { fill: #eff1eb; font-size: 25px; font-weight: 800; letter-spacing: 1px; }
+      .headline { fill: #f5f6ef; font-size: 68px; font-weight: 800; letter-spacing: -1px; }
+      .copy { fill: #b6bab2; font-size: 23px; font-weight: 400; }
+      .metric { fill: #fcff00; font-size: 19px; font-weight: 800; letter-spacing: 2px; }
+      .tag { fill: #d7dbd3; font-size: 15px; font-weight: 700; letter-spacing: 1.4px; }
+      .grid { stroke: #dfe2da; stroke-width: 2; fill: none; }
+      .goal { stroke: #f1f2eb; stroke-width: 7; stroke-linecap: square; fill: none; }
+      .gate-frame { fill: none; stroke-width: 7; }
+      .gate-detail { fill: none; stroke: rgba(255,255,255,0.75); stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="640" fill="#0b0d0d"/>
+  <rect width="1280" height="640" fill="url(#field)"/>
+  <rect x="72" y="72" width="5" height="496" fill="#fcff00"/>
+
+  <text class="mono repo" x="104" y="104">Oshi-Sokoban-Lab</text>
+  <text class="mono eyebrow" x="104" y="150">WEB MECHANICS DEMO · NO VN</text>
+  <text class="mono headline" x="104" y="258">PUSH</text>
+  <text class="mono headline" x="104" y="326">STUDIES</text>
+  <text class="mono copy" x="104" y="382">A web lab for learning</text>
+  <text class="mono copy" x="104" y="413">grid-push mechanics.</text>
+  <text class="mono metric" x="104" y="482">12 PLAYABLE LESSONS</text>
+  <text class="mono tag" x="104" y="522">FOOTPRINT  ·  RESET  ·  GOALS  ·  GATES</text>
+
+  <text class="mono eyebrow" x="576" y="104">PLAYABLE BOARD · GATE REMOTE CONDITION</text>
+  <rect x="576" y="128" width="616" height="352" fill="url(#board-field)"/>
+
+  <g class="grid">
+    <rect x="576" y="128" width="616" height="352"/>
+    <path d="M664 128V480M752 128V480M840 128V480M928 128V480M1016 128V480M1104 128V480"/>
+    <path d="M576 216H1192M576 304H1192M576 392H1192"/>
+  </g>
+
+  <g aria-label="Wall divider">
+    <rect x="840" y="128" width="88" height="352" fill="#343735"/>
+    <path d="M840 128H928M840 480H928" stroke="#e9e9e3" stroke-width="3"/>
+  </g>
+
+  <g aria-label="Yellow player">
+    <rect x="588" y="228" width="64" height="64" fill="#fcff00"/>
+    <rect x="588" y="228" width="64" height="64" fill="none" stroke="#ffff91" stroke-width="2"/>
+  </g>
+
+  <g aria-label="Cyan entry gate" filter="url(#cyan-glow)">
+    <rect x="678" y="228" width="60" height="60" rx="1" fill="url(#cyan-core)"/>
+    <rect class="gate-frame" x="670" y="220" width="76" height="76" stroke="#3cbfdb"/>
+    <rect class="gate-detail" x="682" y="232" width="52" height="52"/>
+    <path d="M691 265C703 244 719 276 729 248M688 249C702 257 715 234 730 252" stroke="#d1ffff" stroke-width="3" fill="none" opacity="0.72"/>
+  </g>
+
+  <g aria-label="Orange exit gate" filter="url(#orange-glow)">
+    <rect x="942" y="228" width="60" height="60" rx="1" fill="url(#orange-core)"/>
+    <rect class="gate-frame" x="934" y="220" width="76" height="76" stroke="#ff6a1a"/>
+    <rect class="gate-detail" x="946" y="232" width="52" height="52"/>
+    <path d="M955 265C967 244 983 276 993 248M952 249C966 257 979 234 994 252" stroke="#fff3c7" stroke-width="3" fill="none" opacity="0.72"/>
+  </g>
+
+  <g aria-label="White blocks">
+    <rect x="676" y="316" width="64" height="64" fill="#f0f1ec"/>
+    <rect x="1028" y="316" width="64" height="64" fill="#f0f1ec"/>
+  </g>
+
+  <g class="goal" aria-label="Terrain goals">
+    <path d="M1042 228V240H1030M1092 240H1080V228M1080 292V280H1092M1030 280H1042V292"/>
+    <path d="M778 316V328H766M828 328H816V316M816 380V368H828M766 368H778V380"/>
+  </g>
+
+  <text class="mono tag" x="576" y="536">ONE BOARD, FOUR RULES: POSITION · TOPOLOGY · PUSHABILITY · GOAL STATE</text>
+  <text class="mono eyebrow" x="576" y="568">RESEARCH-BASED WEB REIMPLEMENTATION</text>
+</svg>

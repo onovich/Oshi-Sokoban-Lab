@@ -1,15 +1,38 @@
-# Oshi Push Studies
+# Oshi-Sokoban-Lab
 
-一个可运行的 Web 推箱子机制 demo。它复原的是 Oshi 已有的网格玩法，不包含 VN 叙事、剧情界面、原始美术或音频资产。
+[简体中文](README.zh-CN.md)
 
-## 运行
+An unofficial, playable web lab for studying Oshi-inspired grid-push mechanics. It reimplements the puzzle layer only: no visual-novel narrative, original art or audio assets, or claim of affiliation with the original game.
+
+![Oshi-Sokoban-Lab social preview: a dark grid-push board with blocks and paired gates](docs/social-preview.png)
+
+## Play locally
+
+This repository does not currently host a public build. Install Node.js and npm, then run:
 
 ```powershell
 npm install
 npm run dev
 ```
 
-浏览器打开 Vite 输出的本地地址。使用方向键或 `WASD` 移动，`Z` 撤销，`R` 重开；也可以使用屏幕按钮。
+Open the local URL printed by Vite.
+
+## How to play
+
+- Choose a lesson, read its briefing, then select **Start lesson**.
+- Move with the arrow keys or `W`, `A`, `S`, and `D`; the on-screen direction buttons provide the same inputs.
+- Press `Z` to undo and `R` to restart.
+- Completing a lesson keeps the solved board visible and reveals an explicit **Next lesson** button.
+
+## What is here
+
+- Twelve compact, solvable lessons arranged as four three-stage technique groups: whole-occupancy checks, Spike reset positioning, movable-Goal mode switching, and Gate remote pushability.
+- A pure state-machine engine for player movement, pushing, shaped entities, terrain Goals and Spikes, movable Goals, paired Gates, undo, restart, and optional step or time limits.
+- A source-audited rules model that also covers numbered Goals, Fake Blocks, Rain movement, and Path-driven moving Spikes; those mechanics are not all part of the first 12-lesson course.
+- Grid-aligned CSS/SVG rendering with shared visual marks for the board and rule legend, including animated movement and two-part Gate travel.
+- A test-first course workflow: engine behavior, source conformance, interface flows, curriculum structure, bounded state-space solvability, and displayed walkthroughs are tested.
+
+## Development
 
 ```powershell
 npm test
@@ -17,30 +40,16 @@ npm run typecheck
 npm run build
 ```
 
-## 已复原的玩法机制
+The project uses React, TypeScript, and Vite. The rule engine lives in [`src/engine`](src/engine); declarative level families live in [`src/levels`](src/levels); the UI only renders state and dispatches player input.
 
-- 一格角色的四向移动、单次推送、不可拉动与不可连推。
-- Block、Wall、Goal、Gate、Spike 的任意多格 footprint，以及静态地形层。
-- Terrain Goal / 编号 Goal 的全 footprint 胜利判定，和不参与胜利的 Fake Block。
-- Spike：角色失败；Block、Goal、Gate 在环境回合回到各自出生点。
-- Rain：仅角色滑行；相邻可推动对象仍只平移一格；滑行全路径判定尖刺。
-- 可推动 Goal，以及无法推动时角色可穿过的规则。
-- Gate：角色沿入射方向从连接的出口走出；出口阻塞时入口可以被推。
-- Path 驱动的移动 Spike，支持 `loop`、`pingPong` 与 `once`。
-- 完整状态快照的 Undo、重开，以及可选步数 / 时间限制。
+## Status and scope
 
-十二个紧凑小关按“一个规则或技巧一个关”的方式排列：通关后保留结果并显示“下一关”按钮；每关均由状态空间搜索和一条可执行的提示路线验证存在解。
+The playable core and the first 12 single-mechanic lessons are implemented and verified locally. The larger 60-level curriculum remains a roadmap; Path Spike is intentionally outside the main teaching route until its readability requirements are met. This repository is a mechanics study, not a replacement for the original game.
 
-## 架构
+## Research basis
 
-`src/engine/` 是无 UI 依赖的纯规则内核：`createGame`、`move`、`undo`、`restart`、`tick` 是唯一的状态转换入口；`src/components/` 仅渲染状态与派发输入；`src/levels/` 只保存声明式关卡数据。这样棋盘渲染不会承载碰撞、胜负或环境回合规则。
+The rules are researched against the public Oshi source snapshot [`main @ 4afe6809`](https://github.com/onovich/Oshi/tree/4afe6809aaef0894b5f27b543dff84b437bebb45). See the [web-demo specification](research/04-oshi-mechanics-web-demo-spec.md), [mechanics conformance audit](research/10-mechanics-conformance-audit.md), and [level-family curriculum plan](docs/level-family-curriculum-plan.md) for evidence and planned work.
 
-实现遵循 TDD：先在 `src/engine/game-engine.test.ts` 写下每项规则的可观察行为，再实现最小逻辑；关卡目录和 UI 键盘流程也各有测试。
+## License
 
-## 调研基线与范围
-
-规则基线为 Oshi 官方公开仓库的 [`main @ 4afe6809`](https://github.com/onovich/Oshi/tree/4afe6809aaef0894b5f27b543dff84b437bebb45)。详细的事实、规范化的 Web 规则、已知原版 bug 与不纳入范围的未实现设想见 [调研与验收说明](research/04-oshi-mechanics-web-demo-spec.md)。
-
-棋盘没有拷贝原始美术资产；Web 版以原创 SVG/CSS 近似 Unity 的真实运行帧、Sprite、材质与 VFX 分层。完整证据与可还原边界见 [Unity 最终画面审计](research/07-unity-visual-scene-audit.md)；其中以官方真实帧为第一基准，并更正了旧的单 Sprite 推断。
-
-原版中尚未落地的 Enemy、Boss、多格角色、物体传送、雨天 Block 滑行、局内天气变化及其他构想均不在 demo 范围内。
+No open-source license is currently included in this repository.

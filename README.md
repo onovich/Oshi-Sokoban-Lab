@@ -4,7 +4,7 @@
 
 An unofficial, playable web lab for studying Oshi-inspired grid-push mechanics. It reimplements the puzzle layer only: no visual-novel narrative, original art or audio assets, or claim of affiliation with the original game.
 
-![Oshi-Sokoban-Lab social preview: a dark grid-push board with blocks and paired gates](docs/social-preview.png)
+![Oshi-Sokoban-Lab social preview: a dark grid-push board with blocks and paired gates](docs/social-preview-v2.png)
 
 ## Play locally
 

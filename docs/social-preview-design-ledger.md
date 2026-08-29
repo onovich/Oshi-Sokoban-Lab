@@ -13,8 +13,8 @@ evidence:
   inspected:
     - path_or_url: "http://127.0.0.1:5174/"
       proves: "The current web demo exposes twelve playable lessons, a lesson briefing, and a dark geometric board language."
-    - path_or_url: "src/components/GameGlyph.tsx"
-      proves: "Player, Block, Goal, Gate, Spike, and Wall marks are implemented as project-owned geometric primitives."
+    - path_or_url: "src/components/GameGlyph.tsx and src/styles.css"
+      proves: "Player, Block, Goal, Gate, Spike, and Wall marks are implemented as project-owned geometric primitives; Gate uses the Spr_Gate_001 outer-ring-plus-core mask with Voronoi and vortex energy layers."
     - path_or_url: "src/levels/demo-levels.ts"
       proves: "The curriculum is composed from four first-batch level families."
     - path_or_url: "package.json"
@@ -55,7 +55,9 @@ source_route:
     remove:
       - "Browser chrome, lesson selector, side-panel explanation, controls, and incidental runtime text."
     repair:
-      - "Recompose the board as a wide social-preview proof surface with a separate title region."
+      - "Remove invented empty-cell grid lines: the runtime only outlines the board and Wall boundaries."
+      - "Replace thick framed Gates and decorative wave lines with the runtime's Spr_Gate_001 outer ring, one-cell gap, energy core, sparse bright/dark Voronoi cells, and vortex layer."
+      - "Make Player and Block fill their logical cells, matching the cell-filling GameGlyph variants."
     supplement:
       - cue: "Repository name and evidence-bounded value statement"
         provenance: "package name, app masthead, and current first-batch curriculum"
@@ -98,8 +100,8 @@ composition:
       evidence: "GameGlyph GoalCorners path."
 
 version:
-  baseline: "none"
-  candidate: "docs/social-preview.svg"
+  baseline: "docs/social-preview.svg"
+  candidate: "docs/social-preview-v2.svg"
   preservation_contract:
     identity_anchors:
       - "Dark field and pale grid"
@@ -110,20 +112,43 @@ version:
       - "The cover must identify the repository without suggesting official Oshi branding."
     allowed_changes:
       - "Recompose game primitives for the 2:1 format."
+      - "Correct icon topology, material, and visual hierarchy from the running game."
     forbidden_changes:
       - "Use original game art or make unsupported feature claims."
-  comparison_scores: {}
+  comparison_scores:
+    v1:
+      identity_fidelity: 2
+      product_clarity: 4
+      aesthetic_authorship: 3
+      abstraction_fit: 3
+      topology_fidelity: 2
+      material_quality: 3
+      composition: 4
+      thumbnail_legibility: 4
+      line_semantics: 2
+      fragment_integrity: 5
+    v2:
+      identity_fidelity: 5
+      product_clarity: 4
+      aesthetic_authorship: 4
+      abstraction_fit: 5
+      topology_fidelity: 5
+      material_quality: 4
+      composition: 4
+      thumbnail_legibility: 4
+      line_semantics: 5
+      fragment_integrity: 5
   vetoes: []
   verdict: promote
-  reason: "The candidate is a project-native, editable composition that foregrounds an actual playable board."
+  reason: "v2 removes the non-runtime empty-cell grid and reconstructs the GameGlyph portal mask, energy core, and object footprints without lowering thumbnail readability."
 
 output:
-  svg: "docs/social-preview.svg"
-  png: "docs/social-preview.png"
-  review_sheet: "docs/social-preview-review.png"
+  svg: "docs/social-preview-v2.svg"
+  png: "docs/social-preview-v2.png"
+  review_sheet: "docs/social-preview-v2-review.png"
   width: 1280
   height: 640
-  bytes: 51788
+  bytes: 49135
   mechanical_validation: pass
   full_size_review: pass
   thumbnail_light_review: pass

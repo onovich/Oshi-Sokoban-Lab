@@ -4,7 +4,7 @@
 
 这是一个非官方、可游玩的 Web 机制实验室，用来研究受 Oshi 启发的网格推箱子规则。它只还原推箱子玩法层：不包含视觉小说叙事、原始美术或音频资源，也不宣称与原作存在官方关联。
 
-![Oshi-Sokoban-Lab 社交预览图：暗场网格推箱子棋盘，包含方块与成对 Gate](docs/social-preview.png)
+![Oshi-Sokoban-Lab 社交预览图：暗场网格推箱子棋盘，包含方块与成对 Gate](docs/social-preview-v2.png)
 
 ## 本地试玩
 

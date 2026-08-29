@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title description">
+  <title id="title">Oshi-Sokoban-Lab — Push Studies</title>
+  <desc id="description">A source-faithful dark Oshi-Sokoban-Lab cover. The board uses filled player and block cells, corner Goals, a continuous Wall divider, and cyan-orange Gates with the same outer-ring, gap, and energy-core topology as the web game.</desc>
+  <defs>
+    <radialGradient id="field" cx="64%" cy="44%" r="78%">
+      <stop offset="0" stop-color="#282a29"/>
+      <stop offset="0.47" stop-color="#151716"/>
+      <stop offset="1" stop-color="#0b0d0d"/>
+    </radialGradient>
+    <radialGradient id="blue-core" cx="22%" cy="23%" r="82%">
+      <stop offset="0" stop-color="#f3ffff"/>
+      <stop offset="0.17" stop-color="#73ecff"/>
+      <stop offset="0.56" stop-color="#3cbfdb"/>
+      <stop offset="1" stop-color="#176a7b"/>
+    </radialGradient>
+    <radialGradient id="orange-core" cx="22%" cy="23%" r="82%">
+      <stop offset="0" stop-color="#fff4cf"/>
+      <stop offset="0.17" stop-color="#ffbe63"/>
+      <stop offset="0.56" stop-color="#ff6a1a"/>
+      <stop offset="1" stop-color="#9d3812"/>
+    </radialGradient>
+    <filter id="yellow-glow" x="-24%" y="-24%" width="148%" height="148%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="blue-glow" x="-44%" y="-44%" width="188%" height="188%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="orange-glow" x="-44%" y="-44%" width="188%" height="188%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="portal-core-clip"><rect x="3" y="3" width="10" height="10"/></clipPath>
+    <style>
+      .font { font-family: Arial, Helvetica, sans-serif; }
+      .masthead { fill: #ecece6; font-size: 25px; font-weight: 800; letter-spacing: 3px; }
+      .eyebrow { fill: #b6bab4; font-size: 14px; font-weight: 800; letter-spacing: 3.2px; }
+      .title { fill: #f4f4ee; font-size: 66px; font-weight: 800; letter-spacing: -1px; }
+      .copy { fill: #b4b8b1; font-size: 22px; font-weight: 400; }
+      .metric { fill: #fcff00; font-size: 18px; font-weight: 800; letter-spacing: 2px; }
+      .board-title { fill: #ecece6; font-size: 29px; font-weight: 800; letter-spacing: 0.3px; }
+      .board-outline { stroke: #e9e9e3; stroke-width: 2; fill: none; }
+      .goal-corners { fill: none; stroke: #f1f1eb; stroke-width: 2; stroke-linecap: square; stroke-linejoin: miter; }
+    </style>
+  </defs>
+
+  <rect width="1280" height="640" fill="#0b0d0d"/>
+  <rect width="1280" height="640" fill="url(#field)"/>
+
+  <text class="font masthead" x="72" y="70">OSHI / PUSH STUDIES</text>
+  <text class="font eyebrow" x="505" y="70">WEB MECHANICS DEMO · NO VN</text>
+  <text class="font eyebrow" x="1008" y="70">Oshi-Sokoban-Lab</text>
+  <path d="M72 94H1208" stroke="#353936" stroke-width="2"/>
+
+  <text class="font eyebrow" x="72" y="164">A PLAYABLE WEB LAB</text>
+  <text class="font title" x="72" y="244">PUSH</text>
+  <text class="font title" x="72" y="310">MECHANICS</text>
+  <text class="font copy" x="72" y="372">Study movement, occupancy,</text>
+  <text class="font copy" x="72" y="403">reset, Goal, and Gate rules</text>
+  <text class="font copy" x="72" y="434">through compact puzzles.</text>
+  <text class="font metric" x="72" y="506">12 PLAYABLE LESSONS</text>
+  <text class="font eyebrow" x="72" y="546">RULES ENGINE · LEVEL SOLVER · TDD</text>
+
+  <text class="font eyebrow" x="560" y="135">CURRENT LESSON</text>
+  <text class="font board-title" x="560" y="166">GATE REMOTE CONDITION</text>
+
+  <!-- Runtime board topology: 7 × 4 logical cells, no empty-cell grid lines. -->
+  <rect x="560" y="188" width="616" height="352" fill="#282a29"/>
+  <rect class="board-outline" x="560" y="188" width="616" height="352"/>
+
+  <!-- A contiguous four-cell Wall column, matching the level's continuous divider. -->
+  <rect x="824" y="188" width="88" height="352" fill="#343735"/>
+  <path d="M824 188H912M824 540H912M824 188V540M912 188V540" stroke="#e9e9e3" stroke-width="2"/>
+
+  <!-- Player and Blocks use the cell-filling GameGlyph treatment. -->
+  <rect x="560" y="276" width="88" height="88" fill="#fcff00" filter="url(#yellow-glow)"/>
+  <rect x="648" y="364" width="88" height="88" fill="#f4f4ee"/>
+  <rect x="1000" y="364" width="88" height="88" fill="#f4f4ee"/>
+
+  <!-- Gate blue: Spr_Gate_001 outer ring, transparent gap, and shader-like energy core. -->
+  <g transform="translate(648 276) scale(5.5)" filter="url(#blue-glow)" aria-label="Blue Gate">
+    <path d="M1 1h14v14H1z M2 2h12v12H2z M3 3h10v10H3z" fill="#3cbfdb" fill-rule="evenodd"/>
+    <g clip-path="url(#portal-core-clip)">
+      <rect x="3" y="3" width="10" height="10" fill="url(#blue-core)"/>
+      <ellipse cx="5.2" cy="5.3" rx="2.7" ry="2.3" fill="#ffffff" opacity="0.78"/>
+      <ellipse cx="10.4" cy="5.7" rx="2.4" ry="2.1" fill="#071417" opacity="0.42"/>
+      <ellipse cx="7.1" cy="10.7" rx="3.1" ry="2.25" fill="#ddffff" opacity="0.46"/>
+      <ellipse cx="11.2" cy="11" rx="2.15" ry="3" fill="#041114" opacity="0.46"/>
+      <path d="M3 8.5C5.4 5.8 9.3 4.5 13 6.1V8.4C9.8 7.1 6.9 8.2 3 11.2Z" fill="#ffffff" opacity="0.22"/>
+      <path d="M4 12.2C5.8 8.6 9.2 7.7 12.8 9.2V12.5C9.1 10.6 6.6 11.7 4 13Z" fill="#001519" opacity="0.28"/>
+    </g>
+    <rect x="1" y="1" width="14" height="14" fill="none" stroke="#ffffff" stroke-opacity="0.2" stroke-width="1"/>
+  </g>
+
+  <!-- Gate orange: same topology, with only the project color token changed. -->
+  <g transform="translate(912 276) scale(5.5)" filter="url(#orange-glow)" aria-label="Orange Gate">
+    <path d="M1 1h14v14H1z M2 2h12v12H2z M3 3h10v10H3z" fill="#ff6a1a" fill-rule="evenodd"/>
+    <g clip-path="url(#portal-core-clip)">
+      <rect x="3" y="3" width="10" height="10" fill="url(#orange-core)"/>
+      <ellipse cx="5.2" cy="5.3" rx="2.7" ry="2.3" fill="#ffffff" opacity="0.78"/>
+      <ellipse cx="10.4" cy="5.7" rx="2.4" ry="2.1" fill="#201007" opacity="0.42"/>
+      <ellipse cx="7.1" cy="10.7" rx="3.1" ry="2.25" fill="#fff4d3" opacity="0.46"/>
+      <ellipse cx="11.2" cy="11" rx="2.15" ry="3" fill="#210c04" opacity="0.46"/>
+      <path d="M3 8.5C5.4 5.8 9.3 4.5 13 6.1V8.4C9.8 7.1 6.9 8.2 3 11.2Z" fill="#ffffff" opacity="0.22"/>
+      <path d="M4 12.2C5.8 8.6 9.2 7.7 12.8 9.2V12.5C9.1 10.6 6.6 11.7 4 13Z" fill="#240a03" opacity="0.28"/>
+    </g>
+    <rect x="1" y="1" width="14" height="14" fill="none" stroke="#ffffff" stroke-opacity="0.2" stroke-width="1"/>
+  </g>
+
+  <!-- GoalCorners is the same four-corner path used by src/components/GameGlyph.tsx. -->
+  <g transform="translate(1010 286) scale(2.1)" aria-label="Terrain Goal">
+    <path class="goal-corners" d="M2 12V2h10M20 2h10v10M30 20v10H20M12 30H2V20"/>
+  </g>
+  <g transform="translate(746 374) scale(2.1)" aria-label="Terrain Goal">
+    <path class="goal-corners" d="M2 12V2h10M20 2h10v10M30 20v10H20M12 30H2V20"/>
+  </g>
+
+  <text class="font eyebrow" x="560" y="582">FULL-CELL OBJECTS · CORNER GOALS · PAIRED ENERGY GATES</text>
+</svg>

@@ -2,7 +2,8 @@ import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { createGame, move } from '../engine/game-engine';
-import type { LevelDefinition } from '../engine/types';
+import type { DomainEvent, LevelDefinition } from '../engine/types';
+import { spikeResetLevels } from '../levels/families/spike-reset-levels';
 import { Board } from './Board';
 
 const oneCell = [{ x: 0, y: 0 }] as const;
@@ -74,6 +75,35 @@ const gateLevel: LevelDefinition = {
     { id: 'exit-gate', position: { x: 3, y: 0 }, shape: oneCell, nextGateId: 'entry-gate' },
   ],
 };
+
+const sharedResetPresentationLevel: LevelDefinition = {
+  ...baseLevel,
+  id: 'board-shared-reset-presentation',
+  width: 7,
+  terrainGoals: [],
+  terrainSpikes: [{ x: 4, y: 0 }, { x: 5, y: 0 }, { x: 6, y: 0 }],
+  blocks: [{ id: 'reset-fake', position: { x: 0, y: 0 }, shape: oneCell, number: 0, isFake: true }],
+  goals: [{ id: 'reset-goal', position: { x: 1, y: 0 }, shape: oneCell, number: 0, movable: true }],
+  gates: [
+    { id: 'reset-gate', position: { x: 2, y: 0 }, shape: oneCell, nextGateId: 'other-gate' },
+    { id: 'other-gate', position: { x: 3, y: 0 }, shape: oneCell, nextGateId: 'reset-gate' },
+  ],
+};
+
+const sharedResetEvents: readonly DomainEvent[] = [
+  {
+    type: 'object-reset', entityType: 'block', entityId: 'reset-fake', reason: 'spike',
+    from: { x: 4, y: 0 }, to: { x: 0, y: 0 }, contactCells: [{ x: 4, y: 0 }],
+  },
+  {
+    type: 'object-reset', entityType: 'goal', entityId: 'reset-goal', reason: 'spike',
+    from: { x: 5, y: 0 }, to: { x: 1, y: 0 }, contactCells: [{ x: 5, y: 0 }],
+  },
+  {
+    type: 'object-reset', entityType: 'gate', entityId: 'reset-gate', reason: 'spike',
+    from: { x: 6, y: 0 }, to: { x: 2, y: 0 }, contactCells: [{ x: 6, y: 0 }],
+  },
+];
 
 function gameFor(level: LevelDefinition) {
   return createGame(level);
@@ -215,6 +245,47 @@ describe('Board glyph system', () => {
     expect(exit?.getAttribute('data-motion-from')).toBe('3:0');
     expect(exit?.getAttribute('data-motion-to')).toBe('4:0');
     expect(exit?.getAttribute('data-motion-from')).not.toBe('0:1');
+  });
+
+  it('stages a Spike reset as ingress, impact, and respawn without flying back to origin', () => {
+    const afterFirstPush = move(gameFor(spikeResetLevels[0]!), 'right').state;
+    const result = move(afterFirstPush, 'right');
+    const { container, rerender } = render(<Board state={afterFirstPush} />);
+
+    expect(container.querySelector('[data-origin-for="spike-guide-block"]')?.getAttribute('data-grid-cell')).toBe('2:0');
+
+    rerender(<Board state={result.state} turnEvents={result.events} />);
+
+    const ingress = container.querySelector('[data-reset-phase="ingress"]');
+    const impact = container.querySelector('[data-reset-phase="impact"]');
+    const respawn = container.querySelector('[data-reset-phase="respawn"]');
+    expect(ingress?.getAttribute('data-entity-id')).toBe('spike-guide-block');
+    expect(ingress?.getAttribute('data-motion-from')).toBe('3:0');
+    expect(ingress?.getAttribute('data-motion-to')).toBe('4:0');
+    expect(ingress?.getAttribute('data-reset-window')).toBe('0-180ms');
+    expect(impact?.getAttribute('data-grid-cell')).toBe('4:0');
+    expect(impact?.getAttribute('data-reset-window')).toBe('180-300ms');
+    expect(respawn?.getAttribute('data-grid-cell')).toBe('2:0');
+    expect(respawn?.getAttribute('data-reset-window')).toBe('300-620ms');
+    expect(container.querySelectorAll('[data-reset-particle-for="spike-guide-block"]')).toHaveLength(12);
+    expect(container.querySelector('[data-motion-from="4:0"][data-motion-to="2:0"]')).toBeNull();
+
+    rerender(<Board state={result.state} turnEvents={[]} />);
+    expect(container.querySelector('[data-entity-id="spike-guide-block"]')?.getAttribute('data-motion')).toBeNull();
+  });
+
+  it('uses the same reset presentation for Fake Blocks, movable Goals, and Gates', () => {
+    const { container } = render(
+      <Board state={gameFor(sharedResetPresentationLevel)} turnEvents={sharedResetEvents} />,
+    );
+
+    for (const entityId of ['reset-fake', 'reset-goal', 'reset-gate']) {
+      expect(container.querySelector(`[data-origin-for="${entityId}"]`)).toBeTruthy();
+      expect(container.querySelector(`[data-entity-id="${entityId}"][data-reset-phase="ingress"]`)).toBeTruthy();
+      expect(container.querySelector(`[data-entity-id="${entityId}"][data-reset-phase="impact"]`)).toBeTruthy();
+      expect(container.querySelector(`[data-entity-id="${entityId}"][data-reset-phase="respawn"]`)).toBeTruthy();
+      expect(container.querySelectorAll(`[data-reset-particle-for="${entityId}"]`)).toHaveLength(12);
+    }
   });
 
   it('does not make the whole board focusable when global keyboard controls are active', () => {

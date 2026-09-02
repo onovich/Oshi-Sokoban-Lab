@@ -2,7 +2,9 @@ import type {
   BlockDefinition,
   Cell,
   Direction,
+  DomainEvent,
   GateDefinition,
+  GateTraversal,
   GameSnapshot,
   GameState,
   GoalDefinition,
@@ -201,18 +203,27 @@ function isSpikeAt(state: GameState, cell: Cell): boolean {
   return isTerrainSpike(state.level, cell) || state.spikes.some((spike) => occupies(spike, cell));
 }
 
+function spikeContactCells(
+  state: GameState,
+  entity: ShapedEntityDefinition,
+): readonly Cell[] {
+  return entityCells(entity).filter((cell) => isSpikeAt(state, cell)).map(copyCell);
+}
+
 type ResetResolution = Readonly<{
   state: GameState;
+  events: readonly DomainEvent[];
   conflict?: string;
 }>;
 
 function resetHazardObjects(state: GameState): ResetResolution {
   let next = state;
+  const events: DomainEvent[] = [];
 
   for (const block of next.blocks) {
     if (!entityCells(block).some((cell) => isSpikeAt(next, cell))) continue;
     if (!canPlaceBlock(next, block, block.origin)) {
-      return { state, conflict: `Reset conflict: block "${block.id}" cannot return to its origin.` };
+      return { state, events: [], conflict: `Reset conflict: block "${block.id}" cannot return to its origin.` };
     }
     next = {
       ...next,
@@ -220,12 +231,17 @@ function resetHazardObjects(state: GameState): ResetResolution {
         candidate.id === block.id ? { ...candidate, position: copyCell(candidate.origin) } : candidate,
       ),
     };
+    events.push({
+      type: 'object-reset', entityType: 'block', entityId: block.id, reason: 'spike',
+      from: copyCell(block.position), to: copyCell(block.origin),
+      contactCells: spikeContactCells(state, block),
+    });
   }
 
   for (const gate of next.gates) {
     if (!entityCells(gate).some((cell) => isSpikeAt(next, cell))) continue;
     if (!canPlaceGate(next, gate, gate.origin)) {
-      return { state, conflict: `Reset conflict: gate "${gate.id}" cannot return to its origin.` };
+      return { state, events: [], conflict: `Reset conflict: gate "${gate.id}" cannot return to its origin.` };
     }
     next = {
       ...next,
@@ -233,12 +249,17 @@ function resetHazardObjects(state: GameState): ResetResolution {
         candidate.id === gate.id ? { ...candidate, position: copyCell(candidate.origin) } : candidate,
       ),
     };
+    events.push({
+      type: 'object-reset', entityType: 'gate', entityId: gate.id, reason: 'spike',
+      from: copyCell(gate.position), to: copyCell(gate.origin),
+      contactCells: spikeContactCells(state, gate),
+    });
   }
 
   for (const goal of next.goals) {
     if (!entityCells(goal).some((cell) => isSpikeAt(next, cell))) continue;
     if (!canResetGoal(next, goal)) {
-      return { state, conflict: `Reset conflict: goal "${goal.id}" cannot return to its origin.` };
+      return { state, events: [], conflict: `Reset conflict: goal "${goal.id}" cannot return to its origin.` };
     }
     next = {
       ...next,
@@ -246,9 +267,14 @@ function resetHazardObjects(state: GameState): ResetResolution {
         candidate.id === goal.id ? { ...candidate, position: copyCell(candidate.origin) } : candidate,
       ),
     };
+    events.push({
+      type: 'object-reset', entityType: 'goal', entityId: goal.id, reason: 'spike',
+      from: copyCell(goal.position), to: copyCell(goal.origin),
+      contactCells: spikeContactCells(state, goal),
+    });
   }
 
-  return { state: next };
+  return { state: next, events };
 }
 
 function nextPathState(path: PathState, definition: PathDefinition): PathState {
@@ -342,7 +368,7 @@ function advancePaths(state: GameState): GameState {
 
 function resolveTurn(state: GameState, playerTouchedSpike: boolean): ResetResolution {
   if (playerTouchedSpike) {
-    return { state: resetAfterSpikeDeath(state) };
+    return { state: resetAfterSpikeDeath(state), events: [{ type: 'death-reset', reason: 'spike' }] };
   }
   const resetResolution = resetHazardObjects(state);
   if (resetResolution.conflict) {
@@ -350,15 +376,15 @@ function resolveTurn(state: GameState, playerTouchedSpike: boolean): ResetResolu
   }
   const afterPaths = advancePaths(resetResolution.state);
   if (isSpikeAt(afterPaths, afterPaths.player)) {
-    return { state: resetAfterSpikeDeath(afterPaths) };
+    return { state: resetAfterSpikeDeath(afterPaths), events: [{ type: 'death-reset', reason: 'spike' }] };
   }
   if (afterPaths.level.stepLimit !== undefined && afterPaths.moves >= afterPaths.level.stepLimit) {
-    return { state: { ...afterPaths, status: 'lost' } };
+    return { state: { ...afterPaths, status: 'lost' }, events: resetResolution.events };
   }
   if (allRealBlocksInGoals(afterPaths)) {
-    return { state: { ...afterPaths, status: 'won' } };
+    return { state: { ...afterPaths, status: 'won' }, events: resetResolution.events };
   }
-  return { state: { ...afterPaths, status: 'playing' } };
+  return { state: { ...afterPaths, status: 'playing' }, events: resetResolution.events };
 }
 
 export function createGame(level: LevelDefinition): GameState {
@@ -399,13 +425,13 @@ function resetAfterSpikeDeath(state: GameState): GameState {
 
 export function move(state: GameState, direction: Direction): MoveResult {
   if (state.status !== 'playing') {
-    return { state, didMove: false };
+    return { state, didMove: false, events: [] };
   }
 
   const offset = directionOffsets[direction];
   const adjacent = { x: state.player.x + offset.x, y: state.player.y + offset.y };
   if (!isInBounds(state.level, adjacent) || isWall(state.level, adjacent)) {
-    return { state, didMove: false };
+    return { state, didMove: false, events: [] };
   }
 
   const block = state.blocks.find((candidate) => occupies(candidate, adjacent));
@@ -436,15 +462,24 @@ export function move(state: GameState, direction: Direction): MoveResult {
   let gates = state.gates;
   let gateEntry: Cell | undefined;
   let gateExit: Cell | undefined;
+  let gateEntryId: string | undefined;
+  let gateExitId: string | undefined;
+  const events: DomainEvent[] = [];
 
   if (block) {
     const nextPosition = { x: block.position.x + offset.x, y: block.position.y + offset.y };
     if (!canPlaceBlock(state, block, nextPosition)) {
-      return { state, didMove: false };
+      return { state, didMove: false, events: [] };
     }
     blocks = state.blocks.map((candidate) =>
       candidate.id === block.id ? { ...candidate, position: nextPosition } : candidate,
     );
+    events.push({
+      type: 'block-pushed',
+      entityId: block.id,
+      from: copyCell(block.position),
+      to: copyCell(nextPosition),
+    });
   } else {
     const goal = goalAtAdjacent;
     if (goal?.movable) {
@@ -453,6 +488,18 @@ export function move(state: GameState, direction: Direction): MoveResult {
         goals = state.goals.map((candidate) =>
           candidate.id === goal.id ? { ...candidate, position: nextPosition } : candidate,
         );
+        events.push({
+          type: 'goal-pushed',
+          entityId: goal.id,
+          from: copyCell(goal.position),
+          to: copyCell(nextPosition),
+        });
+      } else {
+        events.push({
+          type: 'goal-crossed',
+          entityId: goal.id,
+          at: copyCell(adjacent),
+        });
       }
     } else {
       const gate = state.gates.find((candidate) => occupies(candidate, target));
@@ -462,23 +509,44 @@ export function move(state: GameState, direction: Direction): MoveResult {
           if (exit) {
             gateEntry = target;
             gateExit = exit.position;
+            gateEntryId = gate.id;
+            gateExitId = exit.id;
             target = { x: exit.position.x + offset.x, y: exit.position.y + offset.y };
           }
         } else if (cellsEqual(target, adjacent)) {
           const nextPosition = { x: gate.position.x + offset.x, y: gate.position.y + offset.y };
           if (!canPlaceGate(state, gate, nextPosition)) {
-            return { state, didMove: false };
+            return { state, didMove: false, events: [] };
           }
           gates = state.gates.map((candidate) =>
             candidate.id === gate.id ? { ...candidate, position: nextPosition } : candidate,
           );
+          events.push({
+            type: 'gate-pushed',
+            entityId: gate.id,
+            from: copyCell(gate.position),
+            to: copyCell(nextPosition),
+          });
         }
       }
     }
   }
 
   if (cellsEqual(target, state.player) && !gateEntry) {
-    return { state, didMove: false };
+    return { state, didMove: false, events: [] };
+  }
+
+  if (
+    state.level.weather === 'rain'
+    && !hasAdjacentAction
+    && !cellsEqual(target, adjacent)
+  ) {
+    events.push({
+      type: 'rain-slid',
+      direction,
+      from: copyCell(state.player),
+      to: copyCell(target),
+    });
   }
 
   const working: GameState = {
@@ -499,20 +567,31 @@ export function move(state: GameState, direction: Direction): MoveResult {
   const playerTouchedSpike = traversedCells.some((cell) => isSpikeAt(state, cell));
   const resolution = resolveTurn(working, playerTouchedSpike);
   if (resolution.conflict) {
-    return { state, didMove: false, event: resolution.conflict };
+    return { state, didMove: false, events: [], event: resolution.conflict };
+  }
+  events.push(...resolution.events);
+  const gateTraversal: GateTraversal | undefined = gateEntry && gateExit
+    ? {
+        direction,
+        from: copyCell(state.player),
+        entry: copyCell(gateEntry),
+        exit: copyCell(gateExit),
+        to: copyCell(target),
+      }
+    : undefined;
+  if (gateTraversal && gateEntryId && gateExitId) {
+    events.push({
+      type: 'gate-traversed',
+      entryGateId: gateEntryId,
+      exitGateId: gateExitId,
+      ...gateTraversal,
+    });
   }
   return {
     state: resolution.state,
     didMove: true,
-    gateTraversal: gateEntry && gateExit
-      ? {
-          direction,
-          from: copyCell(state.player),
-          entry: copyCell(gateEntry),
-          exit: copyCell(gateExit),
-          to: copyCell(target),
-        }
-      : undefined,
+    events,
+    gateTraversal,
   };
 }
 

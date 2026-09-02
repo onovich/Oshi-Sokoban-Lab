@@ -1,184 +1,133 @@
 import { describe, expect, it } from 'vitest';
 
 import { createGame, move } from '../engine/game-engine';
-import type { Direction, LevelDefinition } from '../engine/types';
-import { demoLevels } from './demo-levels';
+import type { DomainEvent, LevelSpec } from '../engine/types';
+import { courseGroups, courseLevels } from './course-catalog';
+import { analyzeLevel } from './level-analyzer';
 
-type PlannedLesson = Readonly<{
-  id: string;
-  phase: 'guide' | 'verify' | 'challenge';
-  walkthrough: readonly Direction[];
-}>;
-
-function lessonById(id: string): LevelDefinition | undefined {
-  return demoLevels.find((lesson) => lesson.id === id);
+function lesson(id: string): LevelSpec {
+  const result = courseLevels.find((candidate) => candidate.id === id);
+  if (!result) throw new Error(`Missing course lesson ${id}.`);
+  return result;
 }
 
-function expectWalkthroughToWin(level: LevelDefinition, walkthrough: readonly Direction[]): void {
-  let state = createGame(level);
-
-  for (const direction of walkthrough) {
+function replayEvents(spec: LevelSpec): readonly DomainEvent[] {
+  const solution = analyzeLevel(spec).solution;
+  if (!solution) throw new Error(`${spec.id} has no solution.`);
+  let state = createGame(spec.board);
+  const events: DomainEvent[] = [];
+  for (const direction of solution) {
     const result = move(state, direction);
-    expect(result.didMove, `${level.id}: ${direction} should be an effective action`).toBe(true);
+    events.push(...result.events);
     state = result.state;
   }
-
-  expect(state.status, `${level.id} walkthrough should end in victory`).toBe('won');
+  expect(state.status).toBe('won');
+  return events;
 }
 
-describe('single-mechanic curriculum: whole-occupancy checks', () => {
-  const lessons: readonly PlannedLesson[] = [
-    { id: 'occupancy-guide-01', phase: 'guide', walkthrough: ['right', 'right'] },
-    { id: 'occupancy-verify-02', phase: 'verify', walkthrough: ['down', 'down', 'right', 'up', 'left', 'up', 'up', 'right'] },
-    { id: 'occupancy-challenge-03', phase: 'challenge', walkthrough: ['right', 'up', 'right', 'down', 'left', 'down', 'right'] },
-  ];
-
-  it('ships an ordered guide, verification, and challenge trio under one named technique', () => {
-    for (const planned of lessons) {
-      const lesson = lessonById(planned.id);
-
-      expect(lesson, `${planned.id} should exist`).toBeDefined();
-      expect(lesson?.curriculum).toMatchObject({
-        familyId: 'occupancy',
-        techniqueId: 'occupancy-clearance',
-        phase: planned.phase,
-      });
-      expect(lesson?.mechanics).toContain('整块占格');
+describe('evidence-led curriculum behavior', () => {
+  it('keeps each technique group ordered as establish, boundary, inference', () => {
+    for (const group of courseGroups) {
+      expect(courseLevels.filter((level) => level.groupId === group.id).map((level) => level.role))
+        .toEqual(['establish', 'boundary', 'inference']);
     }
   });
 
-  it('keeps every whole-occupancy lesson playable through its intended route', () => {
-    for (const planned of lessons) {
-      const lesson = lessonById(planned.id);
-      expect(lesson, `${planned.id} should exist`).toBeDefined();
-      if (lesson) expectWalkthroughToWin(lesson, planned.walkthrough);
-    }
-  });
-});
-
-describe('single-mechanic curriculum: Spike reset positioning', () => {
-  const lessons: readonly PlannedLesson[] = [
-    { id: 'spike-guide-04', phase: 'guide', walkthrough: ['right', 'right', 'left', 'left'] },
-    { id: 'spike-verify-05', phase: 'verify', walkthrough: ['left', 'left', 'right', 'right'] },
-    { id: 'spike-challenge-06', phase: 'challenge', walkthrough: ['right', 'right', 'right', 'left', 'left', 'left'] },
-  ];
-
-  it('ships an ordered guide, verification, and challenge trio under one reset technique', () => {
-    for (const planned of lessons) {
-      const lesson = lessonById(planned.id);
-
-      expect(lesson, `${planned.id} should exist`).toBeDefined();
-      expect(lesson?.curriculum).toMatchObject({
-        familyId: 'spike-reset',
-        techniqueId: 'spike-reset-positioning',
-        phase: planned.phase,
-      });
-      expect(lesson?.mechanics).toContain('Spike 回位');
-    }
+  it('uses object reset rather than destruction in the Spike origin lesson', () => {
+    expect(replayEvents(lesson('lesson-19')).some((event) =>
+      event.type === 'object-reset' && event.entityType === 'block',
+    )).toBe(true);
   });
 
-  it('returns the Block to its origin while leaving the player beyond it in the guide lesson', () => {
-    const lesson = lessonById('spike-guide-04');
-    expect(lesson).toBeDefined();
-    if (!lesson) return;
+  it('forces the three respawn-framing lessons through their intended compact routes', () => {
+    expect(analyzeLevel(lesson('lesson-19')).solution).toEqual(['right', 'right', 'up']);
+    expect(analyzeLevel(lesson('lesson-20')).solution).toEqual(['right', 'right', 'up']);
+    expect(analyzeLevel(lesson('lesson-21')).solution).toEqual(['up', 'down', 'right', 'right', 'up']);
 
-    const afterReset = move(move(createGame(lesson), 'right').state, 'right').state;
-    expect(afterReset.player).toEqual({ x: 3, y: 0 });
-    expect(afterReset.blocks[0]?.position).toEqual({ x: 2, y: 0 });
-    expect(afterReset.status).toBe('playing');
+    const significant = (id: string) => replayEvents(lesson(id)).filter(
+      (event) => event.type === 'block-pushed' || event.type === 'object-reset',
+    ).map((event) => `${event.type}:${event.entityId}`);
+
+    expect(significant('lesson-19')).toEqual([
+      'block-pushed:lesson-19-fake',
+      'block-pushed:lesson-19-fake',
+      'object-reset:lesson-19-fake',
+      'block-pushed:lesson-19-block',
+    ]);
+    expect(significant('lesson-20')).toEqual([
+      'block-pushed:lesson-20-block-a',
+      'block-pushed:lesson-20-block-a',
+      'object-reset:lesson-20-block-a',
+      'block-pushed:lesson-20-block-b',
+    ]);
+    expect(significant('lesson-21')).toEqual([
+      'block-pushed:lesson-21-block-a',
+      'block-pushed:lesson-21-fake',
+      'block-pushed:lesson-21-fake',
+      'object-reset:lesson-21-fake',
+      'block-pushed:lesson-21-block-b',
+    ]);
   });
 
-  it('keeps every Spike-reset lesson playable through its intended route', () => {
-    for (const planned of lessons) {
-      const lesson = lessonById(planned.id);
-      expect(lesson, `${planned.id} should exist`).toBeDefined();
-      if (lesson) expectWalkthroughToWin(lesson, planned.walkthrough);
-    }
-  });
-});
+  it('rejects a Spike reset when the player would occupy the Block origin', () => {
+    const spec = lesson('lesson-23');
+    const result = move(createGame(spec.board), 'up');
 
-describe('single-mechanic curriculum: movable Goal mode switching', () => {
-  const lessons: readonly PlannedLesson[] = [
-    { id: 'movable-goal-guide-07', phase: 'guide', walkthrough: ['right', 'up', 'right'] },
-    { id: 'movable-goal-verify-08', phase: 'verify', walkthrough: ['right', 'right'] },
-    { id: 'movable-goal-challenge-09', phase: 'challenge', walkthrough: ['right', 'right', 'up', 'right', 'down'] },
-  ];
-
-  it('ships an ordered guide, verification, and challenge trio under one Goal-state technique', () => {
-    for (const planned of lessons) {
-      const lesson = lessonById(planned.id);
-
-      expect(lesson, `${planned.id} should exist`).toBeDefined();
-      expect(lesson?.curriculum).toMatchObject({
-        familyId: 'movable-goal',
-        techniqueId: 'goal-mode-switch',
-        phase: planned.phase,
-      });
-      expect(lesson?.mechanics).toContain('可推动 Goal');
-    }
+    expect(result.didMove).toBe(false);
+    expect(result.events).toEqual([]);
+    expect(result.event).toContain('Reset conflict');
   });
 
-  it('lets the player cross a movable Goal when the Block beyond it prevents another push', () => {
-    const lesson = lessonById('movable-goal-verify-08');
-    expect(lesson).toBeDefined();
-    if (!lesson) return;
-
-    const afterCrossing = move(createGame(lesson), 'right').state;
-    expect(afterCrossing.player).toEqual({ x: 1, y: 0 });
-    expect(afterCrossing.goals[0]?.position).toEqual({ x: 1, y: 0 });
-    expect(afterCrossing.blocks[0]?.position).toEqual({ x: 2, y: 0 });
+  it('crosses a blocked movable Goal through its explicit mode event', () => {
+    expect(replayEvents(lesson('lesson-31')).some((event) => event.type === 'goal-crossed')).toBe(true);
   });
 
-  it('keeps every movable-Goal lesson playable through its intended route', () => {
-    for (const planned of lessons) {
-      const lesson = lessonById(planned.id);
-      expect(lesson, `${planned.id} should exist`).toBeDefined();
-      if (lesson) expectWalkthroughToWin(lesson, planned.walkthrough);
-    }
-  });
-});
-
-describe('single-mechanic curriculum: Gate remote pushability', () => {
-  const lessons: readonly PlannedLesson[] = [
-    { id: 'gate-guide-10', phase: 'guide', walkthrough: ['right', 'down', 'left'] },
-    { id: 'gate-verify-11', phase: 'verify', walkthrough: ['right', 'down', 'right'] },
-    {
-      id: 'gate-challenge-12',
-      phase: 'challenge',
-      walkthrough: ['right', 'right', 'down', 'down', 'left', 'up', 'left', 'up', 'left', 'down', 'right', 'left', 'down', 'right'],
-    },
-  ];
-
-  it('ships an ordered guide, verification, and challenge trio under one Gate condition technique', () => {
-    for (const planned of lessons) {
-      const lesson = lessonById(planned.id);
-
-      expect(lesson, `${planned.id} should exist`).toBeDefined();
-      expect(lesson?.curriculum).toMatchObject({
-        familyId: 'gate',
-        techniqueId: 'gate-remote-pushability',
-        phase: planned.phase,
-      });
-      expect(lesson?.mechanics).toContain('Gate 远端条件');
-    }
+  it('turns a blocked remote Gate exit into a Gate push', () => {
+    expect(replayEvents(lesson('lesson-44')).some((event) => event.type === 'gate-pushed')).toBe(true);
   });
 
-  it('turns a blocked Gate exit into a pushable entrance in the verification lesson', () => {
-    const lesson = lessonById('gate-verify-11');
-    expect(lesson).toBeDefined();
-    if (!lesson) return;
+  it('clears a remote Gate obstruction before returning through the pair', () => {
+    const events = replayEvents(lesson('lesson-45'));
+    const types = events.map((event) => event.type);
 
-    const afterPush = move(createGame(lesson), 'right').state;
-    expect(afterPush.player).toEqual({ x: 1, y: 1 });
-    expect(afterPush.gates.find((gate) => gate.id === 'gate-verify-entry')?.position).toEqual({ x: 2, y: 1 });
-    expect(afterPush.status).toBe('playing');
+    expect(types).toEqual([
+      'gate-pushed',
+      'gate-traversed',
+      'block-pushed',
+      'block-pushed',
+      'gate-traversed',
+      'block-pushed',
+    ]);
   });
 
-  it('keeps every Gate-condition lesson playable through its intended route', () => {
-    for (const planned of lessons) {
-      const lesson = lessonById(planned.id);
-      expect(lesson, `${planned.id} should exist`).toBeDefined();
-      if (lesson) expectWalkthroughToWin(lesson, planned.walkthrough);
-    }
+  it('uses both directions of a Gate pair after moving one endpoint', () => {
+    const traversals = replayEvents(lesson('lesson-48')).filter(
+      (event): event is Extract<DomainEvent, { type: 'gate-traversed' }> => event.type === 'gate-traversed',
+    );
+
+    expect(traversals.map((event) => event.entryGateId)).toEqual([
+      'lesson-48-gate-a',
+      'lesson-48-gate-b',
+    ]);
+  });
+
+  it('carries a Rain trajectory through a Gate', () => {
+    const events = replayEvents(lesson('lesson-55'));
+    expect(events.some((event) => event.type === 'rain-slid')).toBe(true);
+    expect(events.some((event) => event.type === 'gate-traversed')).toBe(true);
+  });
+
+  it('resets and uses the first Gate before resetting the paired endpoint', () => {
+    const significant = replayEvents(lesson('lesson-63')).filter((event) =>
+      event.type === 'object-reset' || event.type === 'gate-traversed',
+    );
+
+    expect(significant.map((event) =>
+      event.type === 'object-reset' ? `reset:${event.entityId}` : `enter:${event.entryGateId}`,
+    )).toEqual([
+      'reset:lesson-63-gate-a',
+      'enter:lesson-63-gate-a',
+      'reset:lesson-63-gate-b',
+    ]);
   });
 });

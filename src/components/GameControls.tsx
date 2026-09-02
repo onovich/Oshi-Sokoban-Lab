@@ -7,9 +7,18 @@ type GameControlsProps = Readonly<{
   onRestart: () => void;
   onUndo: () => void;
   nextLessonTitle?: string;
+  movementDisabled?: boolean;
 }>;
 
-export function GameControls({ state, onMove, onNext, onRestart, onUndo, nextLessonTitle }: GameControlsProps) {
+export function GameControls({
+  movementDisabled = false,
+  state,
+  onMove,
+  onNext,
+  onRestart,
+  onUndo,
+  nextLessonTitle,
+}: GameControlsProps) {
   return (
     <section aria-label="Puzzle controls" className="controls">
       <div className="controls__actions">
@@ -26,16 +35,16 @@ export function GameControls({ state, onMove, onNext, onRestart, onUndo, nextLes
         ) : null}
       </div>
       <div aria-label="Move controls" className="controls__pad">
-        <button aria-label="Move up" onClick={() => onMove('up')} type="button">
+        <button aria-label="Move up" disabled={movementDisabled} onClick={() => onMove('up')} type="button">
           ↑
         </button>
-        <button aria-label="Move left" onClick={() => onMove('left')} type="button">
+        <button aria-label="Move left" disabled={movementDisabled} onClick={() => onMove('left')} type="button">
           ←
         </button>
-        <button aria-label="Move down" onClick={() => onMove('down')} type="button">
+        <button aria-label="Move down" disabled={movementDisabled} onClick={() => onMove('down')} type="button">
           ↓
         </button>
-        <button aria-label="Move right" onClick={() => onMove('right')} type="button">
+        <button aria-label="Move right" disabled={movementDisabled} onClick={() => onMove('right')} type="button">
           →
         </button>
       </div>

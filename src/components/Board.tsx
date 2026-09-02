@@ -1,13 +1,22 @@
-import { useEffect, useRef, type CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 
 import { isBlockSolved } from '../engine/game-engine';
-import type { Cell, Direction, GameState, GateTraversal, PathDefinition, ShapedEntityDefinition } from '../engine/types';
+import type {
+  Cell,
+  Direction,
+  DomainEvent,
+  GameState,
+  GateTraversal,
+  PathDefinition,
+  ShapedEntityDefinition,
+} from '../engine/types';
 import { GameGlyph } from './GameGlyph';
 import type { GameGlyphKind } from './GameGlyph';
 
 type BoardProps = Readonly<{
   state: GameState;
   gateTraversal?: GateTraversal;
+  turnEvents?: readonly DomainEvent[];
 }>;
 
 type GlyphDefinition = Readonly<{
@@ -19,6 +28,7 @@ type VisualEntity = Readonly<{
   id: string;
   kind: GameGlyphKind;
   position: Cell;
+  origin?: Cell;
   shape: readonly Cell[];
   number?: string;
   isComplete?: boolean;
@@ -31,6 +41,22 @@ type EntityMotion = Readonly<{
 }>;
 
 const unitShape: readonly Cell[] = [{ x: 0, y: 0 }];
+const resettableKinds = new Set<GameGlyphKind>([
+  'block',
+  'fake-block',
+  'movable-goal',
+  'gate-blue',
+  'gate-orange',
+]);
+const resetParticleVectors = Array.from({ length: 12 }, (_, index) => {
+  const radians = (index / 12) * Math.PI * 2;
+  const distance = 34 + (index % 3) * 9;
+  return {
+    x: Math.round(Math.cos(radians) * distance),
+    y: Math.round(Math.sin(radians) * distance),
+    rotation: index * 47,
+  };
+});
 
 function sameCell(left: Cell, right: Cell): boolean {
   return left.x === right.x && left.y === right.y;
@@ -131,6 +157,7 @@ function visualEntitiesFor(state: GameState): readonly VisualEntity[] {
     id: goal.id,
     kind: goal.movable ? 'movable-goal' : 'goal',
     position: goal.position,
+    origin: goal.origin,
     shape: goal.shape,
     number: goal.number !== 0 && !state.blocks.some((block) => occupies(block, goal.position)) ? String(goal.number) : undefined,
   }));
@@ -138,6 +165,7 @@ function visualEntitiesFor(state: GameState): readonly VisualEntity[] {
     id: block.id,
     kind: block.isFake ? 'fake-block' : 'block',
     position: block.position,
+    origin: block.origin,
     shape: block.shape,
     number: block.number !== 0 ? String(block.number) : undefined,
     isComplete: isBlockSolved(state, block),
@@ -146,6 +174,7 @@ function visualEntitiesFor(state: GameState): readonly VisualEntity[] {
     id: gate.id,
     kind: index % 2 === 0 ? 'gate-blue' : 'gate-orange',
     position: gate.position,
+    origin: gate.origin,
     shape: gate.shape,
   }));
   const spikes = state.spikes.map<VisualEntity>((spike) => ({
@@ -189,11 +218,13 @@ function entityCellStyle(cell: Cell, motion: EntityMotion): CSSProperties {
 function EntityCells({
   entity,
   motion,
+  resetPhase,
   teleportDirection,
   teleportPhase,
 }: Readonly<{
   entity: VisualEntity;
   motion: EntityMotion;
+  resetPhase?: 'ingress' | 'impact' | 'respawn';
   teleportDirection?: Direction;
   teleportPhase?: 'entry' | 'exit';
 }>) {
@@ -204,16 +235,24 @@ function EntityCells({
     const number = isOriginCell(localCell) ? entity.number : undefined;
     return (
       <span
-        className={`board__entity board__entity--${entity.kind}${isMoving ? ' board__entity--moving' : ''}${teleportPhase ? ` board__entity--teleport-${teleportPhase}` : ''}`}
+        className={`board__entity board__entity--${entity.kind}${isMoving ? ' board__entity--moving' : ''}${teleportPhase ? ` board__entity--teleport-${teleportPhase}` : ''}${resetPhase ? ` board__entity--reset-${resetPhase}` : ''}`}
         data-entity-id={entity.id}
         data-grid-cell={`${cell.x}:${cell.y}`}
         data-grid-unit="1"
         data-motion={isMoving ? 'moving' : undefined}
         data-motion-from={isMoving ? `${motion.from!.x}:${motion.from!.y}` : undefined}
         data-motion-to={isMoving ? `${entity.position.x}:${entity.position.y}` : undefined}
+        data-reset-phase={resetPhase}
+        data-reset-window={resetPhase === 'ingress'
+          ? '0-180ms'
+          : resetPhase === 'impact'
+            ? '180-300ms'
+            : resetPhase === 'respawn'
+              ? '300-620ms'
+              : undefined}
         data-teleport-direction={teleportDirection}
         data-teleport-phase={teleportPhase}
-        key={`${entity.id}:${cell.x}:${cell.y}`}
+        key={`${entity.id}:${cell.x}:${cell.y}:${resetPhase ?? teleportPhase ?? 'steady'}`}
         style={entityCellStyle(cell, motion)}
       >
         <GameGlyph isComplete={entity.isComplete} kind={entity.kind} number={number} />
@@ -222,12 +261,28 @@ function EntityCells({
   });
 }
 
-function usePreviousState(state: GameState): GameState {
-  const stateRef = useRef(state);
-  useEffect(() => {
-    stateRef.current = state;
-  }, [state]);
-  return stateRef.current;
+function useTransitionOriginState(state: GameState, resetPresentationActive: boolean): GameState {
+  const [transition, setTransition] = useState(() => ({
+    current: state,
+    origin: state,
+    resetTransition: false,
+  }));
+
+  if (transition.current !== state) {
+    setTransition({
+      current: state,
+      origin: transition.current,
+      resetTransition: resetPresentationActive,
+    });
+    return transition.current;
+  }
+
+  if (transition.resetTransition && !resetPresentationActive) {
+    setTransition({ current: state, origin: state, resetTransition: false });
+    return state;
+  }
+
+  return transition.origin;
 }
 
 function PathLayer({ state }: BoardProps) {
@@ -249,10 +304,12 @@ function PathLayer({ state }: BoardProps) {
 
 function EntityLayer({
   gateTraversal,
+  hiddenEntityIds,
   previousState,
   state,
 }: Readonly<{
   gateTraversal?: GateTraversal;
+  hiddenEntityIds?: ReadonlySet<string>;
   previousState: GameState;
   state: GameState;
 }>) {
@@ -267,6 +324,7 @@ function EntityLayer({
   return (
     <div aria-hidden="true" className="board__entity-layer">
       {entities.flatMap((entity) => {
+        if (hiddenEntityIds?.has(entity.id)) return [];
         if (entity.id === 'role' && activeGateTraversal) {
           const entryEntity: VisualEntity = {
             id: 'role-teleport-entry',
@@ -297,8 +355,119 @@ function EntityLayer({
   );
 }
 
-export function Board({ gateTraversal, state }: BoardProps) {
-  const previousState = usePreviousState(state);
+type ObjectResetEvent = Extract<DomainEvent, { type: 'object-reset' }>;
+type PushEvent = Extract<DomainEvent, { type: 'block-pushed' | 'goal-pushed' | 'gate-pushed' }>;
+
+function resetEventsFrom(events: readonly DomainEvent[]): readonly ObjectResetEvent[] {
+  return events.filter((event): event is ObjectResetEvent => event.type === 'object-reset');
+}
+
+function pushForReset(events: readonly DomainEvent[], reset: ObjectResetEvent): PushEvent | undefined {
+  for (let index = events.length - 1; index >= 0; index -= 1) {
+    const event = events[index]!;
+    if (
+      (event.type === 'block-pushed' || event.type === 'goal-pushed' || event.type === 'gate-pushed')
+      && event.entityId === reset.entityId
+      && sameCell(event.to, reset.from)
+    ) {
+      return event;
+    }
+  }
+  return undefined;
+}
+
+function OriginLayer({ state }: Readonly<{ state: GameState }>) {
+  const hasSpike = state.level.terrainSpikes.length > 0 || state.spikes.length > 0;
+  if (!hasSpike) return null;
+
+  const entities = visualEntitiesFor(state).filter(
+    (entity) => entity.origin && resettableKinds.has(entity.kind),
+  );
+
+  return (
+    <div aria-hidden="true" className="board__origin-layer">
+      {entities.flatMap((entity) => entity.shape.map((localCell) => {
+        const cell = {
+          x: entity.origin!.x + localCell.x,
+          y: entity.origin!.y + localCell.y,
+        };
+        return (
+          <span
+            className={`board__origin-mark board__origin-mark--${entity.kind}`}
+            data-grid-cell={`${cell.x}:${cell.y}`}
+            data-origin-for={entity.id}
+            data-origin-kind={entity.kind}
+            key={`${entity.id}:origin:${cell.x}:${cell.y}`}
+            style={{ gridColumn: cell.x + 1, gridRow: cell.y + 1 }}
+          />
+        );
+      }))}
+    </div>
+  );
+}
+
+function ResetBurst({ entity, reset }: Readonly<{ entity: VisualEntity; reset: ObjectResetEvent }>) {
+  return reset.contactCells.map((cell) => (
+    <span
+      className={`board__reset-burst board__reset-burst--${entity.kind}`}
+      data-grid-cell={`${cell.x}:${cell.y}`}
+      data-reset-contact-for={reset.entityId}
+      key={`${reset.entityId}:burst:${cell.x}:${cell.y}`}
+      style={{ gridColumn: cell.x + 1, gridRow: cell.y + 1 }}
+    >
+      <span className="board__reset-spike-flash" />
+      {resetParticleVectors.map((vector, index) => (
+        <i
+          className="board__reset-particle"
+          data-reset-particle-for={reset.entityId}
+          key={`${reset.entityId}:particle:${cell.x}:${cell.y}:${index}`}
+          style={{
+            '--particle-x': `${vector.x}%`,
+            '--particle-y': `${vector.y}%`,
+            '--particle-rotation': `${vector.rotation}deg`,
+            '--particle-scale': `${0.72 + (index % 4) * 0.12}`,
+          } as CSSProperties}
+        />
+      ))}
+    </span>
+  ));
+}
+
+function ResetPresentationLayer({
+  events,
+  state,
+}: Readonly<{
+  events: readonly DomainEvent[];
+  state: GameState;
+}>) {
+  const resets = resetEventsFrom(events);
+  if (resets.length === 0) return null;
+
+  const entities = new Map(visualEntitiesFor(state).map((entity) => [entity.id, entity]));
+  return (
+    <div aria-hidden="true" className="board__reset-layer">
+      {resets.flatMap((reset) => {
+        const current = entities.get(reset.entityId);
+        if (!current) return [];
+        const push = pushForReset(events, reset);
+        const atContact: VisualEntity = { ...current, position: reset.from };
+        const atOrigin: VisualEntity = { ...current, position: reset.to };
+        const ingressMotion = push ? motionBetween(push.from, push.to) : motionBetween(reset.from, reset.from);
+
+        return [
+          ...EntityCells({ entity: atContact, motion: ingressMotion, resetPhase: 'ingress' }),
+          ...EntityCells({ entity: atContact, motion: motionBetween(reset.from, reset.from), resetPhase: 'impact' }),
+          <ResetBurst entity={current} key={`${reset.entityId}:burst`} reset={reset} />,
+          ...EntityCells({ entity: atOrigin, motion: motionBetween(reset.to, reset.to), resetPhase: 'respawn' }),
+        ];
+      })}
+    </div>
+  );
+}
+
+export function Board({ gateTraversal, state, turnEvents = [] }: BoardProps) {
+  const resettingEntityIds = new Set(resetEventsFrom(turnEvents).map((event) => event.entityId));
+  const previousState = useTransitionOriginState(state, resettingEntityIds.size > 0);
   const cells = Array.from({ length: state.level.width * state.level.height }, (_, index) => ({
     x: index % state.level.width,
     y: Math.floor(index / state.level.width),
@@ -317,7 +486,14 @@ export function Board({ gateTraversal, state }: BoardProps) {
       style={boardStyle}
     >
       <PathLayer state={state} />
-      <EntityLayer gateTraversal={gateTraversal} previousState={previousState} state={state} />
+      <OriginLayer state={state} />
+      <EntityLayer
+        gateTraversal={gateTraversal}
+        hiddenEntityIds={resettingEntityIds}
+        previousState={previousState}
+        state={state}
+      />
+      <ResetPresentationLayer events={turnEvents} state={state} />
       {state.level.weather === 'rain' ? <span aria-hidden="true" className="board__weather-film" /> : null}
       {cells.map((cell) => {
         const tokens = cellTokens(state, cell);

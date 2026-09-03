@@ -215,9 +215,15 @@ kbd {
 
 .author-analysis__body {
   display: grid;
-  grid-template-columns: minmax(18rem, 1fr) minmax(18rem, 1fr) minmax(14rem, 0.7fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
   gap: 1rem;
   padding: 0 0 0.8rem;
+}
+
+.author-analysis__body > *,
+.author-analysis li,
+.author-analysis code {
+  min-width: 0;
 }
 
 .author-analysis dl {
@@ -296,6 +302,7 @@ kbd {
 
 .author-analysis__strategies code {
   white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .author-analysis__mutation-list {
@@ -1489,6 +1496,20 @@ kbd {
 
   .masthead__lede {
     text-align: left;
+  }
+
+  .author-tools {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .author-tools p {
+    grid-column: 1 / -1;
+    white-space: normal;
+  }
+
+  .author-analysis > summary {
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
   }
 
   .lesson-strip {

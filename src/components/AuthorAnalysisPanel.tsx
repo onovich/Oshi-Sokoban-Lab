@@ -27,6 +27,9 @@ export function AuthorAnalysisPanel({ spec }: AuthorAnalysisPanelProps) {
   }), [spec]);
   const [mutations, setMutations] = useState<readonly LevelMutationResult[] | undefined>();
   const { diagnostics, metrics } = analysis.solution;
+  const canAuditMutations = analysis.solution.status === 'solved' &&
+    diagnostics.completePlanWindow &&
+    analysis.proofChecks.every((check) => check.status === 'necessary');
 
   return (
     <details aria-label="作者分析" className="author-analysis" role="region">
@@ -90,9 +93,18 @@ export function AuthorAnalysisPanel({ spec }: AuthorAnalysisPanelProps) {
               </ul>
             </>
           ) : (
-            <button onClick={() => setMutations(auditLevelMutations(spec, 100_000))} type="button">
-              运行删除 / 封墙变异
-            </button>
+            <>
+              <button
+                disabled={!canAuditMutations}
+                onClick={() => setMutations(auditLevelMutations(spec, 100_000))}
+                type="button"
+              >
+                运行删除 / 封墙变异
+              </button>
+              {!canAuditMutations && (
+                <p>基线存在绕解或证据未完成，暂不运行以命题必要为前提的删除审计；解耦对照允许出现绕解。</p>
+              )}
+            </>
           )}
         </section>
       </div>

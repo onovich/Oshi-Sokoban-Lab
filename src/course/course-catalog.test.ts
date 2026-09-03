@@ -28,6 +28,18 @@ describe('versioned course catalogs', () => {
       .toBe('lesson-22');
   });
 
+  it('adds E01 only to the draft laboratory, never to formal slots or the accepted catalog', () => {
+    const experimentIds = ['lab-e01-shared-passage', 'lab-e01-independent-passage'];
+    expect(masteryV2Catalog.labLevels.slice(-2).map((level) => level.id)).toEqual(experimentIds);
+    expect(masteryV2Catalog.labGroups.at(-1)?.levelIds).toEqual(experimentIds);
+    for (const id of experimentIds) {
+      expect(displayNumberFor(masteryV2Catalog, id)).toBeUndefined();
+      expect(masteryV2Catalog.levels.some((level) => level.id === id)).toBe(false);
+      expect(acceptedFoundationCatalog.labLevels.some((level) => level.id === id)).toBe(false);
+      expect(masteryV2Catalog.completion.fullCompletionLevelIds).not.toContain(id);
+    }
+  });
+
   it('preserves mastery blueprint display slots while planned levels are absent', () => {
     expect(displayNumberFor(masteryV2Catalog, 'mastery-push-footprint-01')).toBe(31);
     expect(displayNumberFor(masteryV2Catalog, 'lesson-22')).toBe(70);

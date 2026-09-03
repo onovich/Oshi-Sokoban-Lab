@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import type { LevelSpec } from '../engine/types';
+import { proofConditionFromLegacy } from '../course/proof-condition';
+import type { LevelSpec } from '../course/types';
 import { courseLevels } from './course-catalog';
 import { occupancyLevels } from './families/occupancy-levels';
 import { analyzeLevel } from './level-analyzer';
@@ -12,13 +13,16 @@ describe('public level analyzer', () => {
       id: board.id,
       groupId: 'analyzer-fixture',
       role: 'establish',
+      cognitiveStage: 'seed',
       prerequisites: [],
+      techniques: [{ techniqueId: 'fixture', role: 'primary' }],
+      difficulty: { target: 1, confidence: 'design-target', sampleSize: 0 },
       board,
       theorem: {
         axioms: ['多格 Block 作为一个整体移动。'],
         proposition: '必须推动这件 Block。',
-        requiredPredicates: ['event:block-pushed:occupancy-guide-domino'],
-        criticalEvent: 'event:block-pushed:occupancy-guide-domino',
+        proofConditions: [proofConditionFromLegacy('event:block-pushed:occupancy-guide-domino')],
+        milestones: [proofConditionFromLegacy('event:block-pushed:occupancy-guide-domino')],
       },
     };
 
@@ -41,13 +45,16 @@ describe('public level analyzer', () => {
       id: board.id,
       groupId: 'analyzer-count-fixture',
       role: 'establish',
+      cognitiveStage: 'reinforce',
       prerequisites: [],
+      techniques: [{ techniqueId: 'fixture', role: 'primary' }],
+      difficulty: { target: 2, confidence: 'design-target', sampleSize: 0 },
       board,
       theorem: {
         axioms: ['多格 Block 作为一个整体移动。'],
         proposition: '这件 Block 必须连续完成两次推动。',
-        requiredPredicates: [predicate],
-        criticalEvent: predicate,
+        proofConditions: [proofConditionFromLegacy(predicate)],
+        milestones: [proofConditionFromLegacy(predicate)],
       },
     };
 
@@ -69,8 +76,8 @@ describe('public level analyzer', () => {
       ...base,
       theorem: {
         ...base.theorem,
-        requiredPredicates: [predicate],
-        criticalEvent: predicate,
+        proofConditions: [proofConditionFromLegacy(predicate)],
+        milestones: [proofConditionFromLegacy(predicate)],
       },
     };
 
@@ -88,13 +95,16 @@ describe('public level analyzer', () => {
       id: board.id,
       groupId: 'analyzer-transition-fixture',
       role: 'boundary',
+      cognitiveStage: 'stress',
       prerequisites: [],
+      techniques: [{ techniqueId: 'fixture', role: 'primary' }],
+      difficulty: { target: 2, confidence: 'design-target', sampleSize: 0 },
       board,
       theorem: {
         axioms: ['Block 每次平移一格。'],
         proposition: '必须完成指定落位。',
-        requiredPredicates: [predicate],
-        criticalEvent: predicate,
+        proofConditions: [proofConditionFromLegacy(predicate)],
+        milestones: [proofConditionFromLegacy(predicate)],
       },
     };
 

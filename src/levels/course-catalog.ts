@@ -1,9 +1,11 @@
+import { proofConditionFromLegacy } from '../course/proof-condition';
 import type {
+  CognitiveStage,
   CourseGroupDefinition,
   LessonRole,
   LevelSpec,
   LevelTheorem,
-} from '../engine/types';
+} from '../course/types';
 import { authoredCourse } from './authored-course';
 
 type GroupSeed = Readonly<{
@@ -65,6 +67,8 @@ const boundaryContrastBySlug: Readonly<Record<string, string>> = {
 };
 
 const roles: readonly LessonRole[] = ['establish', 'boundary', 'inference'];
+const cognitiveStages: readonly CognitiveStage[] = ['seed', 'stress', 'transfer'];
+const targetDifficulty = [1, 2, 3] as const;
 
 function groupId(index: number, seed: GroupSeed): string {
   return `g${String(index + 1).padStart(2, '0')}-${seed.slug}`;
@@ -95,8 +99,8 @@ export const courseLevels: readonly LevelSpec[] = groupSeeds.flatMap((seed, grou
     const theorem: LevelTheorem = {
       axioms: [seed.axiom],
       proposition: seed.propositions[roleIndex],
-      requiredPredicates: authored.requiredPredicates,
-      criticalEvent: authored.criticalEvent,
+      proofConditions: authored.requiredPredicates.map(proofConditionFromLegacy),
+      milestones: [proofConditionFromLegacy(authored.criticalEvent)],
       contrastVariable: role === 'boundary' ? boundaryContrastBySlug[seed.slug] : undefined,
       readabilityElements: authored.readabilityElements,
     };
@@ -104,7 +108,14 @@ export const courseLevels: readonly LevelSpec[] = groupSeeds.flatMap((seed, grou
       id: lessonId(index),
       groupId: id,
       role,
+      cognitiveStage: cognitiveStages[roleIndex]!,
       prerequisites: seed.prerequisites,
+      techniques: [{ techniqueId: seed.slug, role: 'primary' }],
+      difficulty: {
+        target: targetDifficulty[roleIndex]!,
+        confidence: 'author-accepted-foundation',
+        sampleSize: 1,
+      },
       board: authored.board,
       theorem,
     };

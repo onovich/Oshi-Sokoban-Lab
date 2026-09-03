@@ -21,8 +21,8 @@ describe('Oshi evidence-led course catalogue', () => {
         .join(' ');
 
       expect(level.theorem.axioms).not.toHaveLength(0);
-      expect(level.theorem.requiredPredicates).not.toHaveLength(0);
-      expect(level.theorem.criticalEvent).toBeTruthy();
+      expect(level.theorem.proofConditions).not.toHaveLength(0);
+      expect(level.theorem.milestones).not.toHaveLength(0);
       expect(playerCopy).not.toContain(level.theorem.proposition);
       expect(level.board.hint).toBeUndefined();
     }

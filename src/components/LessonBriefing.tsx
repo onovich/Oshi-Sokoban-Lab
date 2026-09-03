@@ -1,23 +1,28 @@
-import type { LessonRole, LevelSpec } from '../engine/types';
+import type { LevelSpec, TeachingRole } from '../course/types';
 
-const roleLabels: Readonly<Record<LessonRole, string>> = {
+const roleLabels: Readonly<Record<TeachingRole, string>> = {
   establish: '建立关',
   boundary: '定界关',
   inference: '推演关',
+  practice: '练习关',
+  transfer: '迁移关',
+  synthesis: '综合关',
+  summit: '峰顶关',
 };
 
 type LessonBriefingProps = Readonly<{
+  displayTitle?: string;
   groupTitle: string;
   onStart: () => void;
   spec: LevelSpec;
 }>;
 
-export function LessonBriefing({ groupTitle, onStart, spec }: LessonBriefingProps) {
+export function LessonBriefing({ displayTitle, groupTitle, onStart, spec }: LessonBriefingProps) {
   const { board } = spec;
   return (
     <section aria-label="关卡说明" className="lesson-briefing">
       <p className="eyebrow">BEFORE YOU PLAY</p>
-      <h2>{board.title}</h2>
+      <h2>{displayTitle ?? board.title}</h2>
       <p className="lesson-briefing__rule">{board.description}</p>
       <p className="lesson-briefing__curriculum">
         <span>关卡组：{groupTitle}</span>

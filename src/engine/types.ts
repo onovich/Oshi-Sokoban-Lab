@@ -42,24 +42,6 @@ export type PathDefinition = Readonly<{
 
 export type LessonPhase = 'guide' | 'verify' | 'challenge';
 
-/** Curriculum role names describe what the board does, rather than its difficulty. */
-export type LessonRole = 'establish' | 'boundary' | 'inference';
-
-export type LevelTheorem = Readonly<{
-  /** Source-audited engine rules the lesson is allowed to rely on. */
-  axioms: readonly string[];
-  /** Internal design proposition. This text is never rendered to players. */
-  proposition: string;
-  /** Observable events/state predicates that every valid solution must use. */
-  requiredPredicates: readonly string[];
-  /** Predicate after which post-insight execution is measured. */
-  criticalEvent: string;
-  /** The single causal variable changed by a boundary lesson. */
-  contrastVariable?: string;
-  /** Elements kept only to make a contrast or board boundary statically legible. */
-  readabilityElements?: readonly string[];
-}>;
-
 export type CurriculumDefinition = Readonly<{
   familyId: string;
   familyTitle: string;
@@ -91,37 +73,6 @@ export type LevelDefinition = Readonly<{
   paths: readonly PathDefinition[];
   stepLimit?: number;
   timeLimitSeconds?: number;
-}>;
-
-/**
- * Curriculum metadata wraps the engine board so authored teaching intent never
- * leaks into the deterministic game state or presentation by accident.
- */
-export type LevelSpec = Readonly<{
-  id: string;
-  groupId: string;
-  role: LessonRole;
-  prerequisites: readonly string[];
-  board: LevelDefinition;
-  theorem: LevelTheorem;
-}>;
-
-export type CourseGroupDefinition = Readonly<{
-  id: string;
-  title: string;
-  branch: 'foundation' | 'shape' | 'fake' | 'spike' | 'goal' | 'rain' | 'gate' | 'combination';
-  prerequisites: readonly string[];
-  completionPrerequisites?: readonly string[];
-  levelIds: readonly [string, string, string];
-}>;
-
-export type LevelAnalysis = Readonly<{
-  solvable: boolean;
-  optimalMoves: number;
-  optimalPushes: number;
-  insightTailPushes: number;
-  bypassExists: boolean;
-  proofCriticalElements: readonly string[];
 }>;
 
 export type PositionedEntity<T extends ShapedEntityDefinition> = Omit<T, 'position'> &

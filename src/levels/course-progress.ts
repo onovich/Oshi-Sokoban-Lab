@@ -1,7 +1,9 @@
-import type { CourseGroupDefinition } from '../engine/types';
+import type { CourseGroupDefinition } from '../course/types';
 
 function masteryLevelId(group: CourseGroupDefinition): string {
-  return group.levelIds[1];
+  const result = group.masteryLevelId ?? group.levelIds[Math.min(1, group.levelIds.length - 1)];
+  if (!result) throw new Error(`Course group ${group.id} contains no levels.`);
+  return result;
 }
 
 function groupAvailable(
@@ -29,10 +31,11 @@ export function getUnlockedCourseLevelIds(
 
   for (const group of groups) {
     if (!groupAvailable(group, groupsById, completed)) continue;
-    const [establish, boundary, inference] = group.levelIds;
-    unlocked.add(establish);
-    if (completed.has(establish)) unlocked.add(boundary);
-    if (completed.has(boundary)) unlocked.add(inference);
+    for (let index = 0; index < group.levelIds.length; index += 1) {
+      const levelId = group.levelIds[index];
+      const previous = group.levelIds[index - 1];
+      if (levelId && (index === 0 || (previous && completed.has(previous)))) unlocked.add(levelId);
+    }
   }
 
   return unlocked;

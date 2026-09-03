@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { createGame, isBlockSolved } from '../engine/game-engine';
 import type { LevelDefinition } from '../engine/types';
+import { proofConditionKey } from '../course/proof-condition';
 import { courseGroups, courseLevels } from './course-catalog';
 import { analyzeLevel } from './level-analyzer';
 import { auditLevelMutations, auditProofCriticalElements } from './level-mutation-audit';
@@ -68,12 +69,12 @@ describe('authored sixty-three-level course', () => {
     for (const level of courseLevels) {
       const result = analyzeLevel(level, 100_000);
       expect(result.analysis.solvable, `${level.id} explored ${result.exploredStates} states`).toBe(true);
-      for (const predicate of level.theorem.requiredPredicates) {
+      for (const condition of level.theorem.proofConditions) {
         const predicateResult = analyzeLevel({
           ...level,
-          theorem: { ...level.theorem, requiredPredicates: [predicate] },
+          theorem: { ...level.theorem, proofConditions: [condition] },
         }, 100_000);
-        expect(predicateResult.analysis.bypassExists, `${level.id} can bypass ${predicate}`).toBe(false);
+        expect(predicateResult.analysis.bypassExists, `${level.id} can bypass ${proofConditionKey(condition)}`).toBe(false);
       }
       if (level.role === 'establish') {
         expect(result.analysis.insightTailPushes, `${level.id} has too much post-insight work`).toBeLessThanOrEqual(3);
@@ -121,8 +122,8 @@ describe('authored sixty-three-level course', () => {
       const inferenceAnalysis = analyzeLevel(inference, 100_000).analysis;
 
       expect(
-        inference.theorem.requiredPredicates.some((predicate) =>
-          predicate.startsWith('event-count:') || predicate.startsWith('event-sequence:'),
+        inference.theorem.proofConditions.some((condition) =>
+          condition.kind === 'count' || condition.kind === 'sequence',
         ),
         `${inference.id} only checks a first-order event`,
       ).toBe(true);

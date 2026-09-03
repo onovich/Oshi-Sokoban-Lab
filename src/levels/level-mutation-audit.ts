@@ -1,10 +1,9 @@
 import type {
   Cell,
-  LevelAnalysis,
   LevelDefinition,
-  LevelSpec,
   ShapedEntityDefinition,
 } from '../engine/types';
+import type { LevelAnalysis, LevelSpec } from '../course/types';
 import { analyzeLevel } from './level-analyzer';
 
 export type LevelMutationKind = 'entity-removal' | 'mechanism-removal' | 'wall-insertion';

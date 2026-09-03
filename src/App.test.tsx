@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { App } from './App';
 import type { Direction } from './engine/types';
@@ -26,16 +26,42 @@ function playOptimal(levelId: string): void {
 
 function openSpikeClearLesson(): void {
   render(<App />);
-  fireEvent.click(screen.getByRole('button', { name: '开始关卡' }));
-  playOptimal('lesson-01');
-  fireEvent.click(screen.getByRole('button', { name: '下一关' }));
-  fireEvent.click(screen.getByRole('button', { name: '开始关卡' }));
-  playOptimal('lesson-02');
-  fireEvent.click(screen.getByRole('button', { name: /^19 / }));
+  fireEvent.change(screen.getByRole('combobox', { name: '课程区域' }), {
+    target: { value: 'lab' },
+  });
   fireEvent.click(screen.getByRole('button', { name: '开始关卡' }));
 }
 
 describe('Oshi course interface', () => {
+  beforeEach(() => window.localStorage.clear());
+
+  it('lets developers switch catalogs and enter the isolated Spike laboratory', () => {
+    render(<App />);
+
+    expect(screen.getByRole('combobox', { name: '课程目录' })).toBeTruthy();
+    expect(screen.getAllByRole('option', { name: /Gate × Spike/ })).toHaveLength(3);
+
+    fireEvent.change(screen.getByRole('combobox', { name: '课程区域' }), {
+      target: { value: 'lab' },
+    });
+
+    expect(screen.getAllByRole('option')).toHaveLength(3 + 2 + 2);
+    expect(screen.getByRole('option', { name: /Spike.*清除/ })).toBeTruthy();
+    expect(screen.getByText(/实验室进度 0 \/ 3/)).toBeTruthy();
+
+    fireEvent.change(screen.getByRole('combobox', { name: '课程目录' }), {
+      target: { value: 'mastery-v2' },
+    });
+    fireEvent.change(screen.getByRole('combobox', { name: '课程区域' }), {
+      target: { value: 'formal' },
+    });
+
+    expect(screen.getByText(/当前 60 关 \/ 目标 120 关/)).toBeTruthy();
+    expect(screen.getByText(/目标 D[1-3]/)).toBeTruthy();
+    for (const act of ['I · 语法', 'II · 熟练', 'III · 反转', 'IV · 综合', 'V · 峰顶']) {
+      expect(screen.getByRole('heading', { name: act })).toBeTruthy();
+    }
+  });
   it('shows only player-facing goal, controls, group, and lesson role before play', async () => {
     const user = userEvent.setup();
     render(<App />);
@@ -55,8 +81,8 @@ describe('Oshi course interface', () => {
   it('allows any lesson to be selected by default in development', () => {
     render(<App />);
 
-    const finalOption = screen.getByRole('option', { name: /63/ }) as HTMLOptionElement;
-    const finalMapButton = screen.getByRole('button', { name: /^63 / }) as HTMLButtonElement;
+    const finalOption = screen.getByRole('option', { name: /^60 — Gate × Spike/ }) as HTMLOptionElement;
+    const finalMapButton = screen.getByRole('button', { name: /^60 / }) as HTMLButtonElement;
     expect(finalOption.disabled).toBe(false);
     expect(finalMapButton.disabled).toBe(false);
 
@@ -64,20 +90,21 @@ describe('Oshi course interface', () => {
       target: { value: 'lesson-63' },
     });
 
-    expect(screen.getByRole('region', { name: '关卡说明' }).textContent).toMatch(/63.*Gate × Spike/);
-    expect(screen.getByText(/已完成 0 \/ 63/)).toBeTruthy();
+    expect(screen.getByRole('region', { name: '关卡说明' }).textContent).toMatch(/60.*Gate × Spike/);
+    expect(screen.getByText(/已完成 0 \/ 60/)).toBeTruthy();
   });
 
   it('keeps progression locks available for the player course and derives its size from the catalog', () => {
-    render(<App lessonAccessMode="progression" />);
+    render(<App authoringMode={false} lessonAccessMode="progression" />);
 
-    expect(screen.getAllByRole('option')).toHaveLength(63);
+    expect(screen.getAllByRole('option')).toHaveLength(60);
     expect((screen.getByRole('option', { name: /01/ }) as HTMLOptionElement).disabled).toBe(false);
     expect((screen.getByRole('option', { name: /02/ }) as HTMLOptionElement).disabled).toBe(true);
     const curriculumMap = screen.getByRole('region', { name: '课程地图' }) as HTMLDetailsElement;
     expect(curriculumMap.open).toBe(false);
-    expect(screen.getByText('21 组 · 63 关 · 展开')).toBeTruthy();
-    expect(screen.getAllByRole('button', { name: /建立关|定界关|推演关/ })).toHaveLength(63);
+    expect(screen.getByText('20 组 · 60 关 · 展开')).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: /建立关|定界关|推演关/ })).toHaveLength(60);
+    expect(screen.queryByText(/目标 D/)).toBeNull();
   });
 
   it('keeps a solved board visible and advances only through the explicit next button', () => {
@@ -109,7 +136,7 @@ describe('Oshi course interface', () => {
     fireEvent.keyDown(window, { key: 'ArrowRight' });
 
     expect(screen.getByRole('status').textContent).toMatch(/已完成/);
-    expect(screen.getByText(/已完成 1 \/ 63/)).toBeTruthy();
+    expect(screen.getByText(/已完成 1 \/ 60/)).toBeTruthy();
     const block = document.querySelector('[data-entity-id="lesson-01-block"]');
     expect(block?.getAttribute('data-motion')).toBe('moving');
     expect(block?.getAttribute('data-motion-from')).toBe('2:0');
@@ -124,13 +151,13 @@ describe('Oshi course interface', () => {
     fireEvent.click(screen.getByRole('button', { name: '开始关卡' }));
     playOptimal('lesson-02');
 
-    for (const number of ['03', '04', '16', '19', '28', '34', '40']) {
+    for (const number of ['03', '04', '16', '19', '25', '31', '37']) {
       expect(
         (screen.getByRole('button', { name: new RegExp(`^${number} `) }) as HTMLButtonElement)
           .disabled,
       ).toBe(false);
     }
-    expect(screen.getByText(/已完成 2 \/ 63/)).toBeTruthy();
+    expect(screen.getByText(/已完成 2 \/ 60/)).toBeTruthy();
   });
 
   it('supports keyboard play and Undo without changing course completion', async () => {
@@ -142,7 +169,7 @@ describe('Oshi course interface', () => {
     expect(screen.getByRole('status').textContent).toMatch(/步数: 1/);
     await user.click(screen.getByRole('button', { name: /undo/i }));
     expect(screen.getByRole('status').textContent).toMatch(/步数: 0/);
-    expect(screen.getByText(/已完成 0 \/ 63/)).toBeTruthy();
+    expect(screen.getByText(/已完成 0 \/ 60/)).toBeTruthy();
   });
 
   it('locks direction input during Spike rebirth while Undo cancels it immediately', () => {

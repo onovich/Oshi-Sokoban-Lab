@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import type { LevelSpec } from '../engine/types';
+import { proofConditionFromLegacy } from '../course/proof-condition';
+import type { LevelSpec } from '../course/types';
 import { occupancyLevels } from './families/occupancy-levels';
 import { auditLevelMutations, auditProofCriticalElements } from './level-mutation-audit';
 
@@ -10,13 +11,16 @@ function fixture(): LevelSpec {
     id: board.id,
     groupId: 'mutation-fixture',
     role: 'establish',
+    cognitiveStage: 'seed',
     prerequisites: [],
+    techniques: [{ techniqueId: 'fixture', role: 'primary' }],
+    difficulty: { target: 1, confidence: 'design-target', sampleSize: 0 },
     board,
     theorem: {
       axioms: ['多格 Block 整体移动。'],
       proposition: '必须推动指定 Block。',
-      requiredPredicates: ['event:block-pushed:occupancy-guide-domino'],
-      criticalEvent: 'event:block-pushed:occupancy-guide-domino',
+      proofConditions: [proofConditionFromLegacy('event:block-pushed:occupancy-guide-domino')],
+      milestones: [proofConditionFromLegacy('event:block-pushed:occupancy-guide-domino')],
     },
   };
 }
@@ -44,4 +48,3 @@ describe('level mutation audit', () => {
     expect(wallMutations.some((mutation) => mutation.effect === 'unsolvable')).toBe(true);
   });
 });
-

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { createGame, move } from '../engine/game-engine';
-import type { DomainEvent, LevelSpec } from '../engine/types';
+import type { DomainEvent } from '../engine/types';
+import type { LevelSpec } from '../course/types';
 import { courseGroups, courseLevels } from './course-catalog';
 import { analyzeLevel } from './level-analyzer';
 

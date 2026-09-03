@@ -3,9 +3,9 @@ import type {
   Direction,
   DomainEvent,
   GameState,
-  LevelAnalysis,
-  LevelSpec,
 } from '../engine/types';
+import { proofConditionKey } from '../course/proof-condition';
+import type { LevelAnalysis, LevelSpec, ProofCondition } from '../course/types';
 
 const directions: readonly Direction[] = ['up', 'right', 'down', 'left'];
 const defaultMaximumStates = 200_000;
@@ -22,6 +22,7 @@ type SearchNode = Readonly<{
 
 type SearchResult = Readonly<{
   exploredStates: number;
+  exhausted: boolean;
   node?: SearchNode;
 }>;
 
@@ -75,54 +76,32 @@ function eventsMatch(events: readonly DomainEvent[], predicate: string): boolean
   return events.some((event) => eventKeys(event).includes(predicate));
 }
 
-type CompiledPredicate =
-  | Readonly<{ kind: 'event'; event: string; target: 1 }>
-  | Readonly<{ kind: 'count'; event: string; target: number }>
-  | Readonly<{ kind: 'sequence'; events: readonly string[]; target: number }>;
-
-function compilePredicate(predicate: string): CompiledPredicate {
-  const count = /^event-count:(\d+):(event:.+)$/.exec(predicate);
-  if (count) {
-    const target = Number(count[1]);
-    if (!Number.isSafeInteger(target) || target < 1) {
-      throw new Error(`Invalid event-count predicate "${predicate}".`);
-    }
-    return { kind: 'count', event: count[2]!, target };
-  }
-
-  if (predicate.startsWith('event-sequence:')) {
-    const events = predicate.slice('event-sequence:'.length).split('>').filter(Boolean);
-    if (events.length < 2 || events.some((event) => !event.startsWith('event:'))) {
-      throw new Error(`Invalid event-sequence predicate "${predicate}".`);
-    }
-    return { kind: 'sequence', events, target: events.length };
-  }
-
-  if (!predicate.startsWith('event:')) {
-    throw new Error(`Unknown level predicate "${predicate}".`);
-  }
-  return { kind: 'event', event: predicate, target: 1 };
+function proofTarget(condition: ProofCondition): number {
+  if (condition.kind === 'count') return condition.atLeast;
+  if (condition.kind === 'sequence') return condition.events.length;
+  return 1;
 }
 
-function advancePredicate(
-  predicate: CompiledPredicate,
+function advanceProof(
+  condition: ProofCondition,
   progress: number,
   events: readonly DomainEvent[],
 ): number {
-  if (progress >= predicate.target) return predicate.target;
-  if (predicate.kind === 'event') {
-    return eventsMatch(events, predicate.event) ? 1 : progress;
+  const target = proofTarget(condition);
+  if (progress >= target) return target;
+  if (condition.kind === 'event') {
+    return eventsMatch(events, condition.event.key) ? 1 : progress;
   }
-  if (predicate.kind === 'count') {
-    const matches = events.filter((event) => eventKeys(event).includes(predicate.event)).length;
-    return Math.min(predicate.target, progress + matches);
+  if (condition.kind === 'count') {
+    const matches = events.filter((event) => eventKeys(event).includes(condition.event.key)).length;
+    return Math.min(condition.atLeast, progress + matches);
   }
 
   let next = progress;
   for (const event of events) {
-    const expected = predicate.events[next];
-    if (expected && eventKeys(event).includes(expected)) next += 1;
-    if (next >= predicate.target) break;
+    const expected = condition.events[next];
+    if (expected && eventKeys(event).includes(expected.key)) next += 1;
+    if (next >= target) break;
   }
   return next;
 }
@@ -136,11 +115,12 @@ function pushCount(events: readonly DomainEvent[]): number {
 function findSolution(
   spec: LevelSpec,
   maximumStates: number,
-  forbiddenPredicate?: string,
+  forbiddenCondition?: ProofCondition,
 ): SearchResult {
   const initial = withoutHistory(createGame(spec.board));
-  const criticalPredicate = compilePredicate(spec.theorem.criticalEvent);
-  const forbidden = forbiddenPredicate ? compilePredicate(forbiddenPredicate) : undefined;
+  const criticalCondition = spec.theorem.milestones.at(-1) ?? spec.theorem.proofConditions[0];
+  if (!criticalCondition) throw new Error(`${spec.id} has no proof condition.`);
+  const forbidden = forbiddenCondition;
   let frontier: SearchNode[] = [{
     state: initial,
     solution: [],
@@ -167,20 +147,20 @@ function findSolution(
         if (!result.didMove || result.state.status === 'lost') continue;
 
         const forbiddenProgress = forbidden
-          ? advancePredicate(forbidden, node.forbiddenProgress, result.events)
+          ? advanceProof(forbidden, node.forbiddenProgress, result.events)
           : 0;
-        if (forbidden && forbiddenProgress >= forbidden.target) continue;
+        if (forbidden && forbiddenProgress >= proofTarget(forbidden)) continue;
 
         const eventPushes = pushCount(result.events);
         const pushes = node.pushes + eventPushes;
-        const criticalProgress = advancePredicate(
-          criticalPredicate,
+        const criticalProgress = advanceProof(
+          criticalCondition,
           node.criticalProgress,
           result.events,
         );
         const criticalNow =
-          node.criticalProgress < criticalPredicate.target &&
-          criticalProgress >= criticalPredicate.target;
+          node.criticalProgress < proofTarget(criticalCondition) &&
+          criticalProgress >= proofTarget(criticalCondition);
         const criticalSeen = node.criticalSeen || criticalNow;
         const candidate: SearchNode = {
           state: withoutHistory(result.state),
@@ -208,16 +188,16 @@ function findSolution(
 
     if (winners.length > 0) {
       winners.sort((left, right) => left.pushes - right.pushes);
-      return { exploredStates, node: winners[0] };
+      return { exploredStates, exhausted: false, node: winners[0] };
     }
     frontier = nextFrontier;
   }
 
-  return { exploredStates };
+  return { exploredStates, exhausted: frontier.length > 0 };
 }
 
 function proofCriticalElements(spec: LevelSpec): readonly string[] {
-  const predicates = spec.theorem.requiredPredicates;
+  const predicates = spec.theorem.proofConditions.map(proofConditionKey);
   const references = new Set<string>();
   const addNamed = (prefix: string, entities: readonly { id: string }[]) => {
     for (const entity of entities) {
@@ -252,11 +232,12 @@ function proofCriticalElements(spec: LevelSpec): readonly string[] {
 
 export function analyzeLevel(spec: LevelSpec, maximumStates = defaultMaximumStates): LevelAnalysisResult {
   const solved = findSolution(spec, maximumStates);
-  const bypassExists = solved.node !== undefined && spec.theorem.requiredPredicates.some(
-    (predicate) => findSolution(spec, maximumStates, predicate).node !== undefined,
+  const bypassExists = solved.node !== undefined && spec.theorem.proofConditions.some(
+    (condition) => findSolution(spec, maximumStates, condition).node !== undefined,
   );
   const analysis: LevelAnalysis = solved.node
     ? {
+        status: 'solved',
         solvable: true,
         optimalMoves: solved.node.solution.length,
         optimalPushes: solved.node.pushes,
@@ -267,6 +248,7 @@ export function analyzeLevel(spec: LevelSpec, maximumStates = defaultMaximumStat
         proofCriticalElements: proofCriticalElements(spec),
       }
     : {
+        status: solved.exhausted ? 'budget-exhausted' : 'proven-unsolved',
         solvable: false,
         optimalMoves: 0,
         optimalPushes: 0,

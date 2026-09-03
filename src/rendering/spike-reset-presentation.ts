@@ -3,11 +3,17 @@ import type { DomainEvent } from '../engine/types';
 export const SPIKE_RESET_TIMING = Object.freeze({
   ingressMs: 180,
   impactStartMs: 180,
-  impactMs: 120,
-  respawnStartMs: 300,
-  respawnMs: 320,
-  totalMs: 620,
+  impactMs: 280,
+  respawnStartMs: 460,
+  respawnMs: 360,
+  totalMs: 820,
   reducedMotionTotalMs: 80,
+});
+
+export const SPIKE_RESET_WINDOWS = Object.freeze({
+  ingress: '0-180ms',
+  impact: '180-460ms',
+  respawn: '460-820ms',
 });
 
 export function hasObjectReset(events: readonly DomainEvent[] | undefined): boolean {

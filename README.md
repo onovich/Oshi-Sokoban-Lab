@@ -23,6 +23,7 @@ Open the local URL printed by Vite.
 - Move with the arrow keys or `W`, `A`, `S`, and `D`; the on-screen direction buttons provide the same inputs.
 - Press `Z` to undo and `R` to restart.
 - Completing a lesson keeps the solved board visible and reveals an explicit **Next lesson** button.
+- `npm run dev` uses unrestricted lesson selection for authoring and playtesting; production builds retain the prerequisite-based course mode.
 
 ## What is here
 
@@ -44,7 +45,7 @@ The project uses React, TypeScript, and Vite. The rule engine lives in [`src/eng
 
 ## Status and scope
 
-The playable core and all 63 curriculum boards are implemented as an automated candidate pool. Every board is currently solver-verified and audited for its declared critical event. The creator has completed and accepted the prior 60-board course (now lessons 01–18 and 22–63); the new Spike framing lessons 19–21 still await creator review. Independent blind tests are a separate gate and are still required before the boards are treated as final lessons. Path Spike is intentionally outside the main teaching route. This is the original creator's mechanics and level-design lab, not a full web port of Oshi.
+The playable core and all 63 curriculum boards are implemented as an automated candidate pool. Every board is currently solver-verified and audited for its declared critical event. The creator has completed and accepted the prior 60-board course (now lessons 01–18 and 22–63); those accepted boards and their design theorems are treated as frozen. The new Spike framing lessons 19–21 still await creator review and are now only mechanics/presentation prototypes, not a settled early-course sequence. The planned curriculum will add separate bridge lessons between frozen foundations: static Spikes first recur as supporting hazards across other families, then a later dedicated family reveals origin reset as a remote movement tool. Independent blind tests are a separate gate and are still required before the boards are treated as final lessons. Path Spike is intentionally outside the main teaching route. This is the original creator's mechanics and level-design lab, not a full web port of Oshi.
 
 ## Research basis
 

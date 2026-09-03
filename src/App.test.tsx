@@ -52,8 +52,24 @@ describe('Oshi course interface', () => {
     expect(screen.getByRole('grid', { name: /current puzzle board/i })).toBeTruthy();
   });
 
-  it('starts with only lesson 01 unlocked and derives the full course size from the catalog', () => {
+  it('allows any lesson to be selected by default in development', () => {
     render(<App />);
+
+    const finalOption = screen.getByRole('option', { name: /63/ }) as HTMLOptionElement;
+    const finalMapButton = screen.getByRole('button', { name: /^63 / }) as HTMLButtonElement;
+    expect(finalOption.disabled).toBe(false);
+    expect(finalMapButton.disabled).toBe(false);
+
+    fireEvent.change(screen.getByRole('combobox', { name: '关卡' }), {
+      target: { value: 'lesson-63' },
+    });
+
+    expect(screen.getByRole('region', { name: '关卡说明' }).textContent).toMatch(/63.*Gate × Spike/);
+    expect(screen.getByText(/已完成 0 \/ 63/)).toBeTruthy();
+  });
+
+  it('keeps progression locks available for the player course and derives its size from the catalog', () => {
+    render(<App lessonAccessMode="progression" />);
 
     expect(screen.getAllByRole('option')).toHaveLength(63);
     expect((screen.getByRole('option', { name: /01/ }) as HTMLOptionElement).disabled).toBe(false);
@@ -101,7 +117,7 @@ describe('Oshi course interface', () => {
   });
 
   it('unlocks six branches after the first boundary lesson without requiring its inference lesson', () => {
-    render(<App />);
+    render(<App lessonAccessMode="progression" />);
     fireEvent.click(screen.getByRole('button', { name: '开始关卡' }));
     playOptimal('lesson-01');
     fireEvent.click(screen.getByRole('button', { name: '下一关' }));
@@ -157,7 +173,7 @@ describe('Oshi course interface', () => {
       fireEvent.keyDown(window, { key: 'ArrowRight' });
       fireEvent.keyDown(window, { key: 'ArrowRight' });
       expect((screen.getByRole('button', { name: 'Move up' }) as HTMLButtonElement).disabled).toBe(true);
-      act(() => vi.advanceTimersByTime(619));
+      act(() => vi.advanceTimersByTime(819));
       expect((screen.getByRole('button', { name: 'Move up' }) as HTMLButtonElement).disabled).toBe(true);
       act(() => vi.advanceTimersByTime(1));
       expect((screen.getByRole('button', { name: 'Move up' }) as HTMLButtonElement).disabled).toBe(false);

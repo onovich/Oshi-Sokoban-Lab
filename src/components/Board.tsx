@@ -12,6 +12,7 @@ import type {
 } from '../engine/types';
 import { GameGlyph } from './GameGlyph';
 import type { GameGlyphKind } from './GameGlyph';
+import { SPIKE_RESET_WINDOWS } from '../rendering/spike-reset-presentation';
 
 type BoardProps = Readonly<{
   state: GameState;
@@ -50,7 +51,7 @@ const resettableKinds = new Set<GameGlyphKind>([
 ]);
 const resetParticleVectors = Array.from({ length: 12 }, (_, index) => {
   const radians = (index / 12) * Math.PI * 2;
-  const distance = 34 + (index % 3) * 9;
+  const distance = 58 + (index % 3) * 12;
   return {
     x: Math.round(Math.cos(radians) * distance),
     y: Math.round(Math.sin(radians) * distance),
@@ -243,13 +244,7 @@ function EntityCells({
         data-motion-from={isMoving ? `${motion.from!.x}:${motion.from!.y}` : undefined}
         data-motion-to={isMoving ? `${entity.position.x}:${entity.position.y}` : undefined}
         data-reset-phase={resetPhase}
-        data-reset-window={resetPhase === 'ingress'
-          ? '0-180ms'
-          : resetPhase === 'impact'
-            ? '180-300ms'
-            : resetPhase === 'respawn'
-              ? '300-620ms'
-              : undefined}
+        data-reset-window={resetPhase ? SPIKE_RESET_WINDOWS[resetPhase] : undefined}
         data-teleport-direction={teleportDirection}
         data-teleport-phase={teleportPhase}
         key={`${entity.id}:${cell.x}:${cell.y}:${resetPhase ?? teleportPhase ?? 'steady'}`}
@@ -420,6 +415,7 @@ function ResetBurst({ entity, reset }: Readonly<{ entity: VisualEntity; reset: O
         <i
           className="board__reset-particle"
           data-reset-particle-for={reset.entityId}
+          data-reset-particle-window={SPIKE_RESET_WINDOWS.impact}
           key={`${reset.entityId}:particle:${cell.x}:${cell.y}:${index}`}
           style={{
             '--particle-x': `${vector.x}%`,

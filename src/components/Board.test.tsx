@@ -264,10 +264,13 @@ describe('Board glyph system', () => {
     expect(ingress?.getAttribute('data-motion-to')).toBe('4:0');
     expect(ingress?.getAttribute('data-reset-window')).toBe('0-180ms');
     expect(impact?.getAttribute('data-grid-cell')).toBe('4:0');
-    expect(impact?.getAttribute('data-reset-window')).toBe('180-300ms');
+    expect(impact?.getAttribute('data-reset-window')).toBe('180-460ms');
     expect(respawn?.getAttribute('data-grid-cell')).toBe('2:0');
-    expect(respawn?.getAttribute('data-reset-window')).toBe('300-620ms');
-    expect(container.querySelectorAll('[data-reset-particle-for="spike-guide-block"]')).toHaveLength(12);
+    expect(respawn?.getAttribute('data-reset-window')).toBe('460-820ms');
+    const particles = container.querySelectorAll('[data-reset-particle-for="spike-guide-block"]');
+    expect(particles).toHaveLength(12);
+    expect(Array.from(particles).every((particle) =>
+      particle.getAttribute('data-reset-particle-window') === '180-460ms')).toBe(true);
     expect(container.querySelector('[data-motion-from="4:0"][data-motion-to="2:0"]')).toBeNull();
 
     rerender(<Board state={result.state} turnEvents={[]} />);

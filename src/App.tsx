@@ -38,6 +38,12 @@ type GameView = Readonly<{
   turnEvents?: readonly DomainEvent[];
 }>;
 
+export type LessonAccessMode = 'free' | 'progression';
+
+type AppProps = Readonly<{
+  lessonAccessMode?: LessonAccessMode;
+}>;
+
 const reducedMotionQuery = '(prefers-reduced-motion: reduce)';
 
 function usePrefersReducedMotion(): boolean {
@@ -56,7 +62,9 @@ function usePrefersReducedMotion(): boolean {
   return prefersReducedMotion;
 }
 
-export function App() {
+export function App({
+  lessonAccessMode = import.meta.env.DEV ? 'free' : 'progression',
+}: AppProps = {}) {
   const firstSpec = courseLevels[0]!;
   const [gameView, setGameView] = useState<GameView>(() => ({ state: createGame(firstSpec.board) }));
   const [isBriefingOpen, setIsBriefingOpen] = useState(true);
@@ -71,6 +79,12 @@ export function App() {
     () => getUnlockedCourseLevelIds(courseGroups, completedLevelIds),
     [completedLevelIds],
   );
+  const selectableLevelIds = useMemo(
+    () => lessonAccessMode === 'free'
+      ? new Set(courseLevels.map((level) => level.id))
+      : unlockedLevelIds,
+    [lessonAccessMode, unlockedLevelIds],
+  );
   const completedForNavigation = state.status === 'won' && !completedSet.has(activeSpec.id)
     ? [...completedLevelIds, activeSpec.id]
     : completedLevelIds;
@@ -80,12 +94,12 @@ export function App() {
   const nextSpec = nextLevelId ? specFor(nextLevelId) : undefined;
 
   const loadLesson = useCallback((id: string) => {
-    if (!unlockedLevelIds.has(id)) return;
+    if (!selectableLevelIds.has(id)) return;
     const level = specFor(id);
     if (!level) return;
     setGameView({ state: createGame(level.board) });
     setIsBriefingOpen(true);
-  }, [unlockedLevelIds]);
+  }, [selectableLevelIds]);
 
   const applyMove = useCallback((direction: Direction) => {
     if (isBriefingOpen) return;
@@ -197,7 +211,7 @@ export function App() {
         <label htmlFor="lesson-picker">关卡</label>
         <select id="lesson-picker" onChange={(event) => loadLesson(event.target.value)} value={state.level.id}>
           {courseLevels.map((level) => (
-            <option disabled={!unlockedLevelIds.has(level.id)} key={level.id} value={level.id}>
+            <option disabled={!selectableLevelIds.has(level.id)} key={level.id} value={level.id}>
               {level.board.title}
             </option>
           ))}
@@ -212,7 +226,7 @@ export function App() {
         groups={courseGroups}
         levels={courseLevels}
         onSelect={loadLesson}
-        unlockedLevelIds={unlockedLevelIds}
+        unlockedLevelIds={selectableLevelIds}
       />
 
       <div className="game-layout game-layout--course">

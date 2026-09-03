@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Board } from './components/Board';
+import { AuthorAnalysisPanel } from './components/AuthorAnalysisPanel';
 import { CurriculumMap } from './components/CurriculumMap';
 import { GameControls } from './components/GameControls';
 import { LessonBriefing } from './components/LessonBriefing';
@@ -291,6 +292,7 @@ export function App({
       </header>
 
       {authoringMode ? (
+        <>
         <section aria-label="作者工具" className="author-tools">
           <label htmlFor="catalog-picker">课程目录</label>
           <select
@@ -313,6 +315,8 @@ export function App({
           </select>
           <p>目标 D{activeSpec.difficulty.target} · {activeSpec.difficulty.confidence}</p>
         </section>
+        <AuthorAnalysisPanel key={`${catalog.id}:${selection.scope}:${activeSpec.id}`} spec={activeSpec} />
+        </>
       ) : null}
 
       <section className="lesson-strip" aria-label="Lesson selection">

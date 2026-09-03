@@ -1,4 +1,11 @@
-import type { LevelSpec, SearchStatus } from '../course/types';
+import {
+  advanceProof,
+  evaluateOrderedMilestones,
+  evaluateProofConditions,
+  proofSatisfied,
+} from '../course/proof-evaluator';
+import type { ProofConditionEvaluation } from '../course/proof-evaluator';
+import type { LevelSpec, ProofCondition, SearchStatus } from '../course/types';
 import { createGame, isBlockSolved, move } from '../engine/game-engine';
 import type {
   Cell,
@@ -61,6 +68,11 @@ export type SolverReport = Readonly<{
   bestPlan?: SolverPlan;
   plans: readonly SolverPlan[];
   metrics: SolverMetrics;
+  proof: Readonly<{
+    required: readonly ProofConditionEvaluation[];
+    milestones: readonly ProofConditionEvaluation[];
+    insightTailPushes: number;
+  }>;
   diagnostics: SolverDiagnostics;
 }>;
 
@@ -69,6 +81,8 @@ export type SolverOptions = Readonly<{
   maximumPlans?: number;
   pushSlack?: number;
   moveSlack?: number;
+  /** Search branches are discarded as soon as any listed condition completes. */
+  forbiddenConditions?: readonly ProofCondition[];
 }>;
 
 type SearchNode = Readonly<{
@@ -79,6 +93,7 @@ type SearchNode = Readonly<{
   pushes: number;
   estimateMoves: number;
   depth: number;
+  forbiddenProgress: readonly number[];
 }>;
 
 type GeneratedTransition = Readonly<{
@@ -163,6 +178,10 @@ function stateKey(state: GameState): string {
   ].join('~');
 }
 
+function searchKey(state: GameState, forbiddenProgress: readonly number[]): string {
+  return `${stateKey(state)}~f:${forbiddenProgress.join(',')}`;
+}
+
 function countPushes(events: readonly DomainEvent[]): number {
   return events.filter((event) =>
     event.type === 'block-pushed' || event.type === 'goal-pushed' || event.type === 'gate-pushed',
@@ -191,8 +210,13 @@ function eventSignature(event: DomainEvent): string {
   }
   if (event.type === 'death-reset') return event.type;
   if ('entityId' in event) {
-    const destination = 'to' in event ? `@${cellKey(event.to)}` : '';
-    return `${event.type}:${event.entityId}${destination}`;
+    const transition = event.type === 'block-pushed' ||
+      event.type === 'goal-pushed' ||
+      event.type === 'gate-pushed' ||
+      event.type === 'object-reset'
+      ? `@${cellKey(event.from)}>${cellKey(event.to)}`
+      : '';
+    return `${event.type}:${event.entityId}${transition}`;
   }
   return event.type;
 }
@@ -443,11 +467,26 @@ function metricsFor(spec: LevelSpec, plan: SolverPlan | undefined): SolverMetric
   };
 }
 
+function proofFor(spec: LevelSpec, plan: SolverPlan | undefined): SolverReport['proof'] {
+  const batches = plan?.actions.map((action) => ({
+    events: action.events,
+    pushes: action.pushes,
+  })) ?? [];
+  const required = evaluateProofConditions(spec.theorem.proofConditions, batches);
+  const milestones = evaluateOrderedMilestones(spec.theorem.milestones, batches);
+  const finalMilestone = milestones.at(-1);
+  const insightTailPushes = plan && finalMilestone?.satisfied
+    ? plan.pushes - (finalMilestone.pushesAtCompletion ?? plan.pushes)
+    : plan?.pushes ?? 0;
+  return { required, milestones, insightTailPushes };
+}
+
 export function solveLevel(spec: LevelSpec, options: SolverOptions = {}): SolverReport {
   const maximumStates = options.maximumStates ?? 500_000;
   const maximumPlans = options.maximumPlans ?? 6;
   const pushSlack = options.pushSlack ?? 2;
   const moveSlack = options.moveSlack ?? 8;
+  const forbiddenConditions = options.forbiddenConditions ?? [];
   const plain = isPlainPushBoard(spec);
   const searchMode: SolverSearchMode = plain ? 'push-macro-a-star' : 'domain-dijkstra';
   const initialState = withoutHistory(createGame(spec.board));
@@ -459,6 +498,7 @@ export function solveLevel(spec: LevelSpec, options: SolverOptions = {}): Solver
       searchMode,
       plans: [],
       metrics: metricsFor(spec, undefined),
+      proof: proofFor(spec, undefined),
       diagnostics: {
         exploredStates: 0,
         generatedActions: 0,
@@ -478,11 +518,16 @@ export function solveLevel(spec: LevelSpec, options: SolverOptions = {}): Solver
     pushes: 0,
     estimateMoves: plain ? matchingLowerBound(initialState) : 0,
     depth: 0,
+    forbiddenProgress: forbiddenConditions.map(() => 0),
   };
   const frontier = new MinHeap<SearchNode>(compareNode);
   frontier.push(initial);
   const visited = new Map<string, CostRecord>();
-  visited.set(stateKey(initialState), { moves: 0, pushes: 0, signatures: new Set(['walk-only']) });
+  visited.set(searchKey(initialState, initial.forbiddenProgress), {
+    moves: 0,
+    pushes: 0,
+    signatures: new Set(['walk-only']),
+  });
   const winners = new Map<string, SearchNode>();
   let bestMoves: number | undefined;
   let bestPushes: number | undefined;
@@ -511,6 +556,10 @@ export function solveLevel(spec: LevelSpec, options: SolverOptions = {}): Solver
       if (bestMoves !== undefined && moves > bestMoves + moveSlack) continue;
       if (bestPushes !== undefined && pushes > bestPushes + pushSlack) continue;
       const actions = [...node.actions, transition.action];
+      const forbiddenProgress = forbiddenConditions.map((condition, index) =>
+        advanceProof(condition, node.forbiddenProgress[index]!, transition.action.events));
+      if (forbiddenConditions.some((condition, index) =>
+        proofSatisfied(condition, forbiddenProgress[index]!))) continue;
       const candidate: SearchNode = {
         state: transition.state,
         directions: [...node.directions, ...transition.action.directions],
@@ -519,6 +568,7 @@ export function solveLevel(spec: LevelSpec, options: SolverOptions = {}): Solver
         pushes,
         estimateMoves: moves + (plain ? matchingLowerBound(transition.state) : 0),
         depth: node.depth + 1,
+        forbiddenProgress,
       };
 
       if (transition.state.status === 'won') {
@@ -542,7 +592,7 @@ export function solveLevel(spec: LevelSpec, options: SolverOptions = {}): Solver
         continue;
       }
 
-      const key = stateKey(transition.state);
+      const key = searchKey(transition.state, forbiddenProgress);
       if (!shouldVisit(visited, key, candidate, pushSlack, moveSlack)) {
         transpositionHits += 1;
         continue;
@@ -575,6 +625,7 @@ export function solveLevel(spec: LevelSpec, options: SolverOptions = {}): Solver
     bestPlan,
     plans,
     metrics,
+    proof: proofFor(spec, bestPlan),
     diagnostics: {
       exploredStates,
       generatedActions,

@@ -121,4 +121,28 @@ describe('deep level solver interface', () => {
       reachableRegionChanges: expect.any(Number),
     }));
   });
+
+  it('proves a theorem condition necessary by forbidding it during search', () => {
+    const spec = acceptedFoundationCatalog.levels[0]!;
+    const condition = spec.theorem.proofConditions[0]!;
+
+    const baseline = solveLevel(spec);
+    const counterfactual = solveLevel(spec, { forbiddenConditions: [condition] });
+
+    expect(baseline.proof.required).toEqual([
+      expect.objectContaining({ condition, satisfied: true }),
+    ]);
+    expect(counterfactual.status).toBe('proven-unsolved');
+  });
+
+  it('records ordered insight milestones and the remaining push tail', () => {
+    const spec = acceptedFoundationCatalog.levels.find((level) => level.id === 'lesson-51')!;
+    const report = solveLevel(spec);
+
+    expect(report.status).toBe('solved');
+    expect(report.proof.milestones).toHaveLength(spec.theorem.milestones.length);
+    expect(report.proof.milestones.every((milestone) => milestone.satisfied)).toBe(true);
+    expect(report.proof.insightTailPushes).toBeGreaterThanOrEqual(0);
+    expect(report.proof.insightTailPushes).toBeLessThanOrEqual(report.bestPlan!.pushes);
+  });
 });

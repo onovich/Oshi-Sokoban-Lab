@@ -37,5 +37,14 @@ describe('versioned course catalogs', () => {
       'act-4-synthesis',
       'act-5-summit',
     ]);
+    expect(masteryV2Catalog.levels).toHaveLength(66);
+    expect(masteryV2Catalog.groups.find((group) => group.id === 'mastery-push-footprint-opening')?.levelIds)
+      .toEqual([
+        'mastery-push-footprint-01',
+        'mastery-push-footprint-02',
+        'mastery-push-footprint-03',
+      ]);
+    expect(masteryV2Catalog.acts.find((act) => act.id === 'act-2-fluency')?.levelIds)
+      .toContain('mastery-push-footprint-06');
   });
 });

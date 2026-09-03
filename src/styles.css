@@ -189,6 +189,99 @@ kbd {
   white-space: nowrap;
 }
 
+.author-analysis {
+  border-bottom: 1px solid #2e322f;
+  color: #b9bdb7;
+  font-size: 0.6875rem;
+}
+
+.author-analysis > summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 2.25rem;
+  cursor: pointer;
+  list-style: none;
+  letter-spacing: 0.06em;
+}
+
+.author-analysis > summary::-webkit-details-marker {
+  display: none;
+}
+
+.author-analysis > summary strong {
+  color: var(--role-yellow);
+}
+
+.author-analysis__body {
+  display: grid;
+  grid-template-columns: minmax(18rem, 1fr) minmax(18rem, 1fr) minmax(14rem, 0.7fr);
+  gap: 1rem;
+  padding: 0 0 0.8rem;
+}
+
+.author-analysis dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+}
+
+.author-analysis dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-bottom: 1px solid #303431;
+  padding: 0.2rem 0;
+}
+
+.author-analysis dt,
+.author-analysis h3 {
+  color: #858a84;
+  font-size: inherit;
+  font-weight: 800;
+}
+
+.author-analysis dd {
+  margin: 0;
+  color: var(--text-main);
+}
+
+.author-analysis h3 {
+  margin: 0 0 0.35rem;
+  letter-spacing: 0.08em;
+}
+
+.author-analysis ul {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.author-analysis li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.author-analysis code {
+  overflow: hidden;
+  color: #d2d5cf;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.author-analysis [data-proof-status="bypass"] span,
+.author-analysis [data-proof-status="unknown"] span {
+  color: var(--spike-red);
+}
+
+.author-analysis__mutations p {
+  margin: 0;
+}
+
 .lesson-strip {
   display: grid;
   grid-template-columns: auto minmax(12rem, 1fr) auto auto;

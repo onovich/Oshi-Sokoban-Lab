@@ -39,6 +39,8 @@ describe('Oshi course interface', () => {
     render(<App />);
 
     expect(screen.getByRole('combobox', { name: '课程目录' })).toBeTruthy();
+    expect(screen.getByRole('region', { name: '作者分析' })).toBeTruthy();
+    expect(screen.getByText(/求解：solved/)).toBeTruthy();
     expect(screen.getAllByRole('option', { name: /Gate × Spike/ })).toHaveLength(3);
 
     fireEvent.change(screen.getByRole('combobox', { name: '课程区域' }), {
@@ -56,7 +58,7 @@ describe('Oshi course interface', () => {
       target: { value: 'formal' },
     });
 
-    expect(screen.getByText(/当前 60 关 \/ 目标 120 关/)).toBeTruthy();
+    expect(screen.getByText(/当前 66 关 \/ 目标 120 关/)).toBeTruthy();
     expect(screen.getByText(/目标 D[1-3]/)).toBeTruthy();
     for (const act of ['I · 语法', 'II · 熟练', 'III · 反转', 'IV · 综合', 'V · 峰顶']) {
       expect(screen.getByRole('heading', { name: act })).toBeTruthy();
@@ -105,6 +107,7 @@ describe('Oshi course interface', () => {
     expect(screen.getByText('20 组 · 60 关 · 展开')).toBeTruthy();
     expect(screen.getAllByRole('button', { name: /建立关|定界关|推演关/ })).toHaveLength(60);
     expect(screen.queryByText(/目标 D/)).toBeNull();
+    expect(screen.queryByRole('region', { name: '作者分析' })).toBeNull();
   });
 
   it('keeps a solved board visible and advances only through the explicit next button', () => {

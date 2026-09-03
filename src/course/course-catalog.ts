@@ -3,7 +3,8 @@ import {
   courseGroups as candidateGroups,
   courseLevels as candidateLevels,
 } from '../levels/course-catalog';
-import type { CourseActDefinition, CourseCatalog } from './types';
+import { pushFootprintLevels } from '../levels/mastery/push-footprint-levels';
+import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
 import { rewriteProofCondition } from './proof-condition';
 
@@ -99,21 +100,55 @@ const acceptedIds = candidateLevels
   .map((level) => level.id)
   .filter((id) => !spikePrototypeIds.has(id));
 
-function levelsInOrder(levelIds: readonly string[]): readonly LevelSpec[] {
+function levelsInOrder(
+  levelIds: readonly string[],
+  levelsById: ReadonlyMap<string, LevelSpec> = acceptedLevelsById,
+): readonly LevelSpec[] {
   return levelIds.map((id) => {
-    const level = acceptedLevelsById.get(id);
+    const level = levelsById.get(id);
     if (!level) throw new Error(`Catalog refers to missing accepted level ${id}.`);
     return level;
   });
 }
 
-function levelIdsForGroups(groupIds: readonly string[]): readonly string[] {
+function levelIdsForGroups(
+  groupIds: readonly string[],
+  groups: readonly CourseGroupDefinition[] = acceptedGroups,
+): readonly string[] {
   return groupIds.flatMap((id) => {
-    const group = acceptedGroups.find((candidate) => candidate.id === id);
+    const group = groups.find((candidate) => candidate.id === id);
     if (!group) throw new Error(`Catalog refers to missing accepted group ${id}.`);
     return [...group.levelIds];
   });
 }
+
+const pushFootprintGroups: readonly CourseGroupDefinition[] = [
+  {
+    id: 'mastery-push-footprint-opening',
+    title: '推侧 × Footprint：退一步',
+    branch: 'shape',
+    prerequisites: ['g02-footprint-clearance'],
+    masteryLevelId: 'mastery-push-footprint-03',
+    levelIds: pushFootprintLevels.slice(0, 3).map((level) => level.id),
+  },
+  {
+    id: 'mastery-push-footprint-shared-route',
+    title: '推侧 × Footprint：共用空间',
+    branch: 'shape',
+    prerequisites: ['mastery-push-footprint-opening'],
+    completionPrerequisites: ['mastery-push-footprint-opening'],
+    masteryLevelId: 'mastery-push-footprint-06',
+    levelIds: pushFootprintLevels.slice(3, 6).map((level) => level.id),
+  },
+];
+const masteryGroups: readonly CourseGroupDefinition[] = [
+  ...acceptedGroups,
+  ...pushFootprintGroups,
+];
+const masteryLevelsById = new Map<string, LevelSpec>([
+  ...acceptedLevelsById,
+  ...pushFootprintLevels.map((level) => [level.id, level] as const),
+]);
 
 const masteryActSeeds = [
   {
@@ -134,6 +169,8 @@ const masteryActSeeds = [
     id: 'act-2-fluency',
     title: 'II · 熟练',
     groupIds: [
+      'mastery-push-footprint-opening',
+      'mastery-push-footprint-shared-route',
       'g12-rain-stop',
       'g13-rain-adjacency',
       'g14-gate-direction',
@@ -167,7 +204,7 @@ const masteryActSeeds = [
 const masteryActs: readonly CourseActDefinition[] = masteryActSeeds.map((act) => ({
   id: act.id,
   title: act.title,
-  levelIds: levelIdsForGroups(act.groupIds),
+  levelIds: levelIdsForGroups(act.groupIds, masteryGroups),
 }));
 const masteryIds = masteryActs.flatMap((act) => [...act.levelIds]);
 
@@ -191,8 +228,8 @@ export const masteryV2Catalog: CourseCatalog = {
   title: 'Oshi 大师课程',
   targetFormalLevelCount: 120,
   acts: masteryActs,
-  groups: acceptedGroups,
-  levels: levelsInOrder(masteryIds),
+  groups: masteryGroups,
+  levels: levelsInOrder(masteryIds, masteryLevelsById),
   labGroups,
   labLevels,
 };

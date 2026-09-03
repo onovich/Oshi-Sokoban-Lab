@@ -4,6 +4,7 @@ import type {
   DomainEvent,
   GameState,
 } from '../engine/types';
+import { advanceProof, proofTarget } from '../course/proof-evaluator';
 import { proofConditionKey } from '../course/proof-condition';
 import type { LevelAnalysis, LevelSpec, ProofCondition } from '../course/types';
 
@@ -50,60 +51,6 @@ function stateKey(state: GameState): string {
 
 function withoutHistory(state: GameState): GameState {
   return { ...state, history: [] };
-}
-
-function eventKeys(event: DomainEvent): readonly string[] {
-  const keys = [`event:${event.type}`];
-  if ('entityId' in event) keys.push(`event:${event.type}:${event.entityId}`);
-  if (event.type === 'object-reset') {
-    keys.push(`event:${event.type}:${event.entityType}`);
-    keys.push(`event:${event.type}:${event.entityType}:${event.entityId}`);
-  }
-  if (event.type === 'gate-traversed') {
-    keys.push(`event:${event.type}:entry:${event.entryGateId}`);
-    keys.push(`event:${event.type}:exit:${event.exitGateId}`);
-  }
-  if ('direction' in event) keys.push(`event:${event.type}:${event.direction}`);
-  if ('from' in event && 'to' in event) {
-    const transition = `from:${event.from.x},${event.from.y}:to:${event.to.x},${event.to.y}`;
-    keys.push(`event:${event.type}:${transition}`);
-    if ('entityId' in event) keys.push(`event:${event.type}:${event.entityId}:${transition}`);
-  }
-  return keys;
-}
-
-function eventsMatch(events: readonly DomainEvent[], predicate: string): boolean {
-  return events.some((event) => eventKeys(event).includes(predicate));
-}
-
-function proofTarget(condition: ProofCondition): number {
-  if (condition.kind === 'count') return condition.atLeast;
-  if (condition.kind === 'sequence') return condition.events.length;
-  return 1;
-}
-
-function advanceProof(
-  condition: ProofCondition,
-  progress: number,
-  events: readonly DomainEvent[],
-): number {
-  const target = proofTarget(condition);
-  if (progress >= target) return target;
-  if (condition.kind === 'event') {
-    return eventsMatch(events, condition.event.key) ? 1 : progress;
-  }
-  if (condition.kind === 'count') {
-    const matches = events.filter((event) => eventKeys(event).includes(condition.event.key)).length;
-    return Math.min(condition.atLeast, progress + matches);
-  }
-
-  let next = progress;
-  for (const event of events) {
-    const expected = condition.events[next];
-    if (expected && eventKeys(event).includes(expected.key)) next += 1;
-    if (next >= target) break;
-  }
-  return next;
 }
 
 function pushCount(events: readonly DomainEvent[]): number {

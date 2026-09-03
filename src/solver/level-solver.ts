@@ -293,6 +293,18 @@ function generatePushMacros(state: GameState): readonly GeneratedTransition[] {
     for (const direction of directions) {
       const result = move(current.state, direction);
       if (!result.didMove || result.state.status === 'lost') continue;
+      if (result.state.status === 'won') {
+        const transition: GeneratedTransition = {
+          state: withoutHistory(result.state),
+          action: makeAction([...current.directions, direction], result.events),
+        };
+        const key = stateKey(transition.state);
+        const previous = candidates.get(key);
+        if (!previous || transition.action.directions.length < previous.action.directions.length) {
+          candidates.set(key, transition);
+        }
+        continue;
+      }
       const pushes = countPushes(result.events);
       if (pushes > 0 || result.events.some((event) => event.type !== 'block-pushed')) {
         if (pushes === 0) continue;

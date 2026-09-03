@@ -101,10 +101,11 @@ describe('authored sixty-three-level course', () => {
   it('classifies every removable mechanism and empty walkable cell without redundant space', () => {
     for (const level of courseLevels) {
       const mutations = auditLevelMutations(level, 100_000);
-      const redundant = mutations.filter((mutation) => mutation.classification === 'redundant');
+      const unresolved = mutations.filter((mutation) =>
+        mutation.classification === 'redundant' || mutation.classification === 'inconclusive');
       expect(
-        redundant,
-        `${level.id} contains unclassified redundant elements`,
+        unresolved,
+        `${level.id} contains redundant or inconclusive elements`,
       ).toEqual([]);
     }
   }, 120_000);

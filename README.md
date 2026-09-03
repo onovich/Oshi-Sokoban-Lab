@@ -27,11 +27,13 @@ Open the local URL printed by Vite.
 
 ## What is here
 
-- Sixty-three compact candidate lessons arranged as twenty-one three-stage groups: establish a rule, bound its meaning with one-variable contrast, then infer a deeper consequence.
+- Two isolated course catalogs: the accepted 60-level foundation used in production, and a development-only `mastery-v2` draft that currently exposes 70 playable formal levels against a fixed 120-slot, five-act blueprint.
+- Ten machine-verified Push-side × Footprint mastery candidates (`P1–P10`). Their D3–D8 labels are design targets only until the required blind-test samples calibrate them.
+- Three unaccepted Spike destroy/rebirth prototypes live in the development laboratory and do not count toward either catalog's formal progress.
 - A pure state-machine engine for player movement, pushing, shaped entities, terrain Goals and Spikes, movable Goals, paired Gates, undo, restart, and optional step or time limits.
 - A source-audited rules model covering numbered Goals, Fake Blocks, Rain movement, Gate topology, and Spike resets. Path-driven moving Spikes remain outside the main course until their dynamic state is statically readable.
 - Grid-aligned CSS/SVG rendering with shared visual marks for the board and rule legend, including animated movement, two-part Gate travel, and a three-stage Spike destroy/rebirth presentation.
-- A test-first course workflow: typed domain events, source conformance, branching progress, bounded state-space solvability, theorem-bypass checks, solution replay, and interface flows are automated.
+- A test-first authoring workflow: typed proof conditions, accepted-level fingerprints, stable-ID progress, actual-engine A*/Dijkstra search, explicit budget exhaustion, alternative macro-strategy checks, deadlock pruning, counterfactual theorem checks, mutation audits, replay, and interface flows.
 
 ## Development
 
@@ -45,11 +47,13 @@ The project uses React, TypeScript, and Vite. The rule engine lives in [`src/eng
 
 ## Status and scope
 
-The playable core and all 63 curriculum boards are implemented as an automated candidate pool. Every board is currently solver-verified and audited for its declared critical event. The creator has completed and accepted the prior 60-board course (now lessons 01–18 and 22–63); those accepted boards and their design theorems are treated as frozen. The new Spike framing lessons 19–21 still await creator review and are now only mechanics/presentation prototypes, not a settled early-course sequence. The planned curriculum will add separate bridge lessons between frozen foundations: static Spikes first recur as supporting hazards across other families, then a later dedicated family reveals origin reset as a remote movement tool. Independent blind tests are a separate gate and are still required before the boards are treated as final lessons. Path Spike is intentionally outside the main teaching route. This is the original creator's mechanics and level-design lab, not a full web port of Oshi.
+Production still defaults to the creator-accepted 60-level foundation. The draft `mastery-v2` catalog currently contains those 60 frozen levels plus `P1–P10`, for 70 playable formal boards; all ten new boards are solver-replayable, require their declared proof conditions, and have no unlabelled redundant board element under the current mutation audit. This is a machine-verified milestone, not evidence that P10 has reached a human D8 ceiling.
+
+The remaining 50 blueprint slots are deliberately not being filled as unchecked content. The plan requires P1–P6 difficulty/transfer testing, then P7–P10 testing, before authoring P11–P12; P12 needs creator acceptance and expert blind testing before the H/G/I/R/T/S/C/U arcs expand horizontally. The early Spike prototypes remain in the laboratory, while the formal blueprint reserves eight separated hazard-only bridges before the reset-as-remote-movement reveal at slots 70–75. Path Spike remains outside the teaching route. This is the original creator's mechanics and level-design lab, not a full web port of Oshi.
 
 ## Research basis
 
-The implementation is verified against the creator's public Oshi source snapshot [`main @ 4afe6809`](https://github.com/onovich/Oshi/tree/4afe6809aaef0894b5f27b543dff84b437bebb45). See the [web-demo specification](research/04-oshi-mechanics-web-demo-spec.md), [mechanics conformance audit](research/10-mechanics-conformance-audit.md), [Witness / SSR design study](research/15-witness-ssr-level-design-study.md), [63-level curriculum](docs/level-family-curriculum-plan.md), and [blind-test protocol](docs/playtest-protocol.md).
+The implementation is verified against the creator's public Oshi source snapshot [`main @ 4afe6809`](https://github.com/onovich/Oshi/tree/4afe6809aaef0894b5f27b543dff84b437bebb45). See the [web-demo specification](research/04-oshi-mechanics-web-demo-spec.md), [mechanics conformance audit](research/10-mechanics-conformance-audit.md), [Witness / SSR design study](research/15-witness-ssr-level-design-study.md), [mastery implementation map](docs/wayfinder/mastery-curriculum/map.md), [120-slot blueprint](src/course/mastery-blueprint.ts), [historical 63-board foundation plan](docs/level-family-curriculum-plan.md), and [blind-test protocol](docs/playtest-protocol.md).
 
 ## License
 

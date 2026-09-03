@@ -2,8 +2,8 @@
 id: mastery-04
 title: 基础课与进阶掌握弧如何共存？
 type: task
-status: blocked
-blockers: [mastery-01, mastery-02, mastery-03]
+status: done
+blockers: []
 ---
 
 # 基础课与进阶掌握弧如何共存？
@@ -11,3 +11,14 @@ blockers: [mastery-01, mastery-02, mastery-03]
 比较线性追加、机制分支和交错回访三种结构，选择既能保留已验收基础课程，又能让同一技巧隔时复现、迁移和组合的方案。已验收关卡视为冻结节点；认知铺垫通过独立桥接关插入，不向旧盘面追加 Spike 或改写原命题。同步设计高难关不阻塞全局、稳定关卡 ID、显示序号和存档迁移。
 
 完成条件：输出章节图、前置图、下一关路由规则、完成定义和迁移方案；明确哪些 8–10 档挑战属于必修或支线；增加基础关冻结清单，至少能检测盘面、命题、required predicates 或关键求解指标被意外改写。
+
+## 已实施决策（2026-09-03）
+
+- 采用 `accepted-foundation-v1` 与 `mastery-v2` 双目录：生产继续使用 60 个已验收基础关，大师课程在开发模式独立迭代。
+- `mastery-v2` 固定为五幕 120 槽蓝图；显示序号由目录位置派生，稳定关卡 ID 不随插关或重排变化。
+- 正式课程、实验室与不同目录的本地完成记录按版本隔离；未知或退役 ID 安全忽略。
+- 课程组可包含任意数量关卡；关内顺序严格推进，组间以前置关系解锁，组末“下一关”按蓝图中最低序号的已解锁未完成关路由。
+- 分层完成定义为：完成全部 D1–6 目标槽取得基础结业；六个主要 D8 组合终点中任意三个触发主线结局；全部 120 关完成计 100%。D9–10 不阻塞主线结局。
+- `ACCEPTED_LEVEL_FREEZE_MANIFEST` 对 60 个基础关的盘面、实体、规则参数、命题和证明条件做规范化指纹；显示序号与纯文案不进入指纹。
+
+实现证据：`src/course/course-catalog.ts`、`src/course/mastery-blueprint.ts`、`src/course/course-completion.ts`、`src/course/course-progress-store.ts`、`src/course/accepted-freeze.ts` 及对应测试。

@@ -54,9 +54,9 @@ describe('P · push-side × footprint mastery arc', () => {
 
   it('contains no unlabelled redundant board cell or mechanism', () => {
     for (const level of pushFootprintLevels) {
-      const redundant = auditLevelMutations(level, 100_000)
-        .filter((mutation) => mutation.classification === 'redundant');
-      expect(redundant, level.id).toEqual([]);
+      const unresolved = auditLevelMutations(level, 100_000)
+        .filter((mutation) => ['redundant', 'inconclusive'].includes(mutation.classification));
+      expect(unresolved, level.id).toEqual([]);
     }
   });
 });

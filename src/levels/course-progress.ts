@@ -11,6 +11,7 @@ function groupAvailable(
   groupsById: ReadonlyMap<string, CourseGroupDefinition>,
   completed: ReadonlySet<string>,
 ): boolean {
+  if (!(group.requiredLevelIds ?? []).every((levelId) => completed.has(levelId))) return false;
   const completionRequired = new Set(group.completionPrerequisites ?? []);
   return group.prerequisites.every((prerequisiteId) => {
     const prerequisite = groupsById.get(prerequisiteId);

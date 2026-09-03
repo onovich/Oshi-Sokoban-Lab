@@ -39,9 +39,10 @@ describe('checked-in course audit report', () => {
       .reduce((counts, mutation) => ({
         ...counts,
         [mutation.classification]: counts[mutation.classification] + 1,
-      }), { 'proof-critical': 0, readability: 0, redundant: 0 });
+      }), { 'proof-critical': 0, readability: 0, redundant: 0, inconclusive: 0 });
     const total = Object.values(classifications).reduce((sum, count) => sum + count, 0);
 
+    expect(classifications.inconclusive).toBe(0);
     expect(report).toContain(`${total} 项变异全部重新求解`);
     expect(report).toContain(`${classifications['proof-critical']} 项改变可解性`);
     expect(report).toContain(`${classifications.readability} 项是显式标注的静态对照元素`);

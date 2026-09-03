@@ -143,7 +143,7 @@ function findSolution(
   return { exploredStates, exhausted: frontier.length > 0 };
 }
 
-function proofCriticalElements(spec: LevelSpec): readonly string[] {
+export function proofCriticalElements(spec: LevelSpec): readonly string[] {
   const predicates = spec.theorem.proofConditions.map(proofConditionKey);
   const references = new Set<string>();
   const addNamed = (prefix: string, entities: readonly { id: string }[]) => {

@@ -72,6 +72,8 @@ export type CourseGroupDefinition = Readonly<{
   title: string;
   branch: 'foundation' | 'shape' | 'fake' | 'spike' | 'goal' | 'rain' | 'gate' | 'combination';
   prerequisites: readonly string[];
+  /** Stable level ids that must be completed even when their group is not playable yet. */
+  requiredLevelIds?: readonly string[];
   completionPrerequisites?: readonly string[];
   /** Explicit when mastery is not represented by the second lesson. */
   masteryLevelId?: string;
@@ -117,6 +119,8 @@ export type CourseCatalog = Readonly<{
   status: CourseCatalogStatus;
   title: string;
   targetFormalLevelCount: number;
+  /** Complete stable-id order, including planned slots that are not playable yet. */
+  formalLevelOrder: readonly string[];
   completion: CourseCompletionDefinition;
   acts: readonly CourseActDefinition[];
   groups: readonly CourseGroupDefinition[];

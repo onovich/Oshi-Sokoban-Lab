@@ -119,6 +119,27 @@ function deadSquareSpec(): LevelSpec {
 }
 
 describe('deep level solver interface', () => {
+  it('recognizes a vacuously complete initial state for counterfactual audits', () => {
+    const source = acceptedFoundationCatalog.levels[0]!;
+    const spec: LevelSpec = {
+      ...source,
+      id: 'solver-initially-complete',
+      board: {
+        ...source.board,
+        id: 'solver-initially-complete',
+        blocks: [],
+        terrainGoals: [],
+      },
+    };
+
+    expect(createGame(spec.board).status).toBe('playing');
+    const report = solveLevel(spec);
+    expect(report.status).toBe('solved');
+    expect(report.bestPlan?.moves).toBe(1);
+    expect(report.bestPlan?.pushes).toBe(0);
+    replay(spec, report.bestPlan?.directions ?? []);
+  });
+
   it('distinguishes a depleted budget from a proof of unsolvability', () => {
     const spec = acceptedFoundationCatalog.levels[2]!;
 

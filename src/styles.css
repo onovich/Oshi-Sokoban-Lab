@@ -260,6 +260,14 @@ kbd {
   list-style: none;
 }
 
+.author-analysis ol {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style-position: inside;
+}
+
 .author-analysis li {
   display: flex;
   justify-content: space-between;
@@ -280,6 +288,26 @@ kbd {
 
 .author-analysis__mutations p {
   margin: 0;
+}
+
+.author-analysis__proofs h3:not(:first-child) {
+  margin-top: 0.75rem;
+}
+
+.author-analysis__strategies code {
+  white-space: normal;
+}
+
+.author-analysis__mutation-list {
+  max-height: 10rem;
+  margin-top: 0.4rem !important;
+  overflow: auto;
+  padding-right: 0.3rem !important;
+}
+
+.author-analysis [data-mutation-classification="redundant"] span,
+.author-analysis [data-mutation-classification="inconclusive"] span {
+  color: var(--spike-red);
 }
 
 .lesson-strip {

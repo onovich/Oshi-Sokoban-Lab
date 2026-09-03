@@ -6,6 +6,7 @@ import {
   masteryV2Catalog,
 } from './course-catalog';
 import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
+import { getNextCourseLevelId, getUnlockedCourseLevelIds } from '../levels/course-progress';
 
 describe('versioned course catalogs', () => {
   it('separates the sixty accepted lessons from the three Spike laboratory prototypes', () => {
@@ -27,10 +28,19 @@ describe('versioned course catalogs', () => {
       .toBe('lesson-22');
   });
 
+  it('preserves mastery blueprint display slots while planned levels are absent', () => {
+    expect(displayNumberFor(masteryV2Catalog, 'mastery-push-footprint-01')).toBe(31);
+    expect(displayNumberFor(masteryV2Catalog, 'lesson-22')).toBe(70);
+    expect(displayNumberFor(masteryV2Catalog, 'lesson-27')).toBe(75);
+  });
+
   it('declares a five-act mastery catalog without making the draft the production default', () => {
     expect(masteryV2Catalog.id).toBe('mastery-v2');
     expect(masteryV2Catalog.status).toBe('draft');
     expect(masteryV2Catalog.targetFormalLevelCount).toBe(120);
+    expect(masteryV2Catalog.formalLevelOrder).toHaveLength(120);
+    expect(masteryV2Catalog.completion.fullCompletionLevelIds)
+      .toEqual(masteryV2Catalog.formalLevelOrder);
     expect(masteryV2Catalog.acts.map((act) => act.id)).toEqual([
       'act-1-grammar',
       'act-2-fluency',
@@ -52,5 +62,41 @@ describe('versioned course catalogs', () => {
         .filter((slot) => slot.state !== 'planned')
         .map((slot) => slot.levelId),
     );
+  });
+
+  it('orders navigation groups by their first playable blueprint slot', () => {
+    const displayIndex = new Map(
+      masteryV2Catalog.levels.map((level, index) => [level.id, index]),
+    );
+    const groupStarts = masteryV2Catalog.groups.map((group) => Math.min(
+      ...group.levelIds.map((levelId) => displayIndex.get(levelId) ?? Number.POSITIVE_INFINITY),
+    ));
+
+    expect(groupStarts).toEqual([...groupStarts].sort((left, right) => left - right));
+  });
+
+  it('routes the end of act I to the first playable act II mastery slot', () => {
+    const completedActOne = masteryV2Catalog.levels
+      .filter((level) => (displayNumberFor(masteryV2Catalog, level.id) ?? 121) <= 30)
+      .map((level) => level.id);
+
+    expect(getNextCourseLevelId(
+      masteryV2Catalog.groups,
+      'lesson-33',
+      completedActOne,
+    )).toBe('mastery-push-footprint-01');
+  });
+
+  it('keeps the slot-70 Spike reveal behind the final hazard-only bridge', () => {
+    const beforeReveal = masteryV2Catalog.levels
+      .map((level) => level.id)
+      .filter((levelId) => !['lesson-22', 'lesson-23', 'lesson-24'].includes(levelId));
+
+    expect(getUnlockedCourseLevelIds(masteryV2Catalog.groups, beforeReveal).has('lesson-22'))
+      .toBe(false);
+    expect(getUnlockedCourseLevelIds(
+      masteryV2Catalog.groups,
+      [...beforeReveal, 'mastery-spike-bridge-08'],
+    ).has('lesson-22')).toBe(true);
   });
 });

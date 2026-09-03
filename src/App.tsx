@@ -7,6 +7,7 @@ import { GameControls } from './components/GameControls';
 import { LessonBriefing } from './components/LessonBriefing';
 import {
   acceptedFoundationCatalog,
+  displayNumberFor,
   masteryV2Catalog,
 } from './course/course-catalog';
 import { summarizeCourseCompletion } from './course/course-completion';
@@ -59,8 +60,9 @@ type CourseScope = 'formal' | 'lab';
 function displayTitle(catalog: CourseCatalog, scope: CourseScope, spec: LevelSpec): string {
   const levels = scope === 'formal' ? catalog.levels : catalog.labLevels;
   const index = levels.findIndex((level) => level.id === spec.id);
-  const prefix = scope === 'formal'
-    ? String(index + 1).padStart(2, '0')
+  const formalNumber = displayNumberFor(catalog, spec.id);
+  const prefix = scope === 'formal' && formalNumber !== undefined
+    ? String(formalNumber).padStart(2, '0')
     : `LAB ${String(index + 1).padStart(2, '0')}`;
   return `${prefix} — ${stripLegacyNumber(spec.board.title)}`;
 }
@@ -151,8 +153,13 @@ export function App({
     [lessonAccessMode, levels, selection.scope, unlockedLevelIds],
   );
   const displayNumbers = useMemo(
-    () => new Map(levels.map((level, index) => [level.id, index + 1])),
-    [levels],
+    () => new Map(levels.map((level, index) => [
+      level.id,
+      selection.scope === 'formal'
+        ? displayNumberFor(catalog, level.id) ?? index + 1
+        : index + 1,
+    ])),
+    [catalog, levels, selection.scope],
   );
   const completedForNavigation = state.status === 'won' && !completedSet.has(activeSpec.id)
     ? [...completedLevelIds, activeSpec.id]

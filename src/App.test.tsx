@@ -61,6 +61,16 @@ describe('Oshi course interface', () => {
     expect(screen.getByText(/当前 70 关 \/ 目标 120 关/)).toBeTruthy();
     expect(screen.getByText(/基础结业 \d+\/\d+ · 主线结局 \d+\/3 · 100% \d+\/120/)).toBeTruthy();
     expect(screen.getByText(/目标 D[1-3]/)).toBeTruthy();
+    expect(screen.getByRole('option', { name: '31 — 回身余地' })).toBeTruthy();
+    expect(screen.getByRole('option', { name: /70 — Spike：另一边/ })).toBeTruthy();
+
+    fireEvent.change(screen.getByRole('combobox', { name: '关卡' }), {
+      target: { value: 'mastery-push-footprint-01' },
+    });
+    const masteryAnalysis = screen.getByRole('region', { name: '作者分析' });
+    expect(masteryAnalysis.textContent).toMatch(/目标难度D3/);
+    expect(masteryAnalysis.textContent).toMatch(/实测难度未校准/);
+    expect(masteryAnalysis.textContent).toMatch(/最优窗口内的宏策略/);
     for (const act of ['I · 语法', 'II · 熟练', 'III · 反转', 'IV · 综合', 'V · 峰顶']) {
       expect(screen.getByRole('heading', { name: act })).toBeTruthy();
     }

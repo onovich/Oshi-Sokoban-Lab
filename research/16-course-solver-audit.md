@@ -1,7 +1,9 @@
 # Oshi 63 关求解与变异审计
 
+> 历史审计快照：本页保留上一版 63 个候选盘面的机器结果。当前正式基线为其中 60 个作者已验收关；原 19–21 已迁入开发实验室。`mastery-v2` 的新候选关由分析器 v2 与各自测试持续审计。
+
 生成日期：2026-09-03  
-分析入口：`src/levels/level-analyzer.ts`、`src/levels/level-mutation-audit.ts`  
+分析入口：逐步路线与旧基线指标使用 `src/levels/level-analyzer.ts`；变异重解使用 `src/levels/level-mutation-audit.ts` 与 `src/solver/level-solver.ts`
 状态：机器验收通过；真人盲测尚未执行。
 
 ## 结论

@@ -149,10 +149,24 @@ const pushFootprintGroups: readonly CourseGroupDefinition[] = [
     levelIds: pushFootprintLevels.slice(9).map((level) => level.id),
   },
 ];
+const masteryBlueprintOrder = new Map(
+  MASTERY_V2_BLUEPRINT.slots.map((slot, index) => [slot.levelId, index]),
+);
+
+const masteryAcceptedGroups: readonly CourseGroupDefinition[] = acceptedGroups.map((group) =>
+  group.id === 'g08-spike-origin'
+    ? { ...group, requiredLevelIds: ['mastery-spike-bridge-08'] }
+    : group);
+
+function firstBlueprintSlot(group: CourseGroupDefinition): number {
+  return Math.min(...group.levelIds.map((levelId) =>
+    masteryBlueprintOrder.get(levelId) ?? Number.POSITIVE_INFINITY));
+}
+
 const masteryGroups: readonly CourseGroupDefinition[] = [
-  ...acceptedGroups,
+  ...masteryAcceptedGroups,
   ...pushFootprintGroups,
-];
+].sort((left, right) => firstBlueprintSlot(left) - firstBlueprintSlot(right));
 const masteryLevelsById = new Map<string, LevelSpec>([
   ...acceptedLevelsById,
   ...pushFootprintLevels.map((level) => [level.id, level] as const),
@@ -166,6 +180,7 @@ const masteryActs: readonly CourseActDefinition[] = MASTERY_V2_BLUEPRINT.acts.ma
     .filter((levelId) => masteryLevelsById.has(levelId)),
 }));
 const masteryIds = masteryActs.flatMap((act) => [...act.levelIds]);
+const masteryFormalLevelOrder = MASTERY_V2_BLUEPRINT.slots.map((slot) => slot.levelId);
 
 export const acceptedFoundationCatalog: CourseCatalog = {
   id: 'accepted-foundation-v1',
@@ -173,6 +188,7 @@ export const acceptedFoundationCatalog: CourseCatalog = {
   status: 'active',
   title: 'Oshi 基础课程',
   targetFormalLevelCount: 60,
+  formalLevelOrder: acceptedIds,
   completion: {
     foundationLevelIds: acceptedIds,
     mainEndingLevelIds: [],
@@ -192,6 +208,7 @@ export const masteryV2Catalog: CourseCatalog = {
   status: 'draft',
   title: 'Oshi 大师课程',
   targetFormalLevelCount: 120,
+  formalLevelOrder: masteryFormalLevelOrder,
   completion: {
     foundationLevelIds: MASTERY_V2_BLUEPRINT.slots
       .filter((slot) => slot.source === 'frozen' || (slot.targetDifficulty ?? 10) <= 6)
@@ -205,7 +222,7 @@ export const masteryV2Catalog: CourseCatalog = {
       'mastery-three-mechanism-04',
     ],
     mainEndingRequiredCount: 3,
-    fullCompletionLevelIds: MASTERY_V2_BLUEPRINT.slots.map((slot) => slot.levelId),
+    fullCompletionLevelIds: masteryFormalLevelOrder,
   },
   acts: masteryActs,
   groups: masteryGroups,
@@ -215,6 +232,6 @@ export const masteryV2Catalog: CourseCatalog = {
 };
 
 export function displayNumberFor(catalog: CourseCatalog, levelId: string): number | undefined {
-  const index = catalog.levels.findIndex((level) => level.id === levelId);
+  const index = catalog.formalLevelOrder.indexOf(levelId);
   return index < 0 ? undefined : index + 1;
 }

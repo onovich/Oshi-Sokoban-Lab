@@ -3,8 +3,10 @@ import type {
   LevelDefinition,
   ShapedEntityDefinition,
 } from '../engine/types';
-import type { LevelAnalysis, LevelSpec } from '../course/types';
-import { analyzeLevel } from './level-analyzer';
+import type { LevelSpec } from '../course/types';
+import { analyzeLevelForAuthor } from '../solver/author-analysis';
+import type { AuthorLevelAnalysis } from '../solver/author-analysis';
+import { proofCriticalElements } from './level-analyzer';
 
 export type LevelMutationKind = 'entity-removal' | 'mechanism-removal' | 'wall-insertion';
 export type LevelMutationEffect =
@@ -12,6 +14,7 @@ export type LevelMutationEffect =
   | 'unsolvable'
   | 'bypass-created'
   | 'solution-changed'
+  | 'inconclusive'
   | 'unchanged';
 
 export type LevelMutationResult = Readonly<{
@@ -19,7 +22,7 @@ export type LevelMutationResult = Readonly<{
   target: string;
   effect: LevelMutationEffect;
   proofCritical: boolean;
-  classification: 'proof-critical' | 'readability' | 'redundant';
+  classification: 'proof-critical' | 'readability' | 'redundant' | 'inconclusive';
 }>;
 
 const cellKey = (value: Cell): string => `${value.x},${value.y}`;
@@ -34,17 +37,28 @@ function entityCells(entity: ShapedEntityDefinition): readonly Cell[] {
 function mutationEffect(
   spec: LevelSpec,
   board: LevelDefinition,
-  baseline: LevelAnalysis,
+  baseline: AuthorLevelAnalysis,
   maximumStates: number,
 ): LevelMutationEffect {
   try {
-    const result = analyzeLevel({ ...spec, board }, maximumStates).analysis;
-    if (!result.solvable) return 'unsolvable';
-    if (result.bypassExists) return 'bypass-created';
+    const result = analyzeLevelForAuthor({ ...spec, board }, {
+      maximumStates,
+      maximumPlans: 1,
+    });
+    if (result.solution.status === 'proven-unsolved') return 'unsolvable';
     if (
-      result.optimalMoves !== baseline.optimalMoves ||
-      result.optimalPushes !== baseline.optimalPushes ||
-      result.insightTailPushes !== baseline.insightTailPushes
+      result.solution.status === 'budget-exhausted' ||
+      !result.solution.diagnostics.completePlanWindow ||
+      result.proofChecks.some((check) => check.status === 'unknown')
+    ) return 'inconclusive';
+    if (result.proofChecks.some((check) => check.status === 'bypass')) return 'bypass-created';
+    const candidatePlan = result.solution.bestPlan;
+    const baselinePlan = baseline.solution.bestPlan;
+    if (!candidatePlan || !baselinePlan) return 'inconclusive';
+    if (
+      candidatePlan.moves !== baselinePlan.moves ||
+      candidatePlan.pushes !== baselinePlan.pushes ||
+      result.solution.proof.insightTailPushes !== baseline.solution.proof.insightTailPushes
     ) {
       return 'solution-changed';
     }
@@ -60,18 +74,30 @@ function result(
   effect: LevelMutationEffect,
   readabilityElements: readonly string[] = [],
 ): LevelMutationResult {
-  const classification = effect !== 'unchanged'
+  const classification = effect === 'inconclusive'
+    ? 'inconclusive'
+    : effect !== 'unchanged'
     ? 'proof-critical'
     : readabilityElements.includes(target)
       ? 'readability'
       : 'redundant';
-  return { kind, target, effect, proofCritical: effect !== 'unchanged', classification };
+  return {
+    kind,
+    target,
+    effect,
+    proofCritical: classification === 'proof-critical',
+    classification,
+  };
 }
 
-function baselineAnalysis(spec: LevelSpec, maximumStates: number): LevelAnalysis {
-  const baseline = analyzeLevel(spec, maximumStates).analysis;
-  if (!baseline.solvable || baseline.bypassExists) {
-    throw new Error(`Cannot mutation-audit ${spec.id}: baseline is unsolved or bypassable.`);
+function baselineAnalysis(spec: LevelSpec, maximumStates: number): AuthorLevelAnalysis {
+  const baseline = analyzeLevelForAuthor(spec, { maximumStates, maximumPlans: 1 });
+  if (
+    baseline.solution.status !== 'solved' ||
+    !baseline.solution.diagnostics.completePlanWindow ||
+    baseline.proofChecks.some((check) => check.status !== 'necessary')
+  ) {
+    throw new Error(`Cannot mutation-audit ${spec.id}: baseline is unsolved, bypassable, or inconclusive.`);
   }
   return baseline;
 }
@@ -117,12 +143,12 @@ function mutateProofElement(
   return withoutEntity ? { board: withoutEntity, kind: 'entity-removal' } : undefined;
 }
 
-export function auditProofCriticalElements(
+function auditProofCriticalElementsAgainst(
   spec: LevelSpec,
-  maximumStates = 100_000,
+  maximumStates: number,
+  baseline: AuthorLevelAnalysis,
 ): readonly LevelMutationResult[] {
-  const baseline = baselineAnalysis(spec, maximumStates);
-  const references = analyzeLevel(spec, maximumStates).analysis.proofCriticalElements;
+  const references = proofCriticalElements(spec);
   return references.map((reference) => {
     const mutation = mutateProofElement(spec.board, reference);
     if (!mutation) return result('entity-removal', `unknown:${reference}`, 'invalid');
@@ -135,12 +161,25 @@ export function auditProofCriticalElements(
   });
 }
 
+export function auditProofCriticalElements(
+  spec: LevelSpec,
+  maximumStates = 100_000,
+): readonly LevelMutationResult[] {
+  return auditProofCriticalElementsAgainst(
+    spec,
+    maximumStates,
+    baselineAnalysis(spec, maximumStates),
+  );
+}
+
 export function auditLevelMutations(
   spec: LevelSpec,
   maximumStates = 100_000,
 ): readonly LevelMutationResult[] {
   const baseline = baselineAnalysis(spec, maximumStates);
-  const mutations: LevelMutationResult[] = [...auditProofCriticalElements(spec, maximumStates)];
+  const mutations: LevelMutationResult[] = [
+    ...auditProofCriticalElementsAgainst(spec, maximumStates, baseline),
+  ];
   const alreadyAudited = new Set(mutations.map((mutation) => mutation.target));
   const entityGroups = [
     ['block', spec.board.blocks],

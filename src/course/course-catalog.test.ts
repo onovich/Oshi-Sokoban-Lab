@@ -30,8 +30,10 @@ describe('versioned course catalogs', () => {
 
   it('adds E01 only to the draft laboratory, never to formal slots or the accepted catalog', () => {
     const experimentIds = ['lab-e01-shared-passage', 'lab-e01-independent-passage'];
-    expect(masteryV2Catalog.labLevels.slice(-2).map((level) => level.id)).toEqual(experimentIds);
-    expect(masteryV2Catalog.labGroups.at(-1)?.levelIds).toEqual(experimentIds);
+    expect(masteryV2Catalog.labLevels.filter((level) => level.groupId === 'lab-e01-spatial')
+      .map((level) => level.id)).toEqual(experimentIds);
+    expect(masteryV2Catalog.labGroups.find((group) => group.id === 'lab-e01-spatial')?.levelIds)
+      .toEqual(experimentIds);
     for (const id of experimentIds) {
       expect(displayNumberFor(masteryV2Catalog, id)).toBeUndefined();
       expect(masteryV2Catalog.levels.some((level) => level.id === id)).toBe(false);

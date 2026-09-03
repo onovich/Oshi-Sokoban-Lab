@@ -1,4 +1,5 @@
-import type { SearchStatus } from '../../course/types';
+import { advanceProof, proofSatisfied } from '../../course/proof-evaluator';
+import type { ProofCondition, SearchStatus } from '../../course/types';
 import { move } from '../../engine/game-engine';
 import type { Direction, GameState, MoveResult } from '../../engine/types';
 
@@ -6,6 +7,8 @@ type SpatialSearchOptions = Readonly<{
   maximumStates?: number;
   /** A pure, state-local constraint; history-dependent conditions need their own product state. */
   forbiddenTransition?: (before: GameState, result: MoveResult) => boolean;
+  /** Event conditions begin at this snapshot; prefix progress participates in state identity. */
+  forbiddenConditions?: readonly ProofCondition[];
 }>;
 
 export type SpatialSearchResult = Readonly<{
@@ -20,9 +23,9 @@ export type SpatialSearchResult = Readonly<{
 
 const directions: readonly Direction[] = ['up', 'right', 'down', 'left'];
 
-function stateKey(state: GameState): string {
+function stateKey(state: GameState, progress: readonly number[]): string {
   return `${state.status}|` + [state.player, ...state.blocks.map((block) => block.position)]
-    .map((position) => `${position.x},${position.y}`).join('|');
+    .map((position) => `${position.x},${position.y}`).join('|') + `|${progress.join(',')}`;
 }
 
 /**
@@ -48,9 +51,13 @@ export function searchSpatialExperiment(
   if (!Number.isSafeInteger(maximumStates) || maximumStates < 0) {
     throw new RangeError('maximumStates must be a non-negative safe integer.');
   }
-  type Node = Readonly<{ state: GameState; solution: readonly Direction[]; pushes: number }>;
-  const queue: Node[] = [{ state: { ...initial, history: [] }, solution: [], pushes: 0 }];
-  const visited = new Set([stateKey(initial)]);
+  const conditions = options.forbiddenConditions ?? [];
+  type Node = Readonly<{
+    state: GameState; solution: readonly Direction[]; pushes: number; progress: readonly number[];
+  }>;
+  const initialProgress = conditions.map(() => 0);
+  const queue: Node[] = [{ state: { ...initial, history: [] }, solution: [], pushes: 0, progress: initialProgress }];
+  const visited = new Set([stateKey(initial, initialProgress)]);
   let exploredStates = 0;
   let forbiddenTransitions = 0;
   const summary = () => ({ exploredStates, discoveredStates: visited.size, forbiddenTransitions });
@@ -70,13 +77,20 @@ export function searchSpatialExperiment(
         forbiddenTransitions += 1;
         continue;
       }
-      const key = stateKey(result.state);
+      const progress = conditions.map((condition, index) =>
+        advanceProof(condition, node.progress[index]!, result.events));
+      if (conditions.some((condition, index) => proofSatisfied(condition, progress[index]!))) {
+        forbiddenTransitions += 1;
+        continue;
+      }
+      const key = stateKey(result.state, progress);
       if (visited.has(key)) continue;
       visited.add(key);
       queue.push({
         state: { ...result.state, history: [] },
         solution: [...node.solution, direction],
         pushes: node.pushes + result.events.filter((event) => event.type === 'block-pushed').length,
+        progress,
       });
     }
   }

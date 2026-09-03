@@ -858,6 +858,33 @@ kbd {
   z-index: 1;
 }
 
+/* Draw on the full-cell face: distinguish touching objects without adding a gap.
+   Joined cells within one footprint have no internal contour. */
+.board__entity[data-outline-edges]::after {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  border: 0 solid var(--field-charcoal);
+  pointer-events: none;
+}
+
+.board__entity[data-outline-edges~="top"]::after {
+  border-top-width: 0.0625rem;
+}
+
+.board__entity[data-outline-edges~="right"]::after {
+  border-right-width: 0.0625rem;
+}
+
+.board__entity[data-outline-edges~="bottom"]::after {
+  border-bottom-width: 0.0625rem;
+}
+
+.board__entity[data-outline-edges~="left"]::after {
+  border-left-width: 0.0625rem;
+}
+
 .board__entity--block,
 .board__entity--fake-block,
 .board__entity--spike,

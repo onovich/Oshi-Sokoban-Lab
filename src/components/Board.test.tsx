@@ -214,6 +214,29 @@ describe('Board glyph system', () => {
     }
   });
 
+  it('outlines each solid object without splitting its own joined footprint or shrinking cells', () => {
+    const state = gameFor({
+      ...baseLevel,
+      width: 4, height: 4, player: { x: 0, y: 1 },
+      blocks: [
+        { id: 'long', position: { x: 1, y: 1 }, shape: [{ x: 0, y: 0 }, { x: 0, y: 1 }], number: 0, isFake: false },
+        { id: 'neighbor', position: { x: 2, y: 1 }, shape: oneCell, number: 0, isFake: true },
+      ],
+    });
+    const { container } = render(<Board state={state} />);
+    const top = container.querySelector('[data-entity-id="long"][data-grid-cell="1:1"]');
+    const bottom = container.querySelector('[data-entity-id="long"][data-grid-cell="1:2"]');
+    const neighbor = container.querySelector('[data-entity-id="neighbor"]');
+    expect(top?.getAttribute('data-outline-edges')).toBe('top right left');
+    expect(bottom?.getAttribute('data-outline-edges')).toBe('right bottom left');
+    expect(neighbor?.getAttribute('data-outline-edges')).toBe('top right bottom left');
+    for (const entity of [top, bottom, neighbor]) {
+      expect(entity?.getAttribute('data-grid-unit')).toBe('1');
+      expect(entity?.querySelector('[data-glyph]')?.getAttribute('data-cell-footprint')).toBe('full');
+    }
+    expect(container.querySelector('[data-entity-id="role"]')?.getAttribute('data-outline-edges')).toBeNull();
+  });
+
   it('tweens each moved entity from its prior logical grid cell', () => {
     const initial = gameFor(baseLevel);
     const afterPush = move(initial, 'right').state;

@@ -207,6 +207,18 @@ function isOriginCell(localCell: Cell): boolean {
   return localCell.x === 0 && localCell.y === 0;
 }
 
+function solidOutlineEdges(entity: VisualEntity, localCell: Cell): string | undefined {
+  if (entity.kind !== 'block' && entity.kind !== 'fake-block') return undefined;
+  const neighbors = [
+    { edge: 'top', x: localCell.x, y: localCell.y - 1 },
+    { edge: 'right', x: localCell.x + 1, y: localCell.y },
+    { edge: 'bottom', x: localCell.x, y: localCell.y + 1 },
+    { edge: 'left', x: localCell.x - 1, y: localCell.y },
+  ];
+  return neighbors.filter((neighbor) => !entity.shape.some((part) => sameCell(part, neighbor)))
+    .map((neighbor) => neighbor.edge).join(' ');
+}
+
 function entityCellStyle(cell: Cell, motion: EntityMotion): CSSProperties {
   return {
     gridColumn: cell.x + 1,
@@ -240,6 +252,7 @@ function EntityCells({
         data-entity-id={entity.id}
         data-grid-cell={`${cell.x}:${cell.y}`}
         data-grid-unit="1"
+        data-outline-edges={solidOutlineEdges(entity, localCell)}
         data-motion={isMoving ? 'moving' : undefined}
         data-motion-from={isMoving ? `${motion.from!.x}:${motion.from!.y}` : undefined}
         data-motion-to={isMoving ? `${entity.position.x}:${entity.position.y}` : undefined}

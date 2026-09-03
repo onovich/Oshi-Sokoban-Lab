@@ -6,6 +6,7 @@ import {
 import { pushFootprintLevels } from '../levels/mastery/push-footprint-levels';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
+import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
 import { rewriteProofCondition } from './proof-condition';
 
 const spikePrototypeIds = new Set(['lesson-19', 'lesson-20', 'lesson-21']);
@@ -111,17 +112,6 @@ function levelsInOrder(
   });
 }
 
-function levelIdsForGroups(
-  groupIds: readonly string[],
-  groups: readonly CourseGroupDefinition[] = acceptedGroups,
-): readonly string[] {
-  return groupIds.flatMap((id) => {
-    const group = groups.find((candidate) => candidate.id === id);
-    if (!group) throw new Error(`Catalog refers to missing accepted group ${id}.`);
-    return [...group.levelIds];
-  });
-}
-
 const pushFootprintGroups: readonly CourseGroupDefinition[] = [
   {
     id: 'mastery-push-footprint-opening',
@@ -140,6 +130,24 @@ const pushFootprintGroups: readonly CourseGroupDefinition[] = [
     masteryLevelId: 'mastery-push-footprint-06',
     levelIds: pushFootprintLevels.slice(3, 6).map((level) => level.id),
   },
+  {
+    id: 'mastery-push-footprint-transfer',
+    title: '推侧 × Footprint：迁移与依赖',
+    branch: 'shape',
+    prerequisites: ['mastery-push-footprint-shared-route'],
+    completionPrerequisites: ['mastery-push-footprint-shared-route'],
+    masteryLevelId: 'mastery-push-footprint-09',
+    levelIds: pushFootprintLevels.slice(6, 9).map((level) => level.id),
+  },
+  {
+    id: 'mastery-push-footprint-sequencer',
+    title: '推侧 × Footprint：顺序器',
+    branch: 'shape',
+    prerequisites: ['mastery-push-footprint-transfer'],
+    completionPrerequisites: ['mastery-push-footprint-transfer'],
+    masteryLevelId: 'mastery-push-footprint-10',
+    levelIds: pushFootprintLevels.slice(9).map((level) => level.id),
+  },
 ];
 const masteryGroups: readonly CourseGroupDefinition[] = [
   ...acceptedGroups,
@@ -150,61 +158,12 @@ const masteryLevelsById = new Map<string, LevelSpec>([
   ...pushFootprintLevels.map((level) => [level.id, level] as const),
 ]);
 
-const masteryActSeeds = [
-  {
-    id: 'act-1-grammar',
-    title: 'I · 语法',
-    groupIds: [
-      'g01-push-side',
-      'g02-footprint-clearance',
-      'g03-full-coverage',
-      'g04-number-match',
-      'g05-goal-allocation',
-      'g06-fake-block',
-      'g10-movable-goal',
-      'g11-goal-mode',
-    ],
-  },
-  {
-    id: 'act-2-fluency',
-    title: 'II · 熟练',
-    groupIds: [
-      'mastery-push-footprint-opening',
-      'mastery-push-footprint-shared-route',
-      'g12-rain-stop',
-      'g13-rain-adjacency',
-      'g14-gate-direction',
-      'g15-gate-remote',
-      'g16-gate-topology',
-    ],
-  },
-  {
-    id: 'act-3-reinterpretation',
-    title: 'III · 反转',
-    groupIds: ['g08-spike-origin', 'g09-spike-side'],
-  },
-  {
-    id: 'act-4-synthesis',
-    title: 'IV · 综合',
-    groupIds: [
-      'g17-footprint-spike',
-      'g18-goal-rain',
-      'g19-rain-gate',
-      'g20-number-fake',
-      'g21-gate-spike',
-    ],
-  },
-  {
-    id: 'act-5-summit',
-    title: 'V · 峰顶',
-    groupIds: [],
-  },
-] as const;
-
-const masteryActs: readonly CourseActDefinition[] = masteryActSeeds.map((act) => ({
+const masteryActs: readonly CourseActDefinition[] = MASTERY_V2_BLUEPRINT.acts.map((act) => ({
   id: act.id,
   title: act.title,
-  levelIds: levelIdsForGroups(act.groupIds, masteryGroups),
+  levelIds: act.slots
+    .map((slot) => slot.levelId)
+    .filter((levelId) => masteryLevelsById.has(levelId)),
 }));
 const masteryIds = masteryActs.flatMap((act) => [...act.levelIds]);
 
@@ -214,6 +173,12 @@ export const acceptedFoundationCatalog: CourseCatalog = {
   status: 'active',
   title: 'Oshi 基础课程',
   targetFormalLevelCount: 60,
+  completion: {
+    foundationLevelIds: acceptedIds,
+    mainEndingLevelIds: [],
+    mainEndingRequiredCount: 0,
+    fullCompletionLevelIds: acceptedIds,
+  },
   acts: [{ id: 'foundation', title: '基础课程', levelIds: acceptedIds }],
   groups: acceptedGroups,
   levels: levelsInOrder(acceptedIds),
@@ -227,6 +192,21 @@ export const masteryV2Catalog: CourseCatalog = {
   status: 'draft',
   title: 'Oshi 大师课程',
   targetFormalLevelCount: 120,
+  completion: {
+    foundationLevelIds: MASTERY_V2_BLUEPRINT.slots
+      .filter((slot) => slot.source === 'frozen' || (slot.targetDifficulty ?? 10) <= 6)
+      .map((slot) => slot.levelId),
+    mainEndingLevelIds: [
+      'mastery-number-fake-06',
+      'mastery-goal-rain-06',
+      'mastery-gate-topology-06',
+      'mastery-spike-origin-06',
+      'mastery-three-mechanism-03',
+      'mastery-three-mechanism-04',
+    ],
+    mainEndingRequiredCount: 3,
+    fullCompletionLevelIds: MASTERY_V2_BLUEPRINT.slots.map((slot) => slot.levelId),
+  },
   acts: masteryActs,
   groups: masteryGroups,
   levels: levelsInOrder(masteryIds, masteryLevelsById),

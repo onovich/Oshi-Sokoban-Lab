@@ -308,6 +308,7 @@ kbd {
 }
 
 .lesson-strip__progress,
+.lesson-strip__completion,
 .lesson-strip__weather {
   margin: 0;
   color: var(--text-muted);
@@ -315,6 +316,11 @@ kbd {
   font-weight: 800;
   letter-spacing: 0.12em;
   white-space: nowrap;
+}
+
+.lesson-strip__completion {
+  color: #d3d6cf;
+  letter-spacing: 0.04em;
 }
 
 .lesson-strip__weather {

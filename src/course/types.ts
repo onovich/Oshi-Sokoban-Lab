@@ -93,6 +93,13 @@ export type LevelAnalysis = Readonly<{
 export type CourseCatalogId = 'accepted-foundation-v1' | 'mastery-v2';
 export type CourseCatalogStatus = 'active' | 'draft';
 
+export type CourseCompletionDefinition = Readonly<{
+  foundationLevelIds: readonly string[];
+  mainEndingLevelIds: readonly string[];
+  mainEndingRequiredCount: number;
+  fullCompletionLevelIds: readonly string[];
+}>;
+
 export type CourseActDefinition = Readonly<{
   id: string;
   title: string;
@@ -110,6 +117,7 @@ export type CourseCatalog = Readonly<{
   status: CourseCatalogStatus;
   title: string;
   targetFormalLevelCount: number;
+  completion: CourseCompletionDefinition;
   acts: readonly CourseActDefinition[];
   groups: readonly CourseGroupDefinition[];
   levels: readonly LevelSpec[];

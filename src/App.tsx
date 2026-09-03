@@ -9,6 +9,7 @@ import {
   acceptedFoundationCatalog,
   masteryV2Catalog,
 } from './course/course-catalog';
+import { summarizeCourseCompletion } from './course/course-completion';
 import {
   loadCourseProgress,
   saveCourseProgress,
@@ -133,6 +134,10 @@ export function App({
   if (!activeGroup) throw new Error(`Missing group for ${activeSpec.id}.`);
   const activeTitle = displayTitle(catalog, selection.scope, activeSpec);
   const completedSet = useMemo(() => new Set(completedLevelIds), [completedLevelIds]);
+  const completion = useMemo(
+    () => summarizeCourseCompletion(catalog, completedLevelIds),
+    [catalog, completedLevelIds],
+  );
   const unlockedLevelIds = useMemo(
     () => selection.scope === 'lab'
       ? new Set(levels.map((level) => level.id))
@@ -280,6 +285,11 @@ export function App({
     ? `步数: ${state.moves}`
     : `步数: ${state.moves} / ${state.level.stepLimit}`;
   const progressLabel = selection.scope === 'lab' ? '实验室进度' : '已完成';
+  const layeredProgress = catalog.id === 'mastery-v2' && selection.scope === 'formal'
+    ? `基础结业 ${completion.foundation.completed}/${completion.foundation.required} · ` +
+      `主线结局 ${completion.mainEnding.completed}/${completion.mainEnding.required} · ` +
+      `100% ${completion.full.completed}/${completion.full.required}`
+    : undefined;
 
   return (
     <main className={`app-shell ${state.level.weather === 'rain' ? 'app-shell--rain' : ''}`}>
@@ -329,6 +339,7 @@ export function App({
           ))}
         </select>
         <p className="lesson-strip__progress">{progressLabel} {completedLevelIds.length} / {levels.length}</p>
+        {layeredProgress ? <p className="lesson-strip__completion">{layeredProgress}</p> : null}
         <p className="lesson-strip__weather">{state.level.weather === 'rain' ? 'RAIN RULESET' : 'CLEAR RULESET'}</p>
       </section>
 

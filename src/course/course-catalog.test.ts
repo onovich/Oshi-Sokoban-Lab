@@ -5,6 +5,7 @@ import {
   displayNumberFor,
   masteryV2Catalog,
 } from './course-catalog';
+import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
 
 describe('versioned course catalogs', () => {
   it('separates the sixty accepted lessons from the three Spike laboratory prototypes', () => {
@@ -37,7 +38,7 @@ describe('versioned course catalogs', () => {
       'act-4-synthesis',
       'act-5-summit',
     ]);
-    expect(masteryV2Catalog.levels).toHaveLength(66);
+    expect(masteryV2Catalog.levels).toHaveLength(70);
     expect(masteryV2Catalog.groups.find((group) => group.id === 'mastery-push-footprint-opening')?.levelIds)
       .toEqual([
         'mastery-push-footprint-01',
@@ -46,5 +47,10 @@ describe('versioned course catalogs', () => {
       ]);
     expect(masteryV2Catalog.acts.find((act) => act.id === 'act-2-fluency')?.levelIds)
       .toContain('mastery-push-footprint-06');
+    expect(masteryV2Catalog.levels.map((level) => level.id)).toEqual(
+      MASTERY_V2_BLUEPRINT.slots
+        .filter((slot) => slot.state !== 'planned')
+        .map((slot) => slot.levelId),
+    );
   });
 });

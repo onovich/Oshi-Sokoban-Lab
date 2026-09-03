@@ -15,6 +15,12 @@ import type {
 } from '../engine/types';
 
 const directions: readonly Direction[] = ['up', 'right', 'down', 'left'];
+const directionOffsets: Readonly<Record<Direction, Cell>> = {
+  up: { x: 0, y: -1 },
+  right: { x: 1, y: 0 },
+  down: { x: 0, y: 1 },
+  left: { x: -1, y: 0 },
+};
 
 export type SolverSearchMode = 'push-macro-a-star' | 'domain-dijkstra';
 export type SolverActionKind =
@@ -58,6 +64,8 @@ export type SolverDiagnostics = Readonly<{
   generatedActions: number;
   transpositionHits: number;
   deadlockPrunes: number;
+  staticDeadSquarePrunes: number;
+  dynamicDeadlockPrunes: number;
   deepestDeadlock: number;
   completePlanWindow: boolean;
 }>;
@@ -311,13 +319,17 @@ function generatePushMacros(state: GameState): readonly GeneratedTransition[] {
   return [...candidates.values()];
 }
 
-function wallAt(state: GameState, cell: Cell): boolean {
-  if (cell.x < 0 || cell.x >= state.level.width || cell.y < 0 || cell.y >= state.level.height) {
+function wallInLevel(level: GameState['level'], cell: Cell): boolean {
+  if (cell.x < 0 || cell.x >= level.width || cell.y < 0 || cell.y >= level.height) {
     return true;
   }
-  if (state.level.walls.some((wall) => wall.x === cell.x && wall.y === cell.y)) return true;
-  return (state.level.dynamicWalls ?? []).some((wall) => wall.shape.some((part) =>
+  if (level.walls.some((wall) => wall.x === cell.x && wall.y === cell.y)) return true;
+  return (level.dynamicWalls ?? []).some((wall) => wall.shape.some((part) =>
     wall.position.x + part.x === cell.x && wall.position.y + part.y === cell.y));
+}
+
+function wallAt(state: GameState, cell: Cell): boolean {
+  return wallInLevel(state.level, cell);
 }
 
 function hasStaticDeadlock(state: GameState): boolean {
@@ -330,6 +342,82 @@ function hasStaticDeadlock(state: GameState): boolean {
     const right = wallAt(state, { x: x + 1, y });
     return (up || down) && (left || right);
   });
+}
+
+function fixedGoalCells(state: GameState): readonly Cell[] {
+  return [
+    ...state.level.terrainGoals,
+    ...state.goals.filter((goal) => !goal.movable).flatMap((goal) => goal.shape.map((part) => ({
+      x: goal.position.x + part.x,
+      y: goal.position.y + part.y,
+    }))),
+  ];
+}
+
+/** Cells from which a one-cell Block can never reach any fixed Goal, even if
+ * every movable object is removed. This reverse-pull analysis is conservative:
+ * it may miss deadlocks, but it cannot reject a valid push route. */
+function staticDeadSquares(state: GameState): ReadonlySet<string> {
+  const reachable = new Set<string>();
+  const queue: Cell[] = [];
+  for (const goal of fixedGoalCells(state)) {
+    if (wallAt(state, goal)) continue;
+    const key = cellKey(goal);
+    if (reachable.has(key)) continue;
+    reachable.add(key);
+    queue.push(goal);
+  }
+
+  let cursor = 0;
+  while (cursor < queue.length) {
+    const current = queue[cursor++]!;
+    for (const direction of directions) {
+      const offset = directionOffsets[direction];
+      const predecessor = { x: current.x - offset.x, y: current.y - offset.y };
+      const pusher = { x: predecessor.x - offset.x, y: predecessor.y - offset.y };
+      if (wallAt(state, predecessor) || wallAt(state, pusher)) continue;
+      const key = cellKey(predecessor);
+      if (reachable.has(key)) continue;
+      reachable.add(key);
+      queue.push(predecessor);
+    }
+  }
+
+  const dead = new Set<string>();
+  for (let y = 0; y < state.level.height; y += 1) {
+    for (let x = 0; x < state.level.width; x += 1) {
+      const cell = { x, y };
+      const key = cellKey(cell);
+      if (!wallAt(state, cell) && !reachable.has(key)) dead.add(key);
+    }
+  }
+  return dead;
+}
+
+function hasStaticDeadSquare(state: GameState, deadSquares: ReadonlySet<string>): boolean {
+  return state.blocks.some((block) =>
+    !block.isFake &&
+    block.shape.length === 1 &&
+    !isBlockSolved(state, block) &&
+    deadSquares.has(cellKey(block.position)));
+}
+
+function hasDynamicDeadlock(state: GameState): boolean {
+  const singleCellBlocks = new Map(
+    state.blocks.filter((block) => block.shape.length === 1)
+      .map((block) => [cellKey(block.position), block] as const),
+  );
+  for (let y = 0; y < state.level.height - 1; y += 1) {
+    for (let x = 0; x < state.level.width - 1; x += 1) {
+      const square = [
+        { x, y }, { x: x + 1, y }, { x, y: y + 1 }, { x: x + 1, y: y + 1 },
+      ];
+      if (!square.every((cell) => wallAt(state, cell) || singleCellBlocks.has(cellKey(cell)))) continue;
+      const trapped = square.map((cell) => singleCellBlocks.get(cellKey(cell))).filter(Boolean);
+      if (trapped.some((block) => block && !block.isFake && !isBlockSolved(state, block))) return true;
+    }
+  }
+  return false;
 }
 
 function matchingLowerBound(state: GameState): number {
@@ -490,9 +578,15 @@ export function solveLevel(spec: LevelSpec, options: SolverOptions = {}): Solver
   const plain = isPlainPushBoard(spec);
   const searchMode: SolverSearchMode = plain ? 'push-macro-a-star' : 'domain-dijkstra';
   const initialState = withoutHistory(createGame(spec.board));
+  const deadSquares = plain ? staticDeadSquares(initialState) : new Set<string>();
   let deadlockPrunes = 0;
+  let staticDeadSquarePrunes = 0;
+  let dynamicDeadlockPrunes = 0;
   let deepestDeadlock = 0;
-  if (plain && hasStaticDeadlock(initialState)) {
+  const initialCornerDeadlock = plain && hasStaticDeadlock(initialState);
+  const initialDeadSquare = plain && hasStaticDeadSquare(initialState, deadSquares);
+  const initialDynamicDeadlock = plain && hasDynamicDeadlock(initialState);
+  if (initialCornerDeadlock || initialDeadSquare || initialDynamicDeadlock) {
     return {
       status: 'proven-unsolved',
       searchMode,
@@ -504,6 +598,8 @@ export function solveLevel(spec: LevelSpec, options: SolverOptions = {}): Solver
         generatedActions: 0,
         transpositionHits: 0,
         deadlockPrunes: 1,
+        staticDeadSquarePrunes: initialDeadSquare ? 1 : 0,
+        dynamicDeadlockPrunes: initialDynamicDeadlock ? 1 : 0,
         deepestDeadlock: 0,
         completePlanWindow: true,
       },
@@ -586,8 +682,13 @@ export function solveLevel(spec: LevelSpec, options: SolverOptions = {}): Solver
         continue;
       }
 
-      if (plain && hasStaticDeadlock(transition.state)) {
+      const cornerDeadlock = plain && hasStaticDeadlock(transition.state);
+      const deadSquare = plain && hasStaticDeadSquare(transition.state, deadSquares);
+      const dynamicDeadlock = plain && hasDynamicDeadlock(transition.state);
+      if (cornerDeadlock || deadSquare || dynamicDeadlock) {
         deadlockPrunes += 1;
+        if (deadSquare) staticDeadSquarePrunes += 1;
+        if (dynamicDeadlock) dynamicDeadlockPrunes += 1;
         deepestDeadlock = Math.max(deepestDeadlock, candidate.depth);
         continue;
       }
@@ -631,6 +732,8 @@ export function solveLevel(spec: LevelSpec, options: SolverOptions = {}): Solver
       generatedActions,
       transpositionHits,
       deadlockPrunes,
+      staticDeadSquarePrunes,
+      dynamicDeadlockPrunes,
       deepestDeadlock,
       completePlanWindow,
     },

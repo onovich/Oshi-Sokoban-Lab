@@ -60,6 +60,64 @@ function deadlockSpec(): LevelSpec {
   };
 }
 
+function dynamicDeadlockSpec(): LevelSpec {
+  const board: LevelDefinition = {
+    id: 'solver-dynamic-deadlock',
+    title: '动态死锁',
+    width: 4,
+    height: 4,
+    weather: 'clear',
+    player: { x: 0, y: 0 },
+    walls: [],
+    terrainGoals: [{ x: 3, y: 3 }, { x: 3, y: 2 }, { x: 2, y: 3 }, { x: 1, y: 3 }],
+    terrainSpikes: [],
+    blocks: [
+      { id: 'dynamic-a', position: { x: 1, y: 1 }, shape: [{ x: 0, y: 0 }], number: 0, isFake: false },
+      { id: 'dynamic-b', position: { x: 2, y: 1 }, shape: [{ x: 0, y: 0 }], number: 0, isFake: false },
+      { id: 'dynamic-c', position: { x: 1, y: 2 }, shape: [{ x: 0, y: 0 }], number: 0, isFake: false },
+      { id: 'dynamic-d', position: { x: 2, y: 2 }, shape: [{ x: 0, y: 0 }], number: 0, isFake: false },
+    ],
+    goals: [], gates: [], spikes: [], paths: [],
+  };
+  const proof = proofConditionFromLegacy('event:block-pushed:dynamic-a');
+  return {
+    id: board.id,
+    groupId: 'solver-fixtures',
+    role: 'summit',
+    cognitiveStage: 'synthesize',
+    prerequisites: [],
+    techniques: [{ techniqueId: 'deadlock', role: 'primary' }],
+    difficulty: { target: 10, confidence: 'design-target', sampleSize: 0 },
+    board,
+    theorem: { axioms: [], proposition: '四块 Block 互相冻结。', proofConditions: [proof], milestones: [proof] },
+  };
+}
+
+function deadSquareSpec(): LevelSpec {
+  const board: LevelDefinition = {
+    id: 'solver-dead-square',
+    title: '反向不可达格',
+    width: 5,
+    height: 4,
+    weather: 'clear',
+    player: { x: 1, y: 0 },
+    walls: [],
+    terrainGoals: [{ x: 2, y: 2 }],
+    terrainSpikes: [],
+    blocks: [{ id: 'dead-square-block', position: { x: 2, y: 0 }, shape: [{ x: 0, y: 0 }], number: 0, isFake: false }],
+    goals: [], gates: [], spikes: [], paths: [],
+  };
+  const proof = proofConditionFromLegacy('event:block-pushed:dead-square-block');
+  return {
+    id: board.id,
+    groupId: 'solver-fixtures', role: 'summit', cognitiveStage: 'synthesize', prerequisites: [],
+    techniques: [{ techniqueId: 'deadlock', role: 'primary' }],
+    difficulty: { target: 10, confidence: 'design-target', sampleSize: 0 },
+    board,
+    theorem: { axioms: [], proposition: '上边界格无法向下推出。', proofConditions: [proof], milestones: [proof] },
+  };
+}
+
 describe('deep level solver interface', () => {
   it('distinguishes a depleted budget from a proof of unsolvability', () => {
     const spec = acceptedFoundationCatalog.levels[2]!;
@@ -68,6 +126,16 @@ describe('deep level solver interface', () => {
     const deadlocked = solveLevel(deadlockSpec(), { maximumStates: 10_000 });
     expect(deadlocked.status).toBe('proven-unsolved');
     expect(deadlocked.diagnostics.deadlockPrunes).toBeGreaterThan(0);
+  });
+
+  it('prunes reverse-unreachable dead squares and mutually frozen 2x2 blocks', () => {
+    const deadSquare = solveLevel(deadSquareSpec());
+    const dynamic = solveLevel(dynamicDeadlockSpec());
+
+    expect(deadSquare.status).toBe('proven-unsolved');
+    expect(deadSquare.diagnostics.staticDeadSquarePrunes).toBeGreaterThan(0);
+    expect(dynamic.status).toBe('proven-unsolved');
+    expect(dynamic.diagnostics.dynamicDeadlockPrunes).toBeGreaterThan(0);
   });
 
   it('uses push macros on a plain board and returns a replayable plan', () => {

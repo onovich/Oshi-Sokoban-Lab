@@ -58,7 +58,8 @@ describe('Oshi course interface', () => {
       target: { value: 'formal' },
     });
 
-    expect(screen.getByText(/当前 66 关 \/ 目标 120 关/)).toBeTruthy();
+    expect(screen.getByText(/当前 70 关 \/ 目标 120 关/)).toBeTruthy();
+    expect(screen.getByText(/基础结业 \d+\/\d+ · 主线结局 \d+\/3 · 100% \d+\/120/)).toBeTruthy();
     expect(screen.getByText(/目标 D[1-3]/)).toBeTruthy();
     for (const act of ['I · 语法', 'II · 熟练', 'III · 反转', 'IV · 综合', 'V · 峰顶']) {
       expect(screen.getByRole('heading', { name: act })).toBeTruthy();

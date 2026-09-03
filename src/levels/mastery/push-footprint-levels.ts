@@ -11,6 +11,7 @@ import {
 
 const groupId = 'mastery-push-footprint-opening';
 const verticalDomino = [cell(0, 0), cell(0, 1)] as const;
+const horizontalDomino = [cell(0, 0), cell(1, 0)] as const;
 
 const p1Id = 'mastery-push-footprint-01';
 const p1Block = `${p1Id}-block`;
@@ -63,6 +64,50 @@ const p6Open = [
   cell(1, 1), cell(2, 1), cell(3, 1),
   cell(1, 2), cell(2, 2), cell(3, 2), cell(4, 2), cell(5, 2), cell(6, 2),
   cell(1, 3), cell(2, 3), cell(3, 3), cell(5, 3), cell(6, 3),
+];
+
+const p7Id = 'mastery-push-footprint-07';
+const p7Near = `${p7Id}-near-shape`;
+const p7Far = `${p7Id}-far-shape`;
+const p7Open = [
+  cell(1, 1), cell(2, 1), cell(3, 1),
+  cell(1, 2), cell(2, 2), cell(3, 2),
+  cell(1, 3), cell(2, 3), cell(3, 3),
+  cell(2, 4),
+  cell(1, 5), cell(2, 5),
+  cell(1, 6), cell(2, 6),
+];
+
+const p8Id = 'mastery-push-footprint-08';
+const p8First = `${p8Id}-first-shape`;
+const p8Second = `${p8Id}-second-shape`;
+const p8Third = `${p8Id}-third-shape`;
+const p8Open = [
+  cell(2, 1), cell(3, 1), cell(4, 1),
+  cell(2, 2), cell(3, 2), cell(4, 2), cell(5, 2), cell(6, 2), cell(8, 2), cell(9, 2),
+  cell(1, 3), cell(2, 3), cell(3, 3), cell(5, 3), cell(6, 3), cell(7, 3), cell(8, 3), cell(9, 3),
+  cell(5, 4), cell(6, 4), cell(7, 4),
+];
+
+const p9Id = 'mastery-push-footprint-09';
+const p9Near = `${p9Id}-near-l-shape`;
+const p9Far = `${p9Id}-far-shape`;
+const p9LShape = [cell(0, 0), cell(1, 0), cell(1, 1)] as const;
+const p9Open = [
+  cell(1, 1), cell(2, 1), cell(3, 1), cell(4, 1),
+  cell(1, 2), cell(2, 2), cell(3, 2), cell(4, 2), cell(5, 2), cell(6, 2), cell(7, 2),
+  cell(3, 3), cell(4, 3), cell(6, 3), cell(7, 3),
+];
+
+const p10Id = 'mastery-push-footprint-10';
+const p10Door = `${p10Id}-door`;
+const p10First = `${p10Id}-first-task`;
+const p10Second = `${p10Id}-second-task`;
+const p10Open = [
+  cell(3, 0),
+  cell(3, 1), cell(5, 1),
+  cell(1, 2), cell(2, 2), cell(3, 2), cell(4, 2), cell(5, 2),
+  cell(2, 3), cell(3, 3), cell(4, 3), cell(5, 3),
 ];
 
 export const pushFootprintLevels: readonly LevelSpec[] = [
@@ -294,6 +339,176 @@ export const pushFootprintLevels: readonly LevelSpec[] = [
       blocks: [
         { id: p6Near, position: cell(2, 2), shape: verticalDomino, number: 0, isFake: false },
         { id: p6Far, position: cell(5, 2), shape: verticalDomino, number: 0, isFake: false },
+      ],
+      goals: [],
+      gates: [],
+      spikes: [],
+      paths: [],
+    },
+  }),
+  masteryLevel({
+    id: p7Id,
+    groupId: 'mastery-push-footprint-transfer',
+    title: '把地图转过来',
+    role: 'transfer',
+    cognitiveStage: 'transfer',
+    targetDifficulty: 6,
+    axioms: ['形状不能旋转，但同一推侧原则可以迁移到不同朝向。'],
+    proposition: '将“远先近后”迁移到横向 footprint 与纵向完成方向。',
+    proofConditions: [eventSequence(
+      blockTransition(p7Far, cell(1, 5), cell(1, 6)),
+      blockTransition(p7Near, cell(1, 2), cell(1, 3)),
+    )],
+    milestones: [
+      blockTransition(p7Far, cell(1, 5), cell(1, 6)),
+      blockTransition(p7Near, cell(1, 2), cell(1, 3)),
+    ],
+    techniques: [
+      { techniqueId: 'far-before-near', role: 'primary' },
+      { techniqueId: 'orientation-transfer', role: 'support' },
+    ],
+    board: {
+      width: 5,
+      height: 8,
+      weather: 'clear',
+      player: cell(1, 1),
+      walls: wallsOutside(5, 8, p7Open),
+      terrainGoals: [cell(1, 3), cell(2, 3), cell(1, 6), cell(2, 6)],
+      terrainSpikes: [],
+      blocks: [
+        { id: p7Near, position: cell(1, 2), shape: horizontalDomino, number: 0, isFake: false },
+        { id: p7Far, position: cell(1, 5), shape: horizontalDomino, number: 0, isFake: false },
+      ],
+      goals: [],
+      gates: [],
+      spikes: [],
+      paths: [],
+    },
+  }),
+  masteryLevel({
+    id: p8Id,
+    groupId: 'mastery-push-footprint-transfer',
+    title: '三道门',
+    role: 'practice',
+    cognitiveStage: 'reinforce',
+    targetDifficulty: 6,
+    axioms: ['每次 footprint 平移释放的远端格，可以成为下一段通路的入口。'],
+    proposition: '三个形状形成 A → B → C 的静态可读依赖链，任何后继都依赖前驱先腾格。',
+    proofConditions: [eventSequence(
+      blockTransition(p8First, cell(2, 2), cell(3, 2)),
+      blockTransition(p8Second, cell(5, 2), cell(6, 2)),
+      blockTransition(p8Third, cell(8, 2), cell(9, 2)),
+    )],
+    milestones: [
+      blockTransition(p8First, cell(2, 2), cell(3, 2)),
+      blockTransition(p8Second, cell(5, 2), cell(6, 2)),
+      blockTransition(p8Third, cell(8, 2), cell(9, 2)),
+    ],
+    techniques: [
+      { techniqueId: 'dependency-dag', role: 'primary' },
+      { techniqueId: 'remote-footprint-clearance', role: 'support' },
+    ],
+    board: {
+      width: 11,
+      height: 6,
+      weather: 'clear',
+      player: cell(1, 3),
+      walls: wallsOutside(11, 6, p8Open),
+      terrainGoals: [
+        cell(3, 2), cell(3, 3),
+        cell(6, 2), cell(6, 3),
+        cell(9, 2), cell(9, 3),
+      ],
+      terrainSpikes: [],
+      blocks: [
+        { id: p8First, position: cell(2, 2), shape: verticalDomino, number: 0, isFake: false },
+        { id: p8Second, position: cell(5, 2), shape: verticalDomino, number: 0, isFake: false },
+        { id: p8Third, position: cell(8, 2), shape: verticalDomino, number: 0, isFake: false },
+      ],
+      goals: [],
+      gates: [],
+      spikes: [],
+      paths: [],
+    },
+  }),
+  masteryLevel({
+    id: p9Id,
+    groupId: 'mastery-push-footprint-transfer',
+    title: '差一格的近路',
+    role: 'inference',
+    cognitiveStage: 'stress',
+    targetDifficulty: 7,
+    axioms: ['完成形状后的每个占位格仍会阻挡通路；不能只观察锚点。'],
+    proposition: '近端 L 形 Goal 虽可立即完成，却会用远端组成格封住唯一绕行口；必须先完成远端。',
+    proofConditions: [eventSequence(
+      blockTransition(p9Far, cell(6, 2), cell(7, 2)),
+      blockTransition(p9Near, cell(2, 2), cell(3, 2)),
+    )],
+    milestones: [
+      blockTransition(p9Far, cell(6, 2), cell(7, 2)),
+      blockTransition(p9Near, cell(2, 2), cell(3, 2)),
+    ],
+    techniques: [
+      { techniqueId: 'static-subgoal-refutation', role: 'primary' },
+      { techniqueId: 'full-footprint-reading', role: 'support' },
+      { techniqueId: 'far-before-near', role: 'support' },
+    ],
+    board: {
+      width: 9,
+      height: 5,
+      weather: 'clear',
+      player: cell(1, 2),
+      walls: wallsOutside(9, 5, p9Open),
+      terrainGoals: [cell(3, 2), cell(4, 2), cell(4, 3), cell(7, 2), cell(7, 3)],
+      terrainSpikes: [],
+      blocks: [
+        { id: p9Near, position: cell(2, 2), shape: p9LShape, number: 0, isFake: false },
+        { id: p9Far, position: cell(6, 2), shape: verticalDomino, number: 0, isFake: false },
+      ],
+      goals: [],
+      gates: [],
+      spikes: [],
+      paths: [],
+    },
+  }),
+  masteryLevel({
+    id: p10Id,
+    groupId: 'mastery-push-footprint-sequencer',
+    title: '依次打开',
+    role: 'synthesis',
+    cognitiveStage: 'synthesize',
+    targetDifficulty: 8,
+    axioms: ['长形 footprint 每前进一格，只释放尾端的一格，并占据新的头端格。'],
+    proposition: '同一个两格形状必须分两次前进：第一次开放下方任务，清除头端后，第二次才开放上方任务。',
+    proofConditions: [eventSequence(
+      blockTransition(p10Door, cell(2, 2), cell(3, 2)),
+      blockTransition(p10First, cell(5, 2), cell(5, 1)),
+      blockTransition(p10Door, cell(3, 2), cell(4, 2)),
+      blockTransition(p10Second, cell(3, 1), cell(3, 0)),
+    )],
+    milestones: [
+      blockTransition(p10Door, cell(2, 2), cell(3, 2)),
+      blockTransition(p10First, cell(5, 2), cell(5, 1)),
+      blockTransition(p10Door, cell(3, 2), cell(4, 2)),
+      blockTransition(p10Second, cell(3, 1), cell(3, 0)),
+    ],
+    techniques: [
+      { techniqueId: 'footprint-sequencer', role: 'primary' },
+      { techniqueId: 'dependency-dag', role: 'support' },
+      { techniqueId: 'push-side-preservation', role: 'support' },
+    ],
+    board: {
+      width: 7,
+      height: 4,
+      weather: 'clear',
+      player: cell(1, 2),
+      walls: wallsOutside(7, 4, p10Open),
+      terrainGoals: [cell(4, 2), cell(5, 2), cell(5, 1), cell(3, 0)],
+      terrainSpikes: [],
+      blocks: [
+        { id: p10Door, position: cell(2, 2), shape: horizontalDomino, number: 0, isFake: false },
+        { id: p10First, position: cell(5, 2), shape: masteryOneCell, number: 0, isFake: false },
+        { id: p10Second, position: cell(3, 1), shape: masteryOneCell, number: 0, isFake: false },
       ],
       goals: [],
       gates: [],

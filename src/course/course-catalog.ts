@@ -6,6 +6,7 @@ import {
 import { pushFootprintLevels } from '../levels/mastery/push-footprint-levels';
 import { e01ExperimentLevels } from '../levels/lab/e01-experiment';
 import { e06ExperimentLevels } from '../levels/lab/e06-experiment';
+import { e06Scaffold } from '../levels/lab/e06-scaffold';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
 import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
@@ -241,8 +242,14 @@ export const masteryV2Catalog: CourseCatalog = {
     branch: 'shape',
     prerequisites: [],
     levelIds: e06ExperimentLevels.map((level) => level.id),
+  }, {
+    id: e06Scaffold.groupId,
+    title: '空间练习',
+    branch: 'shape',
+    prerequisites: [],
+    levelIds: [e06Scaffold.id],
   }],
-  labLevels: [...labLevels, ...e01ExperimentLevels, ...e06ExperimentLevels],
+  labLevels: [...labLevels, ...e01ExperimentLevels, ...e06ExperimentLevels, e06Scaffold],
 };
 
 export function displayNumberFor(catalog: CourseCatalog, levelId: string): number | undefined {

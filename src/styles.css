@@ -709,6 +709,7 @@ kbd {
   grid-template-columns: repeat(var(--board-columns), minmax(0, 1fr));
   grid-template-rows: repeat(var(--board-rows), minmax(0, 1fr));
   --board-motion-duration: 200ms;
+  --board-piece-outline-width: clamp(0.125rem, 0.22vw, 0.1875rem);
   --board-gate-segment-duration: 160ms;
   --board-gate-hop-delay: 44ms;
   --board-reset-ingress-duration: 180ms;
@@ -858,8 +859,8 @@ kbd {
   z-index: 1;
 }
 
-/* Draw on the full-cell face: distinguish touching objects without adding a gap.
-   Joined cells within one footprint have no internal contour. */
+/* Draw inward on the full-cell face, never as a physical gap. A strong exterior
+   contour distinguishes touching objects; joined cells have no internal line. */
 .board__entity[data-outline-edges]::after {
   content: "";
   position: absolute;
@@ -870,19 +871,19 @@ kbd {
 }
 
 .board__entity[data-outline-edges~="top"]::after {
-  border-top-width: 0.0625rem;
+  border-top-width: var(--board-piece-outline-width);
 }
 
 .board__entity[data-outline-edges~="right"]::after {
-  border-right-width: 0.0625rem;
+  border-right-width: var(--board-piece-outline-width);
 }
 
 .board__entity[data-outline-edges~="bottom"]::after {
-  border-bottom-width: 0.0625rem;
+  border-bottom-width: var(--board-piece-outline-width);
 }
 
 .board__entity[data-outline-edges~="left"]::after {
-  border-left-width: 0.0625rem;
+  border-left-width: var(--board-piece-outline-width);
 }
 
 .board__entity--block,
@@ -1494,11 +1495,13 @@ kbd {
 
   .board__entity--reset-ingress,
   .board__entity--reset-impact,
+  .board__entity--teleport-entry,
   .board__reset-particle {
     display: none;
   }
 
-  .board__entity--reset-respawn {
+  .board__entity--reset-respawn,
+  .board__entity--teleport-exit {
     opacity: 1;
     transform: none;
     animation: none;

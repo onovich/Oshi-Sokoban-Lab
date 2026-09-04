@@ -13,6 +13,7 @@ import type {
 import { GameGlyph } from './GameGlyph';
 import type { GameGlyphKind } from './GameGlyph';
 import { SPIKE_RESET_WINDOWS } from '../rendering/spike-reset-presentation';
+import { BOARD_MOTION_TIMING } from '../rendering/board-motion-timing';
 
 type BoardProps = Readonly<{
   state: GameState;
@@ -484,6 +485,9 @@ export function Board({ gateTraversal, state, turnEvents = [] }: BoardProps) {
   const boardStyle = {
     '--board-columns': state.level.width,
     '--board-rows': state.level.height,
+    '--board-motion-duration': `${BOARD_MOTION_TIMING.moveMs}ms`,
+    '--board-gate-segment-duration': `${BOARD_MOTION_TIMING.gateSegmentMs}ms`,
+    '--board-gate-hop-delay': `${BOARD_MOTION_TIMING.gateHopMs}ms`,
   } as CSSProperties;
 
   return (

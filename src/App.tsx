@@ -6,6 +6,7 @@ import { CurriculumMap } from './components/CurriculumMap';
 import { DifficultySummary } from './components/DifficultySummary';
 import { GameControls } from './components/GameControls';
 import { LessonBriefing } from './components/LessonBriefing';
+import { SolutionDemo } from './components/SolutionDemo';
 import {
   acceptedFoundationCatalog,
   displayNumberFor,
@@ -25,6 +26,7 @@ import { createGame, move, restart, tick, undo } from './engine/game-engine';
 import type { Direction, DomainEvent, GameState, GateTraversal } from './engine/types';
 import { getNextCourseLevelId, getUnlockedCourseLevelIds } from './levels/course-progress';
 import { hasObjectReset, SPIKE_RESET_TIMING } from './rendering/spike-reset-presentation';
+import { requestSolution, type SolutionLoader } from './solver/solution-request';
 import './styles.css';
 
 const catalogs: readonly CourseCatalog[] = [acceptedFoundationCatalog, masteryV2Catalog];
@@ -70,6 +72,7 @@ function displayTitle(catalog: CourseCatalog, scope: CourseScope, spec: LevelSpe
 
 type GameView = Readonly<{
   state: GameState;
+  demonstrating?: boolean;
   gateTraversal?: GateTraversal;
   turnEvents?: readonly DomainEvent[];
 }>;
@@ -81,6 +84,7 @@ type AppProps = Readonly<{
   authoringMode?: boolean;
   initialCatalogId?: CourseCatalogId;
   progressStorage?: Storage;
+  solutionLoader?: SolutionLoader;
 }>;
 
 const reducedMotionQuery = '(prefers-reduced-motion: reduce)';
@@ -106,6 +110,7 @@ export function App({
   authoringMode = import.meta.env.DEV,
   initialCatalogId = 'accepted-foundation-v1',
   progressStorage,
+  solutionLoader = requestSolution,
 }: AppProps = {}) {
   const storage = progressStorage ?? window.localStorage;
   const [selection, setSelection] = useState<Readonly<{
@@ -127,6 +132,7 @@ export function App({
     loadCourseProgress(storage, catalog, selection.scope));
   const prefersReducedMotion = usePrefersReducedMotion();
   const { gateTraversal, state, turnEvents } = gameView;
+  const isDemonstrating = gameView.demonstrating === true;
   const isResetPresenting = hasObjectReset(turnEvents);
   const specFor = useCallback(
     (id: string) => levels.find((level) => level.id === id),
@@ -193,7 +199,7 @@ export function App({
   const applyMove = useCallback((direction: Direction) => {
     if (isBriefingOpen) return;
     setGameView((previous) => {
-      if (hasObjectReset(previous.turnEvents)) return previous;
+      if (previous.demonstrating || hasObjectReset(previous.turnEvents)) return previous;
       const result = move(previous.state, direction);
       return {
         state: result.state,
@@ -205,12 +211,12 @@ export function App({
 
   const applyUndo = useCallback(() => {
     if (isBriefingOpen) return;
-    setGameView((previous) => ({ state: undo(previous.state) }));
+    setGameView((previous) => previous.demonstrating ? previous : { state: undo(previous.state) });
   }, [isBriefingOpen]);
 
   const applyRestart = useCallback(() => {
     if (isBriefingOpen) return;
-    setGameView((previous) => ({ state: restart(previous.state) }));
+    setGameView((previous) => previous.demonstrating ? previous : { state: restart(previous.state) });
   }, [isBriefingOpen]);
 
   const advanceLesson = useCallback(() => {
@@ -218,6 +224,11 @@ export function App({
     setGameView({ state: createGame(nextSpec.board) });
     setIsBriefingOpen(true);
   }, [nextSpec]);
+
+  function exitSolutionDemo() {
+    setGameView((previous) => ({ state: previous.state }));
+    requestAnimationFrame(() => document.getElementById('solution-demo-trigger')?.focus());
+  }
 
   useEffect(() => {
     if (state.status !== 'won') return;
@@ -250,6 +261,17 @@ export function App({
       if (target instanceof Element && target.matches('select, input, textarea')) return;
       if (isBriefingOpen) return;
 
+      if (isDemonstrating) {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          exitSolutionDemo();
+        } else if (keyDirections[event.key.toLowerCase()] || keyDirections[event.key]
+          || ['z', 'r'].includes(event.key.toLowerCase())) {
+          event.preventDefault();
+        }
+        return;
+      }
+
       const direction = keyDirections[event.key.toLowerCase()] ?? keyDirections[event.key];
       if (direction) {
         event.preventDefault();
@@ -268,10 +290,10 @@ export function App({
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [applyMove, applyRestart, applyUndo, isBriefingOpen]);
+  }, [applyMove, applyRestart, applyUndo, exitSolutionDemo, isBriefingOpen, isDemonstrating]);
 
   useEffect(() => {
-    if (state.remainingSeconds === undefined || state.status !== 'playing') return undefined;
+    if (isDemonstrating || state.remainingSeconds === undefined || state.status !== 'playing') return undefined;
     const timer = window.setInterval(
       () => setGameView((previous) => ({
         state: tick(previous.state, 1),
@@ -280,7 +302,7 @@ export function App({
       1000,
     );
     return () => window.clearInterval(timer);
-  }, [state.remainingSeconds, state.status]);
+  }, [state.remainingSeconds, state.status, isDemonstrating]);
 
   const resultMessage = state.status === 'won'
     ? nextSpec
@@ -378,22 +400,37 @@ export function App({
                 <p className="eyebrow">{activeGroup.title} · {activeSpec.role.toUpperCase()}</p>
                 <h2 id="lesson-title">{activeTitle}</h2>
               </div>
-              <p aria-live="polite" className={`result result--${state.status}`} role="status">
-                {moveCounter} · {statusLabel(state)}
-                {state.remainingSeconds !== undefined ? ` · 时间: ${state.remainingSeconds}s` : ''}
-              </p>
+              {!isDemonstrating ? (
+                <p aria-live="polite" className={`result result--${state.status}`} role="status">
+                  {moveCounter} · {statusLabel(state)}
+                  {state.remainingSeconds !== undefined ? ` · 时间: ${state.remainingSeconds}s` : ''}
+                </p>
+              ) : null}
             </div>
-            <p className="lesson-description">{resultMessage}</p>
-            <Board gateTraversal={gateTraversal} state={state} turnEvents={turnEvents} />
-            <GameControls
-              movementDisabled={isResetPresenting}
-              nextLessonTitle={nextSpec ? displayTitle(catalog, selection.scope, nextSpec) : undefined}
-              onMove={applyMove}
-              onNext={state.status === 'won' && !isResetPresenting && nextSpec ? advanceLesson : undefined}
-              onRestart={applyRestart}
-              onUndo={applyUndo}
-              state={state}
-            />
+            {isDemonstrating ? (
+              <SolutionDemo
+                key={`${catalog.id}:${selection.scope}:${activeSpec.id}`}
+                loadSolution={solutionLoader}
+                onExit={exitSolutionDemo}
+                reducedMotion={prefersReducedMotion}
+                spec={activeSpec}
+              />
+            ) : (
+              <>
+                <p className="lesson-description">{resultMessage}</p>
+                <Board gateTraversal={gateTraversal} state={state} turnEvents={turnEvents} />
+                <GameControls
+                  movementDisabled={isResetPresenting}
+                  nextLessonTitle={nextSpec ? displayTitle(catalog, selection.scope, nextSpec) : undefined}
+                  onMove={applyMove}
+                  onDemonstrate={() => setGameView((previous) => ({ ...previous, demonstrating: true }))}
+                  onNext={state.status === 'won' && !isResetPresenting && nextSpec ? advanceLesson : undefined}
+                  onRestart={applyRestart}
+                  onUndo={applyUndo}
+                  state={state}
+                />
+              </>
+            )}
           </section>
         )}
       </div>

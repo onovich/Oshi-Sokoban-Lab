@@ -237,6 +237,23 @@ describe('Board glyph system', () => {
     expect(container.querySelector('[data-entity-id="role"]')?.getAttribute('data-outline-edges')).toBeNull();
   });
 
+  it('fills solid cells edge-to-edge without letterboxing or antialiased tile seams', () => {
+    const { container } = render(<Board state={gameFor({
+      ...baseLevel,
+      blocks: [...baseLevel.blocks, {
+        id: 'adjacent-fake', position: { x: 2, y: 1 }, shape: oneCell, number: 0, isFake: true,
+      }],
+    })} />);
+
+    for (const kind of ['player', 'block', 'fake-block']) {
+      const face = container.querySelector(`[data-glyph="${kind}"] svg`);
+      // Fractional grid tracks need a full, pixel-snapped fill, not a centered square.
+      expect(face?.getAttribute('preserveAspectRatio')).toBe('none');
+      expect(face?.getAttribute('shape-rendering')).toBe('crispEdges');
+    }
+    expect(container.querySelector('[data-glyph="terrain-goal"] svg')?.getAttribute('shape-rendering')).toBeNull();
+  });
+
   it('tweens each moved entity from its prior logical grid cell', () => {
     const initial = gameFor(baseLevel);
     const afterPush = move(initial, 'right').state;

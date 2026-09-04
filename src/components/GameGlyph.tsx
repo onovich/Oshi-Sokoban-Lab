@@ -62,6 +62,7 @@ function GlyphShape({ kind }: Pick<GameGlyphProps, 'kind'>) {
 export function GameGlyph({ isComplete = false, kind, number }: GameGlyphProps) {
   const isGate = kind === 'gate-blue' || kind === 'gate-orange';
   const isCellFilling = fillsCell(kind);
+  const isSolid = kind === 'player' || kind === 'block' || kind === 'fake-block';
 
   return (
     <span
@@ -76,7 +77,13 @@ export function GameGlyph({ isComplete = false, kind, number }: GameGlyphProps) 
     >
       {isGate ? <PortalShader variant={kind === 'gate-blue' ? 'blue' : 'orange'} /> : null}
       {!isGate ? (
-        <svg className="game-glyph__svg" focusable="false" viewBox="0 0 32 32">
+        <svg
+          className="game-glyph__svg"
+          focusable="false"
+          preserveAspectRatio={isSolid ? 'none' : undefined}
+          shapeRendering={isSolid ? 'crispEdges' : undefined}
+          viewBox="0 0 32 32"
+        >
           <GlyphShape kind={kind} />
         </svg>
       ) : null}

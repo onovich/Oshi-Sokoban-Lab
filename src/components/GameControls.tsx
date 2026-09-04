@@ -6,6 +6,7 @@ type GameControlsProps = Readonly<{
   onNext?: () => void;
   onRestart: () => void;
   onUndo: () => void;
+  onDemonstrate?: () => void;
   nextLessonTitle?: string;
   movementDisabled?: boolean;
 }>;
@@ -17,6 +18,7 @@ export function GameControls({
   onNext,
   onRestart,
   onUndo,
+  onDemonstrate,
   nextLessonTitle,
 }: GameControlsProps) {
   return (
@@ -28,6 +30,11 @@ export function GameControls({
         <button onClick={onRestart} type="button">
           Restart <kbd>R</kbd>
         </button>
+        {onDemonstrate ? (
+          <button disabled={movementDisabled} id="solution-demo-trigger" onClick={onDemonstrate} type="button">
+            演示解法
+          </button>
+        ) : null}
         {onNext && nextLessonTitle ? (
           <button className="controls__next" onClick={onNext} type="button">
             下一关

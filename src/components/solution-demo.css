@@ -1,0 +1,53 @@
+.solution-demo {
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--line-muted);
+  padding-top: 0.75rem;
+}
+
+.solution-demo__heading,
+.solution-demo__transport {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+
+.solution-demo__heading h3 {
+  margin: 0;
+  color: var(--role-yellow);
+  font-size: 1rem;
+}
+
+.solution-demo__notice {
+  margin: 0.75rem 0;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.solution-demo__transport {
+  margin-bottom: 1rem;
+}
+
+.solution-demo__status {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.solution-demo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.solution-demo button {
+  min-height: 2.75rem;
+  font-size: 0.875rem;
+}
+
+.solution-demo > .board {
+  margin-top: 0.75rem;
+}

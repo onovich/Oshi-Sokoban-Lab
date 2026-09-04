@@ -12,7 +12,7 @@ const handoff: ProofCondition = {
   ],
 };
 
-/** D5 is a design hypothesis. Only real-rule machine evidence exists at this stage. */
+/** Original D5 target retained; author reports about D4, stranger calibration pending. */
 export const e02Prototype: LevelSpec = {
   id,
   groupId: 'lab-e02-staging',
@@ -23,7 +23,7 @@ export const e02Prototype: LevelSpec = {
     { techniqueId: 'recoverable-staging-handoff', role: 'primary' },
     { techniqueId: 'push-side-preservation', role: 'support' },
   ],
-  difficulty: { target: 5, confidence: 'design-target', sampleSize: 0 },
+  difficulty: { target: 5, authorRating: 4, confidence: 'design-target', sampleSize: 0 },
   board: {
     id,
     title: '折返庭',
@@ -57,7 +57,7 @@ export const e02Contrast: LevelSpec = {
   id: 'lab-e02-independent-bay',
   role: 'boundary',
   cognitiveStage: 'reinforce',
-  difficulty: { target: 3, confidence: 'design-target', sampleSize: 0 },
+  difficulty: { target: 3, authorRating: 4, confidence: 'design-target', sampleSize: 0 },
   board: {
     ...e02Prototype.board,
     id: 'lab-e02-independent-bay',

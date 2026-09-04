@@ -8,6 +8,7 @@ import { e01ExperimentLevels } from '../levels/lab/e01-experiment';
 import { e06Contrast, e06Prototype } from '../levels/lab/e06-experiment';
 import { e06Scaffold } from '../levels/lab/e06-scaffold';
 import { e02ExperimentLevels } from '../levels/lab/e02-experiment';
+import { e02ReturnLoan } from '../levels/lab/e02-return-loan';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
 import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
@@ -251,8 +252,14 @@ export const masteryV2Catalog: CourseCatalog = {
     branch: 'shape',
     prerequisites: [],
     levelIds: e02ExperimentLevels.map((level) => level.id),
+  }, {
+    id: 'lab-e02-return-loan',
+    title: '空间迁移 E02',
+    branch: 'shape',
+    prerequisites: ['lab-e02-staging'],
+    levelIds: [e02ReturnLoan.id],
   }],
-  labLevels: [...labLevels, ...e01ExperimentLevels, ...e06LearningLevels, ...e02ExperimentLevels],
+  labLevels: [...labLevels, ...e01ExperimentLevels, ...e06LearningLevels, ...e02ExperimentLevels, e02ReturnLoan],
 };
 
 export function displayNumberFor(catalog: CourseCatalog, levelId: string): number | undefined {

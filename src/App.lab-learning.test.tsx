@@ -19,6 +19,27 @@ function play(route: string) {
 }
 
 describe('laboratory learning and author ratings', () => {
+  it('appends the return-loan transfer without changing the existing lab order or formal progress', () => {
+    saveCourseProgress(window.localStorage, masteryV2Catalog, 'lab', ['lab-e02-shared-bay', 'lab-e02-independent-bay']);
+    render(<App initialCatalogId="mastery-v2" />);
+    fireEvent.change(screen.getByRole('combobox', { name: '课程区域' }), { target: { value: 'lab' } });
+    const options = within(screen.getByRole('combobox', { name: '关卡' })).getAllByRole('option') as HTMLOptionElement[];
+    expect(options.slice(-3).map((option) => option.value)).toEqual([
+      'lab-e02-shared-bay', 'lab-e02-independent-bay', 'lab-e02-return-loan',
+    ]);
+    selectLab('lab-e02-return-loan');
+    expect(screen.getAllByRole('gridcell', { name: /地面 Goal/ })).toHaveLength(5);
+    expect(document.querySelector('.lesson-description')?.textContent).not.toMatch(/返回|先把|取回|交接/);
+    play('UDLDDRRRUULUULLDRDLDDRRRULDLUUUDDRRULL');
+    expect(screen.getByRole('status').textContent).toContain('已完成');
+    expect(loadCourseProgress(window.localStorage, masteryV2Catalog, 'lab')).toEqual([
+      'lab-e02-shared-bay', 'lab-e02-independent-bay', 'lab-e02-return-loan',
+    ]);
+    expect(loadCourseProgress(window.localStorage, masteryV2Catalog, 'formal')).toEqual([]);
+    expect(masteryV2Catalog.formalLevelOrder).not.toContain('lab-e02-return-loan');
+    expect(acceptedFoundationCatalog.labLevels.some((spec) => spec.id === 'lab-e02-return-loan')).toBe(false);
+  }, 15_000);
+
   it('keeps old stable-ID completions and advances short court to bypass with author-only ratings', () => {
     saveCourseProgress(window.localStorage, masteryV2Catalog, 'lab', ['lab-e06-interleaved']);
     render(<App initialCatalogId="mastery-v2" />);

@@ -7,6 +7,7 @@ afterEach(cleanup);
 
 it.each([
   ['lab-e06-small-court', 4], ['lab-e06-independent-return', 5], ['lab-e06-interleaved', 6],
+  ['lab-e02-shared-bay', 4], ['lab-e02-independent-bay', 4],
 ] as const)('distinguishes %s author rating from stranger calibration', (id, rating) => {
   const difficulty = masteryV2Catalog.labLevels.find((level) => level.id === id)!.difficulty;
   render(<DifficultySummary difficulty={difficulty} />);

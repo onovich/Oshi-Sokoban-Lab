@@ -17,7 +17,7 @@ const sideAccess: ProofCondition = {
 /** Playable learning aid for E06; not a calibrated rating or a formal course slot. */
 export const e06Scaffold: LevelSpec = {
   id,
-  groupId: 'lab-e06-learning',
+  groupId: 'lab-e06-spatial',
   role: 'practice',
   cognitiveStage: 'reinforce',
   prerequisites: ['mastery-push-footprint-03', 'mastery-push-footprint-10'],
@@ -25,7 +25,7 @@ export const e06Scaffold: LevelSpec = {
     { techniqueId: 'recoverable-intermediate-state', role: 'primary' },
     { techniqueId: 'push-side-preservation', role: 'support' },
   ],
-  difficulty: { target: 3, confidence: 'design-target', sampleSize: 0 },
+  difficulty: { target: 3, authorRating: 4, confidence: 'design-target', sampleSize: 0 },
   board: {
     id,
     title: '短庭',

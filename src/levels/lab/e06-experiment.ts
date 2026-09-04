@@ -10,18 +10,18 @@ const handoff = proofConditionFromLegacy(
   `event:block-pushed:${id}-a:from:2,3:to:1,3`,
 );
 
-/** Candidate for author playtesting, not a measured D5 or a formal course slot. */
+/** Author-accepted lab level; unfamiliar-player calibration is still pending. */
 export const e06Prototype: LevelSpec = {
   id,
   groupId: 'lab-e06-spatial',
   role: 'inference',
   cognitiveStage: 'stress',
-  prerequisites: ['mastery-push-footprint-06', 'mastery-push-footprint-10'],
+  prerequisites: ['lab-e06-independent-return'],
   techniques: [
     { techniqueId: 'interleaved-preparation', role: 'primary' },
     { techniqueId: 'recoverable-intermediate-state', role: 'support' },
   ],
-  difficulty: { target: 5, confidence: 'design-target', sampleSize: 0 },
+  difficulty: { target: 5, authorRating: 6, confidence: 'design-target', sampleSize: 0 },
   board: {
     id,
     title: '回环',
@@ -60,13 +60,14 @@ export const e06Prototype: LevelSpec = {
 export const e06Contrast: LevelSpec = {
   ...e06Prototype,
   id: 'lab-e06-independent-return',
+  prerequisites: ['lab-e06-small-court'],
   role: 'boundary',
-  difficulty: { target: 3, confidence: 'design-target', sampleSize: 0 },
+  difficulty: { target: 3, authorRating: 5, confidence: 'design-target', sampleSize: 0 },
   board: {
     ...e06Prototype.board,
     id: 'lab-e06-independent-return',
     title: '旁路',
-    description: '结构对照，难度尚未实测。',
+    description: '结构对照，尚未完成陌生玩家难度校准。',
     walls: e06Prototype.board.walls.filter((wall) => wall.x !== 2 || wall.y !== 1),
   },
   theorem: {

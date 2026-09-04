@@ -5,8 +5,9 @@ import {
 } from '../levels/course-catalog';
 import { pushFootprintLevels } from '../levels/mastery/push-footprint-levels';
 import { e01ExperimentLevels } from '../levels/lab/e01-experiment';
-import { e06ExperimentLevels } from '../levels/lab/e06-experiment';
+import { e06Contrast, e06Prototype } from '../levels/lab/e06-experiment';
 import { e06Scaffold } from '../levels/lab/e06-scaffold';
+import { e02ExperimentLevels } from '../levels/lab/e02-experiment';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
 import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
@@ -99,6 +100,8 @@ const labGroups = [{
   prerequisites: [],
   levelIds: labLevels.map((level) => level.id),
 }];
+
+const e06LearningLevels = [e06Scaffold, e06Contrast, e06Prototype];
 
 const acceptedIds = candidateLevels
   .map((level) => level.id)
@@ -238,18 +241,18 @@ export const masteryV2Catalog: CourseCatalog = {
     levelIds: e01ExperimentLevels.map((level) => level.id),
   }, {
     id: 'lab-e06-spatial',
-    title: '空间实验 E06',
+    title: '空间学习 E06',
     branch: 'shape',
     prerequisites: [],
-    levelIds: e06ExperimentLevels.map((level) => level.id),
+    levelIds: e06LearningLevels.map((level) => level.id),
   }, {
-    id: e06Scaffold.groupId,
-    title: '空间练习',
+    id: 'lab-e02-staging',
+    title: '空间实验 E02',
     branch: 'shape',
     prerequisites: [],
-    levelIds: [e06Scaffold.id],
+    levelIds: e02ExperimentLevels.map((level) => level.id),
   }],
-  labLevels: [...labLevels, ...e01ExperimentLevels, ...e06ExperimentLevels, e06Scaffold],
+  labLevels: [...labLevels, ...e01ExperimentLevels, ...e06LearningLevels, ...e02ExperimentLevels],
 };
 
 export function displayNumberFor(catalog: CourseCatalog, levelId: string): number | undefined {

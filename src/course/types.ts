@@ -25,6 +25,8 @@ export type DifficultyRating = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 export type DifficultyAssessment = Readonly<{
   target: DifficultyRating;
   observed?: number;
+  /** Author judgment is separate from unfamiliar-player observations and sampleSize. */
+  authorRating?: DifficultyRating;
   confidence: 'design-target' | 'author-accepted-foundation' | 'playtest-provisional' | 'calibrated';
   sampleSize: number;
 }>;

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Board } from './components/Board';
 import { AuthorAnalysisPanel } from './components/AuthorAnalysisPanel';
 import { CurriculumMap } from './components/CurriculumMap';
+import { DifficultySummary } from './components/DifficultySummary';
 import { GameControls } from './components/GameControls';
 import { LessonBriefing } from './components/LessonBriefing';
 import {
@@ -330,7 +331,7 @@ export function App({
             <option value="formal">正式课程</option>
             <option value="lab">开发实验室</option>
           </select>
-          <p>目标 D{activeSpec.difficulty.target} · {activeSpec.difficulty.confidence}</p>
+          <DifficultySummary difficulty={activeSpec.difficulty} />
         </section>
         <AuthorAnalysisPanel key={`${catalog.id}:${selection.scope}:${activeSpec.id}`} spec={activeSpec} />
         </>

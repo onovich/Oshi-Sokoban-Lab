@@ -19,25 +19,35 @@ function play(route: string) {
 }
 
 describe('laboratory learning and author ratings', () => {
-  it('appends the return-loan transfer without changing the existing lab order or formal progress', () => {
+  it('inserts two complete precursors before the unchanged return-loan transfer', () => {
     saveCourseProgress(window.localStorage, masteryV2Catalog, 'lab', ['lab-e02-shared-bay', 'lab-e02-independent-bay']);
     render(<App initialCatalogId="mastery-v2" />);
     fireEvent.change(screen.getByRole('combobox', { name: '课程区域' }), { target: { value: 'lab' } });
     const options = within(screen.getByRole('combobox', { name: '关卡' })).getAllByRole('option') as HTMLOptionElement[];
-    expect(options.slice(-3).map((option) => option.value)).toEqual([
-      'lab-e02-shared-bay', 'lab-e02-independent-bay', 'lab-e02-return-loan',
+    expect(options.slice(-5).map((option) => option.value)).toEqual([
+      'lab-e02-shared-bay',
+      'lab-e02-independent-bay',
+      'lab-e02-return-door',
+      'lab-e02-return-reservation',
+      'lab-e02-return-loan',
     ]);
-    selectLab('lab-e02-return-loan');
-    expect(screen.getAllByRole('gridcell', { name: /地面 Goal/ })).toHaveLength(5);
-    expect(document.querySelector('.lesson-description')?.textContent).not.toMatch(/返回|先把|取回|交接/);
-    play('UDLDDRRRUULUULLDRDLDDRRRULDLUUUDDRRULL');
+    selectLab('lab-e02-return-door');
+    expect(screen.getAllByRole('gridcell', { name: /地面 Goal/ })).toHaveLength(3);
+    expect(document.querySelector('.lesson-description')?.textContent)
+      .not.toMatch(/返回|归还|先把|取回|站位|交接/);
+    play('UDDRRULUULLRRDDDLLUR');
     expect(screen.getByRole('status').textContent).toContain('已完成');
+    fireEvent.click(screen.getByRole('button', { name: '下一关' }));
+    expect((screen.getByRole('combobox', { name: '关卡' }) as HTMLSelectElement).value)
+      .toBe('lab-e02-return-reservation');
     expect(loadCourseProgress(window.localStorage, masteryV2Catalog, 'lab')).toEqual([
-      'lab-e02-shared-bay', 'lab-e02-independent-bay', 'lab-e02-return-loan',
+      'lab-e02-shared-bay', 'lab-e02-independent-bay', 'lab-e02-return-door',
     ]);
     expect(loadCourseProgress(window.localStorage, masteryV2Catalog, 'formal')).toEqual([]);
-    expect(masteryV2Catalog.formalLevelOrder).not.toContain('lab-e02-return-loan');
-    expect(acceptedFoundationCatalog.labLevels.some((spec) => spec.id === 'lab-e02-return-loan')).toBe(false);
+    for (const id of ['lab-e02-return-door', 'lab-e02-return-reservation', 'lab-e02-return-loan']) {
+      expect(masteryV2Catalog.formalLevelOrder).not.toContain(id);
+      expect(acceptedFoundationCatalog.labLevels.some((spec) => spec.id === id)).toBe(false);
+    }
   }, 15_000);
 
   it('keeps old stable-ID completions and advances short court to bypass with author-only ratings', () => {

@@ -8,6 +8,7 @@ import { e01ExperimentLevels } from '../levels/lab/e01-experiment';
 import { e06Contrast, e06Prototype } from '../levels/lab/e06-experiment';
 import { e06Scaffold } from '../levels/lab/e06-scaffold';
 import { e02ExperimentLevels } from '../levels/lab/e02-experiment';
+import { e02ReturnDoor, e02ReturnReservation } from '../levels/lab/e02-return-teaching';
 import { e02ReturnLoan } from '../levels/lab/e02-return-loan';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
@@ -253,13 +254,21 @@ export const masteryV2Catalog: CourseCatalog = {
     prerequisites: [],
     levelIds: e02ExperimentLevels.map((level) => level.id),
   }, {
-    id: 'lab-e02-return-loan',
+    id: 'lab-e02-return-position',
     title: '空间迁移 E02',
     branch: 'shape',
     prerequisites: ['lab-e02-staging'],
-    levelIds: [e02ReturnLoan.id],
+    levelIds: [e02ReturnDoor.id, e02ReturnReservation.id, e02ReturnLoan.id],
   }],
-  labLevels: [...labLevels, ...e01ExperimentLevels, ...e06LearningLevels, ...e02ExperimentLevels, e02ReturnLoan],
+  labLevels: [
+    ...labLevels,
+    ...e01ExperimentLevels,
+    ...e06LearningLevels,
+    ...e02ExperimentLevels,
+    e02ReturnDoor,
+    e02ReturnReservation,
+    e02ReturnLoan,
+  ],
 };
 
 export function displayNumberFor(catalog: CourseCatalog, levelId: string): number | undefined {

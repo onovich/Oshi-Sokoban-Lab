@@ -14,10 +14,10 @@ const reopenReturn = [
 /** Experimental transfer of E02's return-access lesson; D5 is not a measured rating. */
 export const e02ReturnLoan: LevelSpec = {
   id,
-  groupId: 'lab-e02-return-loan',
+  groupId: 'lab-e02-return-position',
   role: 'transfer',
   cognitiveStage: 'stress',
-  prerequisites: ['lab-e02-shared-bay'],
+  prerequisites: ['lab-e02-return-reservation'],
   techniques: [
     { techniqueId: 'return-route-reservation', role: 'primary' },
     { techniqueId: 'recoverable-staging-handoff', role: 'support' },

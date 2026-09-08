@@ -21,6 +21,7 @@ import { e05ReturnRoute } from '../levels/lab/e05-return-route';
 import { e05GoalHandoff } from '../levels/lab/e05-goal-handoff';
 import { e05SharedBridge } from '../levels/lab/e05-shared-bridge';
 import { e05LowerLanding, e05UpperLanding } from '../levels/lab/e05-route-contrast';
+import { gc01GoalReturn } from '../levels/lab/gc01-goal-return';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
 import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
@@ -294,6 +295,12 @@ export const masteryV2Catalog: CourseCatalog = {
     branch: 'shape',
     prerequisites: ['lab-e04-staging'],
     levelIds: [e05LowerLanding.id, e05UpperLanding.id],
+  }, {
+    id: 'lab-goal-coordination',
+    title: 'Goal 空间协调实验',
+    branch: 'goal',
+    prerequisites: [],
+    levelIds: [gc01GoalReturn.id],
   }],
   labLevels: [
     ...labLevels,
@@ -316,6 +323,7 @@ export const masteryV2Catalog: CourseCatalog = {
     e05SharedBridge,
     e05LowerLanding,
     e05UpperLanding,
+    gc01GoalReturn,
   ],
 };
 

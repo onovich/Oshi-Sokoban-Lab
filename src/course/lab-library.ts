@@ -27,6 +27,9 @@ const shelves: readonly LaboratoryShelf[] = [
     'lab-e02-shared-bay', 'lab-e02-independent-bay', 'lab-e03-alcove',
     'lab-e03-side-court', 'lab-e04-small-court',
   ] },
+  { id: 'goal-candidate', title: '新候选 · Goal 空间协调（待试玩）', levelIds: [
+    'lab-gc01-goal-return',
+  ] },
   { id: 'archive', title: '历史实验 · 不推荐为挑战前置，仍可重玩', levelIds: [
     'lab-spike-clear', 'lab-spike-rebirth', 'lab-spike-progress',
     'lab-e01-shared-passage', 'lab-e01-independent-passage', 'lab-e03-west-court',

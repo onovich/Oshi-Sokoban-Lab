@@ -9,7 +9,7 @@
 
 ## 当前执行入口
 
-- [Goal 条件动作平行探索](../../high-difficulty/goal-condition-exploration.md)：规则探针已执行；GC01／GC02 任务书已写，下一步仅制作 GC01 最小原型，尚未添加新选关项。
+- [Goal 条件动作平行探索](../../high-difficulty/goal-condition-exploration.md)：[GC01-V 涉岸 / LAB 28](../../high-difficulty/gc01-goal-return.md) 已加入“新候选”，等待试玩。它收敛为 Goal 落点与回程协调，不冒充原强命题；GC02 暂缓。旧 27 实验关及正式目录不变。
 
 - [高难设计总纲](../../high-difficulty/design-guide.md)：资源冲突、六条策略主线、两条扩展方向、相似底板、D5–10 目标及认知铺垫。
 - [首批六张实验任务书](../../high-difficulty/experiment-briefs.md)：纯空间 D5–6 假设、必要中间态、解耦对照与淘汰条件；不是已完成地图。

@@ -9,6 +9,8 @@
 
 ## 当前执行入口
 
+- [Goal 条件动作平行探索](../../high-difficulty/goal-condition-exploration.md)：规则探针已执行；GC01／GC02 任务书已写，下一步仅制作 GC01 最小原型，尚未添加新选关项。
+
 - [高难设计总纲](../../high-difficulty/design-guide.md)：资源冲突、六条策略主线、两条扩展方向、相似底板、D5–10 目标及认知铺垫。
 - [首批六张实验任务书](../../high-difficulty/experiment-briefs.md)：纯空间 D5–6 假设、必要中间态、解耦对照与淘汰条件；不是已完成地图。
 - [E01 实验原型](../../high-difficulty/e01-prototype.md)：大师课程实验室的折线／对照入口、机器证据与待验证问题；未占正式槽。

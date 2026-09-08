@@ -22,7 +22,7 @@ export const e02ReturnLoan: LevelSpec = {
     { techniqueId: 'return-route-reservation', role: 'primary' },
     { techniqueId: 'recoverable-staging-handoff', role: 'support' },
   ],
-  difficulty: { target: 5, confidence: 'design-target', sampleSize: 0 },
+  difficulty: { target: 5, authorRating: 6, confidence: 'design-target', sampleSize: 0 },
   board: {
     id,
     title: '再借庭',

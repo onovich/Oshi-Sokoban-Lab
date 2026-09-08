@@ -10,6 +10,17 @@ import { e06Scaffold } from '../levels/lab/e06-scaffold';
 import { e02ExperimentLevels } from '../levels/lab/e02-experiment';
 import { e02ReturnDoor, e02ReturnReservation } from '../levels/lab/e02-return-teaching';
 import { e02ReturnLoan } from '../levels/lab/e02-return-loan';
+import { e03GoalSpaceLevels } from '../levels/lab/e03-goal-space';
+import { e03WestCourt } from '../levels/lab/e03-boundary';
+import { e04SharedCourt } from '../levels/lab/e04-shared-staging';
+import { e04TeachingLevels } from '../levels/lab/e04-teaching';
+import { e04UpperRoute } from '../levels/lab/e04-upper-route';
+import { e04SideRoute } from '../levels/lab/e04-side-route';
+import { e05SharedGoals } from '../levels/lab/e05-shared-goals';
+import { e05ReturnRoute } from '../levels/lab/e05-return-route';
+import { e05GoalHandoff } from '../levels/lab/e05-goal-handoff';
+import { e05SharedBridge } from '../levels/lab/e05-shared-bridge';
+import { e05LowerLanding, e05UpperLanding } from '../levels/lab/e05-route-contrast';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
 import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
@@ -259,6 +270,30 @@ export const masteryV2Catalog: CourseCatalog = {
     branch: 'shape',
     prerequisites: ['lab-e02-staging'],
     levelIds: [e02ReturnDoor.id, e02ReturnReservation.id, e02ReturnLoan.id],
+  }, {
+    id: 'lab-e03-goal-space',
+    title: '空间学习 E03',
+    branch: 'shape',
+    prerequisites: ['lab-e02-return-position'],
+    levelIds: [...e03GoalSpaceLevels.map(level => level.id), e03WestCourt.id],
+  }, {
+    id: 'lab-e04-staging',
+    title: '空间协调 E04',
+    branch: 'shape',
+    prerequisites: ['lab-e02-return-position'],
+    levelIds: [e04TeachingLevels[0]!.id, e04UpperRoute.id, e04TeachingLevels[1]!.id, e04SharedCourt.id, e04SideRoute.id],
+  }, {
+    id:'lab-e05-coordination',
+    title:'空间分配实验',
+    branch:'shape',
+    prerequisites:['lab-e04-staging'],
+    levelIds:[e05ReturnRoute.id,e05GoalHandoff.id,e05SharedGoals.id,e05SharedBridge.id],
+  }, {
+    id: 'lab-e05-retrieval-contrast',
+    title: '空间对照实验',
+    branch: 'shape',
+    prerequisites: ['lab-e04-staging'],
+    levelIds: [e05LowerLanding.id, e05UpperLanding.id],
   }],
   labLevels: [
     ...labLevels,
@@ -268,6 +303,19 @@ export const masteryV2Catalog: CourseCatalog = {
     e02ReturnDoor,
     e02ReturnReservation,
     e02ReturnLoan,
+    ...e03GoalSpaceLevels,
+    e03WestCourt,
+    e04TeachingLevels[0]!,
+    e04UpperRoute,
+    e04TeachingLevels[1]!,
+    e04SharedCourt,
+    e04SideRoute,
+    e05ReturnRoute,
+    e05GoalHandoff,
+    e05SharedGoals,
+    e05SharedBridge,
+    e05LowerLanding,
+    e05UpperLanding,
   ],
 };
 

@@ -42,7 +42,7 @@ git -c safe.directory=D:/LabProjects/LearnSokoban status --short --branch
 Run these before commit or push, in order:
 
 ```powershell
-npm test
+npx vitest run --maxWorkers=2
 ```
 
 ```powershell

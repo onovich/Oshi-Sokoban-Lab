@@ -13,6 +13,7 @@ type SolutionDemoProps = Readonly<{
   loadSolution: SolutionLoader;
   onExit: () => void;
   reducedMotion: boolean;
+  onFrame?: (frame: SolutionFrame, restarting: boolean) => void;
 }>;
 
 type Session =
@@ -30,7 +31,7 @@ const directionLabels: Readonly<Record<Direction, string>> = {
   up: '↑ 上', down: '↓ 下', left: '← 左', right: '→ 右',
 };
 
-export function SolutionDemo({ spec, loadSolution, onExit, reducedMotion }: SolutionDemoProps) {
+export function SolutionDemo({ spec, loadSolution, onExit, reducedMotion, onFrame }: SolutionDemoProps) {
   const [session, setSession] = useState<Session>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -61,7 +62,7 @@ export function SolutionDemo({ spec, loadSolution, onExit, reducedMotion }: Solu
       </header>
       <p className="solution-demo__notice">从关卡起点演示；你的局面已保留，演示不会计入通关进度。按 Esc 也可返回。</p>
       {session.status === 'ready' ? (
-        <SolutionPlayback frames={session.frames} reducedMotion={reducedMotion} />
+        <SolutionPlayback frames={session.frames} reducedMotion={reducedMotion} onFrame={onFrame} />
       ) : <>
         <p className="solution-demo__status" role="status">{messages[session.status]}</p>
         {session.status !== 'loading' ? (
@@ -75,9 +76,10 @@ export function SolutionDemo({ spec, loadSolution, onExit, reducedMotion }: Solu
   );
 }
 
-function SolutionPlayback({ frames, reducedMotion }: Readonly<{
+function SolutionPlayback({ frames, reducedMotion, onFrame }: Readonly<{
   frames: readonly SolutionFrame[];
   reducedMotion: boolean;
+  onFrame?: (frame: SolutionFrame, restarting: boolean) => void;
 }>) {
   const [index, setIndex] = useState(0);
   const [settledIndex, setSettledIndex] = useState(0);
@@ -97,9 +99,12 @@ function SolutionPlayback({ frames, reducedMotion }: Readonly<{
   useEffect(() => {
     if (!playing || presenting || index >= total) return undefined;
     // Leave a reading interval between fully finished animations, including the initial board.
-    const timer = window.setTimeout(() => setIndex((value) => value + 1), 600);
+    const timer = window.setTimeout(() => {
+      onFrame?.(frames[index + 1]!, false);
+      setIndex(index + 1);
+    }, 600);
     return () => window.clearTimeout(timer);
-  }, [index, playing, presenting, total, replayId]);
+  }, [index, playing, presenting, total, replayId, frames, onFrame]);
 
   return <>
     <div className="solution-demo__transport">
@@ -113,9 +118,11 @@ function SolutionPlayback({ frames, reducedMotion }: Readonly<{
         </button>
         <button disabled={presenting || index === total} onClick={() => {
           setPlaying(false);
+          onFrame?.(frames[index + 1]!, false);
           setIndex((value) => value + 1);
         }} type="button">单步</button>
         <button onClick={() => {
+          onFrame?.(frames[0]!, true);
           setIndex(0);
           setSettledIndex(0);
           setPlaying(true);

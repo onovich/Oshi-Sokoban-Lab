@@ -13,6 +13,7 @@ import {
   masteryV2Catalog,
 } from './course/course-catalog';
 import { summarizeCourseCompletion } from './course/course-completion';
+import { laboratoryShelf, nextLibraryLevelId } from './course/lab-library';
 import {
   loadCourseProgress,
   saveCourseProgress,
@@ -24,10 +25,15 @@ import type {
 } from './course/types';
 import { createGame, move, restart, tick, undo } from './engine/game-engine';
 import type { Direction, DomainEvent, GameState, GateTraversal } from './engine/types';
-import { getNextCourseLevelId, getUnlockedCourseLevelIds } from './levels/course-progress';
+import {
+  getNextCourseLevelId,
+  getNextSequentialLevelId,
+  getUnlockedCourseLevelIds,
+} from './levels/course-progress';
 import { hasObjectReset, SPIKE_RESET_TIMING } from './rendering/spike-reset-presentation';
 import { requestSolution, type SolutionLoader } from './solver/solution-request';
 import './styles.css';
+import { RouteRecorder, type RouteAction } from './playtest/route-recorder';
 
 const catalogs: readonly CourseCatalog[] = [acceptedFoundationCatalog, masteryV2Catalog];
 
@@ -113,6 +119,8 @@ export function App({
   solutionLoader = requestSolution,
 }: AppProps = {}) {
   const storage = progressStorage ?? window.localStorage;
+  const recorder = useMemo(() => new RouteRecorder(storage), [storage]);
+  const [, refreshRecording] = useState(0);
   const [selection, setSelection] = useState<Readonly<{
     catalogId: CourseCatalogId;
     scope: CourseScope;
@@ -120,9 +128,13 @@ export function App({
   const catalog = catalogFor(selection.catalogId);
   const levels = selection.scope === 'formal' ? catalog.levels : catalog.labLevels;
   const groups = selection.scope === 'formal' ? catalog.groups : catalog.labGroups;
+  const library = useMemo(() => laboratoryShelf(catalog.labLevels), [catalog]);
+  const navigationGroups = selection.scope === 'formal' ? groups : library.map(shelf => ({
+    ...shelf, branch: 'shape' as const, prerequisites: [],
+  }));
   const acts = selection.scope === 'formal'
     ? catalog.acts
-    : [{ id: 'lab', title: '开发实验室', levelIds: catalog.labLevels.map((level) => level.id) }];
+    : [{ id: 'lab', title: '实验关卡库 · 按用途整理', levelIds: library.flatMap(shelf => shelf.levelIds) }];
   const firstSpec = levels[0];
   if (!firstSpec) throw new Error(`${catalog.id}/${selection.scope} contains no playable levels.`);
 
@@ -172,60 +184,80 @@ export function App({
     ? [...completedLevelIds, activeSpec.id]
     : completedLevelIds;
   const nextLevelId = state.status === 'won'
-    ? getNextCourseLevelId(groups, activeSpec.id, completedForNavigation)
+    ? selection.scope === 'lab'
+      ? nextLibraryLevelId(library, activeSpec.id)
+      : lessonAccessMode === 'free'
+        ? getNextSequentialLevelId(levels.map((level) => level.id), activeSpec.id)
+        : getNextCourseLevelId(groups, activeSpec.id, completedForNavigation)
     : undefined;
   const nextSpec = nextLevelId ? specFor(nextLevelId) : undefined;
+
+  const recordRoute = useCallback((action: RouteAction, after: GameState) => {
+    if (!recorder.isActive) recorder.begin(`${catalog.id}/${selection.scope}`, state);
+    recorder.record(action, after);
+    refreshRecording(value => value + 1);
+  }, [recorder, catalog.id, selection.scope, state]);
 
   const activateCourseArea = useCallback((catalogId: CourseCatalogId, scope: CourseScope) => {
     if (scope === 'lab' && !authoringMode) return;
     const nextCatalog = catalogFor(catalogId);
     const nextLevels = scope === 'formal' ? nextCatalog.levels : nextCatalog.labLevels;
-    const nextFirst = nextLevels[0];
+    const firstLabId = scope === 'lab' ? laboratoryShelf(nextLevels)[0]?.levelIds[0] : undefined;
+    const nextFirst = firstLabId ? nextLevels.find(level => level.id === firstLabId) : nextLevels[0];
     if (!nextFirst) return;
+    recorder.end();
     setSelection({ catalogId, scope });
     setCompletedLevelIds(loadCourseProgress(storage, nextCatalog, scope));
     setGameView({ state: createGame(nextFirst.board) });
     setIsBriefingOpen(true);
-  }, [authoringMode, storage]);
+  }, [authoringMode, storage, recorder]);
 
   const loadLesson = useCallback((id: string) => {
     if (!selectableLevelIds.has(id)) return;
     const level = specFor(id);
     if (!level) return;
+    recorder.end();
     setGameView({ state: createGame(level.board) });
     setIsBriefingOpen(true);
-  }, [selectableLevelIds, specFor]);
+  }, [selectableLevelIds, specFor, recorder]);
 
   const applyMove = useCallback((direction: Direction) => {
     if (isBriefingOpen) return;
-    setGameView((previous) => {
-      if (previous.demonstrating || hasObjectReset(previous.turnEvents)) return previous;
-      const result = move(previous.state, direction);
-      return {
-        state: result.state,
-        gateTraversal: result.gateTraversal,
-        turnEvents: result.events,
-      };
-    });
-  }, [isBriefingOpen]);
+    if (gameView.demonstrating) return;
+    if (hasObjectReset(gameView.turnEvents)) {
+      recordRoute({ type: 'move', direction, source: 'manual', outcome: 'input-locked' }, state);
+      return;
+    }
+    const result = move(state, direction);
+    recordRoute({ type: 'move', direction, source: 'manual', outcome: result.didMove ? 'moved' : 'blocked' }, result.state);
+    setGameView({ state: result.state, gateTraversal: result.gateTraversal, turnEvents: result.events });
+  }, [isBriefingOpen, gameView, state, recordRoute]);
 
   const applyUndo = useCallback(() => {
     if (isBriefingOpen) return;
-    setGameView((previous) => previous.demonstrating ? previous : { state: undo(previous.state) });
-  }, [isBriefingOpen]);
+    if (isDemonstrating) return;
+    const after = undo(state);
+    recordRoute({ type: 'undo', source: 'manual' }, after);
+    setGameView({ state: after });
+  }, [isBriefingOpen, isDemonstrating, state, recordRoute]);
 
   const applyRestart = useCallback(() => {
     if (isBriefingOpen) return;
-    setGameView((previous) => previous.demonstrating ? previous : { state: restart(previous.state) });
-  }, [isBriefingOpen]);
+    if (isDemonstrating) return;
+    const after = restart(state);
+    recordRoute({ type: 'restart', source: 'manual' }, after);
+    setGameView({ state: after });
+  }, [isBriefingOpen, isDemonstrating, state, recordRoute]);
 
   const advanceLesson = useCallback(() => {
     if (!nextSpec) return;
+    recorder.end();
     setGameView({ state: createGame(nextSpec.board) });
     setIsBriefingOpen(true);
-  }, [nextSpec]);
+  }, [nextSpec, recorder]);
 
   function exitSolutionDemo() {
+    recordRoute({ type: 'demo-end', source: 'demo' }, state);
     setGameView((previous) => ({ state: previous.state }));
     requestAnimationFrame(() => document.getElementById('solution-demo-trigger')?.focus());
   }
@@ -304,10 +336,15 @@ export function App({
     return () => window.clearInterval(timer);
   }, [state.remainingSeconds, state.status, isDemonstrating]);
 
+  const isAreaComplete = levels.every((level) => completedForNavigation.includes(level.id));
   const resultMessage = state.status === 'won'
     ? nextSpec
       ? `已完成。点击“下一关”进入「${displayTitle(catalog, selection.scope, nextSpec)}」。`
-      : '已完成当前区域全部关卡。课程地图仍可重玩任意关卡。'
+      : isAreaComplete
+        ? '已完成当前区域全部关卡。课程地图仍可重玩任意关卡。'
+        : selection.scope === 'lab'
+          ? '本关已完成，已到本组末尾。可通过课程地图自由选择其他组或挑战。'
+          : '本关已完成。当前区域没有后续可玩关卡，可通过课程地图选择其他关卡。'
     : state.status === 'lost'
       ? '已触发本关限制；可用 Undo 或 Restart 返回。'
       : state.level.description;
@@ -362,12 +399,19 @@ export function App({
       <section className="lesson-strip" aria-label="Lesson selection">
         <label htmlFor="lesson-picker">关卡</label>
         <select id="lesson-picker" onChange={(event) => loadLesson(event.target.value)} value={activeSpec.id}>
-          {levels.map((level) => (
+          {selection.scope === 'lab' ? library.map(shelf => (
+            <optgroup key={shelf.id} label={shelf.title}>
+              {shelf.levelIds.map(id => (
+                <option key={id} value={id}>{displayTitle(catalog, selection.scope, specFor(id)!)}</option>
+              ))}
+            </optgroup>
+          )) : levels.map((level) => (
             <option disabled={!selectableLevelIds.has(level.id)} key={level.id} value={level.id}>
               {displayTitle(catalog, selection.scope, level)}
             </option>
           ))}
         </select>
+        {selection.scope === 'lab' ? <p>LAB 为历史编号；按分组顺序游玩。组末返回选关，不自动接入历史实验。</p> : null}
         <p className="lesson-strip__progress">{progressLabel} {completedLevelIds.length} / {levels.length}</p>
         {layeredProgress ? <p className="lesson-strip__completion">{layeredProgress}</p> : null}
         <p className="lesson-strip__weather">{state.level.weather === 'rain' ? 'RAIN RULESET' : 'CLEAR RULESET'}</p>
@@ -378,7 +422,7 @@ export function App({
         acts={acts}
         completedLevelIds={completedSet}
         displayNumbers={displayNumbers}
-        groups={groups}
+        groups={navigationGroups}
         levels={levels}
         onSelect={loadLesson}
         unlockedLevelIds={selectableLevelIds}
@@ -413,6 +457,9 @@ export function App({
                 loadSolution={solutionLoader}
                 onExit={exitSolutionDemo}
                 reducedMotion={prefersReducedMotion}
+                onFrame={(frame, restarting) => recordRoute(restarting
+                  ? { type: 'restart', source: 'demo' }
+                  : { type: 'move', source: 'demo', direction: frame.direction!, outcome: 'moved' }, frame.state)}
                 spec={activeSpec}
               />
             ) : (
@@ -423,7 +470,10 @@ export function App({
                   movementDisabled={isResetPresenting}
                   nextLessonTitle={nextSpec ? displayTitle(catalog, selection.scope, nextSpec) : undefined}
                   onMove={applyMove}
-                  onDemonstrate={() => setGameView((previous) => ({ ...previous, demonstrating: true }))}
+                  onDemonstrate={() => {
+                    recordRoute({ type: 'demo-start', source: 'demo' }, createGame(activeSpec.board));
+                    setGameView((previous) => ({ ...previous, demonstrating: true }));
+                  }}
                   onNext={state.status === 'won' && !isResetPresenting && nextSpec ? advanceLesson : undefined}
                   onRestart={applyRestart}
                   onUndo={applyUndo}
@@ -434,6 +484,13 @@ export function App({
           </section>
         )}
       </div>
+      <section aria-label="本地路线记录">
+        <p>完整路线：{recorder.count} 条操作 · 不记录时长、不自动上传。</p>
+        {!recorder.saved ? <p role="alert">本地保存失败，旧文件未覆盖。请立即导出本次记录，刷新可能丢失尚未保存的操作。</p> : null}
+        <a download="oshi-routes.json" href={`data:application/json;charset=utf-8,${encodeURIComponent(recorder.export())}`}>
+          导出完整路线
+        </a>
+      </section>
     </main>
   );
 }

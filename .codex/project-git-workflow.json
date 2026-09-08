@@ -7,7 +7,7 @@
   "safeDirectory": "D:/LabProjects/LearnSokoban",
   "statusCommand": "git -c safe.directory=D:/LabProjects/LearnSokoban status --short --branch",
   "validationCommands": [
-    "npm test",
+    "npx vitest run --maxWorkers=2",
     "npm run typecheck",
     "npm run build"
   ],

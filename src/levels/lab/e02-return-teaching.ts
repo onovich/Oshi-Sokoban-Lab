@@ -27,7 +27,7 @@ export const e02ReturnDoor: LevelSpec = {
     { techniqueId: 'return-route-reservation', role: 'primary' },
     { techniqueId: 'recoverable-intermediate-state', role: 'support' },
   ],
-  difficulty: { target: 3, confidence: 'design-target', sampleSize: 0 },
+  difficulty: { target: 3, authorRating: 4, confidence: 'design-target', sampleSize: 0 },
   board: {
     id: returnDoorId,
     title: '窄门',
@@ -90,7 +90,7 @@ export const e02ReturnReservation: LevelSpec = {
     { techniqueId: 'return-route-reservation', role: 'primary' },
     { techniqueId: 'delayed-completion', role: 'support' },
   ],
-  difficulty: { target: 4, confidence: 'design-target', sampleSize: 0 },
+  difficulty: { target: 4, authorRating: 5, confidence: 'design-target', sampleSize: 0 },
   board: {
     id: returnReservationId,
     title: '近岸',

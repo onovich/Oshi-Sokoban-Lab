@@ -1,7 +1,40 @@
 import { describe, expect, it } from 'vitest';
 
+import { masteryV2Catalog } from '../course/course-catalog';
 import { courseGroups } from './course-catalog';
-import { getNextCourseLevelId, getUnlockedCourseLevelIds } from './course-progress';
+import {
+  getNextCourseLevelId,
+  getNextSequentialLevelId,
+  getUnlockedCourseLevelIds,
+} from './course-progress';
+
+describe('sequential free navigation', () => {
+  const playableIds = masteryV2Catalog.levels.map((level) => level.id);
+
+  it('follows catalog order rather than the numbers embedded in stable ids', () => {
+    expect(getNextSequentialLevelId(playableIds, 'lesson-33'))
+      .toBe('mastery-push-footprint-01');
+  });
+
+  it('continues across a group boundary from display slot 33 to 34', () => {
+    expect(getNextSequentialLevelId(playableIds, 'mastery-push-footprint-03'))
+      .toBe('mastery-push-footprint-04');
+  });
+
+  it('skips unimplemented slots and continues from display slot 36 to playable slot 38', () => {
+    expect(getNextSequentialLevelId(playableIds, 'mastery-push-footprint-06'))
+      .toBe('lesson-34');
+  });
+
+  it('does not wrap around after the last playable lesson', () => {
+    expect(getNextSequentialLevelId(playableIds, 'lesson-63')).toBeUndefined();
+  });
+
+  it('does not restart navigation when the current lesson is absent or the area is empty', () => {
+    expect(getNextSequentialLevelId(playableIds, 'lab-spike-clear')).toBeUndefined();
+    expect(getNextSequentialLevelId([], 'lesson-01')).toBeUndefined();
+  });
+});
 
 describe('branched course progression', () => {
   it('keeps lessons linear inside a group and opens the six base branches after lesson 02', () => {

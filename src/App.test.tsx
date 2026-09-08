@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { App } from './App';
+import { masteryV2Catalog } from './course/course-catalog';
+import { saveCourseProgress } from './course/course-progress-store';
 import type { Direction } from './engine/types';
 import { courseLevels } from './levels/course-catalog';
 import { analyzeLevel } from './levels/level-analyzer';
@@ -137,6 +139,71 @@ describe('Oshi course interface', () => {
 
       fireEvent.click(screen.getByRole('button', { name: '下一关' }));
       expect(screen.getByRole('region', { name: '关卡说明' }).textContent).toMatch(/02.*推侧访问/);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it.each([false, true])('advances from freely selected mastery lesson 31 to 32 without prerequisites (32 completed: %s)', (nextAlreadyCompleted) => {
+    if (nextAlreadyCompleted) {
+      saveCourseProgress(window.localStorage, masteryV2Catalog, 'formal', ['mastery-push-footprint-02']);
+    }
+    render(<App initialCatalogId="mastery-v2" lessonAccessMode="free" />);
+    fireEvent.change(screen.getByRole('combobox', { name: '关卡' }), {
+      target: { value: 'mastery-push-footprint-01' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '开始关卡' }));
+
+    for (const key of [
+      'ArrowRight', 'ArrowDown', 'ArrowRight', 'ArrowRight', 'ArrowUp', 'ArrowLeft', 'ArrowLeft',
+    ]) {
+      fireEvent.keyDown(window, { key });
+    }
+
+    expect(screen.getByRole('status').textContent).toMatch(/已完成/);
+    fireEvent.click(screen.getByRole('button', { name: '下一关' }));
+
+    expect(screen.getByRole('region', { name: '关卡说明' }).textContent)
+      .toMatch(/32 — 门留下的格子/);
+  });
+
+  it('advances sequentially across groups in free mode with earlier lessons unfinished', () => {
+    render(<App lessonAccessMode="free" />);
+    fireEvent.change(screen.getByRole('combobox', { name: '关卡' }), {
+      target: { value: 'lesson-03' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: '开始关卡' }));
+    playOptimal('lesson-03');
+
+    expect(screen.getByRole('status').textContent).toMatch(/已完成/);
+    fireEvent.click(screen.getByRole('button', { name: '下一关' }));
+
+    expect((screen.getByRole('combobox', { name: '关卡' }) as HTMLSelectElement).value)
+      .toBe('lesson-04');
+  });
+
+  it.each(['free', 'progression'] as const)('ends lab navigation without wrapping or claiming full completion (access: %s)', (lessonAccessMode) => {
+    vi.useFakeTimers();
+    try {
+      render(<App lessonAccessMode={lessonAccessMode} />);
+      fireEvent.change(screen.getByRole('combobox', { name: '课程区域' }), {
+        target: { value: 'lab' },
+      });
+      fireEvent.change(screen.getByRole('combobox', { name: '关卡' }), {
+        target: { value: 'lab-spike-progress' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: '开始关卡' }));
+
+      for (const key of ['ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowRight', 'ArrowUp']) {
+        fireEvent.keyDown(window, { key });
+        act(() => vi.advanceTimersByTime(1_000));
+      }
+
+      expect(screen.getByRole('status').textContent).toMatch(/已完成/);
+      expect(screen.getByText(/实验室进度 1 \/ 3/)).toBeTruthy();
+      expect(screen.queryByRole('button', { name: '下一关' })).toBeNull();
+      expect(screen.queryByText(/已完成当前区域全部关卡/)).toBeNull();
+      expect(screen.getByText(/已到本组末尾/)).toBeTruthy();
     } finally {
       vi.useRealTimers();
     }

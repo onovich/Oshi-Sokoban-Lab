@@ -42,6 +42,14 @@ export function getUnlockedCourseLevelIds(
   return unlocked;
 }
 
+export function getNextSequentialLevelId(
+  orderedLevelIds: readonly string[],
+  currentLevelId: string,
+): string | undefined {
+  const currentIndex = orderedLevelIds.indexOf(currentLevelId);
+  return currentIndex >= 0 ? orderedLevelIds[currentIndex + 1] : undefined;
+}
+
 export function getNextCourseLevelId(
   groups: readonly CourseGroupDefinition[],
   currentLevelId: string,

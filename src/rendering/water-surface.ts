@@ -1,5 +1,6 @@
 import { createWaterScene } from './water-scene';
 import { WATER_FRAGMENT, WATER_VERTEX } from './water-shaders';
+import { createWaterFlow } from './water-flow';
 
 /** Bounded, presentation-only impulses. Positions are normalized to the board. */
 export function startWaterSurface(canvas: HTMLCanvasElement, board: HTMLElement): () => void {
@@ -42,34 +43,31 @@ export function startWaterSurface(canvas: HTMLCanvasElement, board: HTMLElement)
   const aspectLocation = gl.getUniformLocation(program, 'u_aspect');
   const impulsesLocation = gl.getUniformLocation(program, 'u_impulses[0]');
   const scene = createWaterScene(board);
+  const flow = createWaterFlow(gl);
+  const flowLocation=gl.getUniformLocation(program,'u_flow');
+  const flowEnabledLocation=gl.getUniformLocation(program,'u_flowEnabled');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const impulses: { x: number; y: number; time: number; strength: number }[] = [];
-  let previous = new Map<string, { x: number; y: number }>();
+  type Impulse = { x: number; y: number; time: number; strength: number };
+  const rainImpulses: Impulse[] = [];
   const cycles = new WeakMap<Element, number>();
-  let frame = 0, last = -Infinity, stopped = false, dirty = true;
+  let frame = 0, stopped = false, dirty = true;
   const observer = new MutationObserver(() => { dirty = true; });
   observer.observe(board, { subtree: true, childList: true, attributes: true, attributeFilter: ['style', 'class'] });
   const resize = new ResizeObserver(() => { dirty = true; }); resize.observe(board);
   function draw(ms: number) {
     if (stopped) return;
     frame = requestAnimationFrame(draw);
-    if (document.hidden || ms - last < 32 || (reduced.matches && !dirty)) return;
-    last = ms; dirty = false;
+    // Sample the current CSS animation on every browser frame, without temporal smoothing.
+    if (document.hidden || (reduced.matches && !dirty)) return;
+    dirty = false;
     const now = ms / 1000;
     const size = Math.max(1, Math.min(768, Math.round(board.clientWidth)));
     const state = scene.update(size);
+    const flowTexture=flow?.update(state.moving,now,!reduced.matches);
     if (canvas.width !== state.width || canvas.height !== state.height) {
       canvas.width = state.width; canvas.height = state.height;
     }
     gl.viewport(0, 0, canvas.width, canvas.height);
-    const next = new Map<string, { x: number; y: number }>();
-    for (const piece of state.moving) {
-      next.set(piece.id, piece);
-      const old = previous.get(piece.id);
-      const distance = old ? Math.hypot(piece.x-old.x, piece.y-old.y) : 0;
-      if (!reduced.matches && distance > .003 && distance < .12) impulses.push({ ...piece, time: now, strength: .65 });
-    }
-    previous = next;
     for (const drop of board.querySelectorAll<SVGElement>('[data-impact-x]')) {
       const animation = drop.getAnimations()[0];
       const timing = animation?.effect?.getTiming();
@@ -77,20 +75,25 @@ export function startWaterSurface(canvas: HTMLCanvasElement, board: HTMLElement)
       const phase = (animation.currentTime - (timing.delay ?? 0)) / timing.duration;
       const cycle = Math.floor(phase - .78);
       if (!reduced.matches && cycles.has(drop) && cycles.get(drop) !== cycle) {
-        impulses.push({ x: Number(drop.dataset.impactX), y: Number(drop.dataset.impactY), time: now, strength: .8 });
+        rainImpulses.push({ x: Number(drop.dataset.impactX), y: Number(drop.dataset.impactY), time: now, strength: .8 });
       }
       cycles.set(drop, cycle);
     }
-    while (impulses.length && (impulses.length > 32 || now - impulses[0]!.time > 1.4)) impulses.shift();
+    while (rainImpulses.length && (rainImpulses.length > 32 || now-rainImpulses[0]!.time > 1.4)) rainImpulses.shift();
     const values = new Float32Array(128);
     for (let i = 0; i < 32; i++) {
-      const impulse = reduced.matches ? undefined : impulses[i];
+      const impulse = reduced.matches ? undefined : rainImpulses[i];
       values.set(impulse ? [impulse.x, impulse.y, now-impulse.time, impulse.strength] : [0,0,-1,0], i*4);
     }
     [scene.reflection, scene.mask].forEach((source, unit) => {
       gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, textures[unit]!);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
     });
+    gl.useProgram(program);
+    gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+    gl.enableVertexAttribArray(position);gl.vertexAttribPointer(position,2,gl.FLOAT,false,0,0);
+    gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,flowTexture??textures[0]!);
+    gl.uniform1i(flowLocation,2);gl.uniform1f(flowEnabledLocation,flowTexture&&!reduced.matches?1:0);
     gl.uniform1f(timeLocation, reduced.matches ? 0 : now);
     gl.uniform1f(aspectLocation, canvas.width/canvas.height);
     gl.uniform4fv(impulsesLocation, values); gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -104,6 +107,7 @@ export function startWaterSurface(canvas: HTMLCanvasElement, board: HTMLElement)
     stopped = true; cancelAnimationFrame(frame); observer.disconnect(); resize.disconnect();
     reduced.removeEventListener('change', preferenceChanged); canvas.removeEventListener('webglcontextlost', lost);
     textures.forEach(texture => gl.deleteTexture(texture)); gl.deleteBuffer(buffer);
+    flow?.dispose();
     shaders.forEach(shader => gl.deleteShader(shader)); gl.deleteProgram(program);
   };
 }

@@ -36,7 +36,10 @@ export function createWaterScene(board: HTMLElement) {
   }
 
   return { reflection, mask, update(size: number) {
-    const bounds = board.getBoundingClientRect();
+    // The canvas fills the padding box, not the border box. Use the same origin.
+    const outer = board.getBoundingClientRect();
+    const bounds = { left: outer.left + board.clientLeft, top: outer.top + board.clientTop,
+      width: board.clientWidth, height: board.clientHeight };
     const height = Math.max(1, Math.round(size * bounds.height / bounds.width));
     if (reflection.width !== size || reflection.height !== height) {
       reflection.width = mask.width = size; reflection.height = mask.height = height;
@@ -44,7 +47,7 @@ export function createWaterScene(board: HTMLElement) {
     ctx.clearRect(0, 0, size, height);
     floor.fillStyle = 'white'; floor.fillRect(0, 0, size, height);
     const sx = size / bounds.width, sy = height / bounds.height;
-    const moving: { id: string; x: number; y: number }[] = [];
+    const moving: { id: string; x: number; y: number; width: number; height: number }[] = [];
     const pieces = [...board.querySelectorAll<HTMLElement>('.board__entity')];
     const ordinal = new Map<string, number>();
     for (const piece of pieces) {
@@ -57,7 +60,7 @@ export function createWaterScene(board: HTMLElement) {
       const w = box.width * sx, h = box.height * sy;
       const id = piece.dataset.entityId ?? '';
       const n = ordinal.get(id) ?? 0; ordinal.set(id, n + 1);
-      moving.push({ id: `${id}:${n}`, x: (x + w / 2) / size, y: (y + h) / height });
+      moving.push({ id: `${id}:${n}`, x: (x + w / 2) / size, y: (y + h) / height, width: w / size, height: h / height });
       const svg = glyph.querySelector<SVGSVGElement>('svg');
       const portal = glyph.querySelector<HTMLCanvasElement>('canvas');
       const image = portal?.width ? portal : svg ? spriteFor(svg) : undefined;
@@ -78,6 +81,11 @@ export function createWaterScene(board: HTMLElement) {
       const box = element.getBoundingClientRect(); floor.fillStyle = 'black';
       floor.fillRect((box.left - bounds.left) * sx, (box.top - bounds.top) * sy, box.width * sx, box.height * sy);
     }
+    board.querySelectorAll<HTMLElement>('[data-terrain="wall"]').forEach((element,index)=>{
+      const box=element.getBoundingClientRect();
+      moving.push({id:`wall:${index}`,x:(box.left-bounds.left+box.width/2)/bounds.width,
+        y:(box.top-bounds.top+box.height)/bounds.height,width:box.width/bounds.width,height:box.height/bounds.height});
+    });
     return { moving, width: size, height };
   } };
 }

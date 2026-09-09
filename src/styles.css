@@ -95,25 +95,6 @@ kbd {
   z-index: 1;
 }
 
-.app-shell--rain::before {
-  position: fixed;
-  z-index: 3;
-  inset: -35vh -25vw;
-  content: '';
-  pointer-events: none;
-  opacity: 0.38;
-  background-image: repeating-linear-gradient(
-    120deg,
-    transparent 0,
-    transparent 8rem,
-    rgb(221 225 221 / 44%) 8.06rem,
-    rgb(221 225 221 / 44%) 8.15rem,
-    transparent 8.24rem,
-    transparent 13rem
-  );
-  background-size: 15rem 12rem;
-  animation: oshi-rain 1.2s linear infinite;
-}
 
 .masthead {
   display: flex;
@@ -1012,21 +993,35 @@ kbd {
 .board__weather-film {
   position: absolute;
   z-index: 5;
-  inset: -20%;
-  content: '';
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
   pointer-events: none;
-  opacity: 0.22;
-  background-image: repeating-linear-gradient(
-    120deg,
-    transparent 0,
-    transparent 4rem,
-    rgb(241 244 240 / 64%) 4.05rem,
-    rgb(241 244 240 / 64%) 4.11rem,
-    transparent 4.16rem,
-    transparent 7rem
-  );
-  background-size: 9rem 7rem;
-  animation: oshi-rain 1s linear infinite;
+}
+
+.rain-drop {
+  animation: rain-drop-fall linear infinite;
+  opacity: var(--rain-opacity);
+}
+
+.rain-drop--landing { animation-name: rain-drop-land; }
+.rain-splash {
+  opacity: 0;
+  animation: rain-splash linear infinite;
+}
+
+@keyframes rain-drop-land {
+  0% { transform: translate(0, -60px); opacity: var(--rain-opacity); }
+  77.9% { transform: translate(var(--rain-travel-x), var(--rain-travel-y)); opacity: var(--rain-opacity); }
+  78%, 100% { transform: translate(var(--rain-travel-x), var(--rain-travel-y)); opacity: 0; }
+}
+
+@keyframes rain-splash {
+  0%, 77.9% { transform: scale(0.3); opacity: 0; }
+  78% { transform: scale(0.3); opacity: var(--rain-opacity); }
+  86% { transform: scale(0.8); opacity: var(--rain-opacity); }
+  100% { transform: scale(1.4); opacity: 0; }
 }
 
 .game-glyph {
@@ -1324,14 +1319,9 @@ kbd {
   line-height: 1.45;
 }
 
-@keyframes oshi-rain {
-  from {
-    transform: translate3d(-1.5rem, -1rem, 0);
-  }
-
-  to {
-    transform: translate3d(1.5rem, 1rem, 0);
-  }
+@keyframes rain-drop-fall {
+  from { transform: translate(0, -60px); }
+  to { transform: translate(-100px, 1060px); }
 }
 
 @keyframes oshi-spike-pulse {
@@ -1486,8 +1476,8 @@ kbd {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .app-shell--rain::before,
-  .board__weather-film,
+  .board__weather-film { display: none; }
+  .rain-drop, .rain-splash { animation: none; }
   .board__entity--moving,
   .game-glyph--moving-spike .game-glyph__svg {
     animation: none;
@@ -1608,4 +1598,10 @@ kbd {
   .legend {
     grid-template-columns: 1fr;
   }
+}
+.route-recording-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
 }

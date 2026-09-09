@@ -110,6 +110,19 @@ function gameFor(level: LevelDefinition) {
 }
 
 describe('Board glyph system', () => {
+  it('keeps decorative rain mounted across moves and removes it in clear weather', () => {
+    const state = gameFor(rainLevel);
+    const { container, rerender } = render(<Board state={state} />);
+    const rain = container.querySelector('.board__weather-film');
+    expect(rain?.getAttribute('aria-hidden')).toBe('true');
+    expect(rain?.getAttribute('focusable')).toBe('false');
+    const drop = rain?.querySelector('line');
+    expect(drop).toBeTruthy();
+    rerender(<Board state={move(state, 'right').state} />);
+    expect(container.querySelector('.board__weather-film line')).toBe(drop);
+    rerender(<Board state={gameFor({ ...rainLevel, weather: 'clear' })} />);
+    expect(container.querySelector('.board__weather-film')).toBeNull();
+  });
   it('renders Oshi projection marks instead of Unicode symbols or a visible grid', () => {
     const { container } = render(<Board state={gameFor(rainLevel)} />);
 

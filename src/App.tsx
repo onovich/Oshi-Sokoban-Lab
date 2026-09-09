@@ -121,6 +121,8 @@ export function App({
   const storage = progressStorage ?? window.localStorage;
   const recorder = useMemo(() => new RouteRecorder(storage), [storage]);
   const [, refreshRecording] = useState(0);
+  const [routeNotice, setRouteNotice] = useState('');
+  const [confirmRouteClear, setConfirmRouteClear] = useState(false);
   const [selection, setSelection] = useState<Readonly<{
     catalogId: CourseCatalogId;
     scope: CourseScope;
@@ -485,11 +487,35 @@ export function App({
         )}
       </div>
       <section aria-label="本地路线记录">
-        <p>完整路线：{recorder.count} 条操作 · 不记录时长、不自动上传。</p>
+        <p>完整路线：{recorder.count} 条操作 · 记录操作时间戳，不自动上传。</p>
         {!recorder.saved ? <p role="alert">本地保存失败，旧文件未覆盖。请立即导出本次记录，刷新可能丢失尚未保存的操作。</p> : null}
-        <a download="oshi-routes.json" href={`data:application/json;charset=utf-8,${encodeURIComponent(recorder.export())}`}>
-          导出完整路线
-        </a>
+        <div className="route-recording-actions">
+          <a download="oshi-routes.json" href={`data:application/json;charset=utf-8,${encodeURIComponent(recorder.export())}`}>
+            导出完整路线
+          </a>
+          <button type="button" disabled={isDemonstrating} onClick={() => {
+            setRouteNotice('');
+            setConfirmRouteClear(true);
+          }}>清除路线数据</button>
+        </div>
+        {isDemonstrating ? <p>请先返回自己的局面，再清除路线。</p> : null}
+        {confirmRouteClear ? (
+          <div role="group" aria-label="确认清除路线">
+            <p>清除当前站点的全部路线记录？此操作不可撤销，建议先导出。当前棋局、通关进度和已下载的文件不会改变。</p>
+            <div className="route-recording-actions">
+              <button type="button" onClick={() => setConfirmRouteClear(false)}>取消清除</button>
+              <button type="button" disabled={isDemonstrating} onClick={() => {
+                const cleared = recorder.clear();
+                setRouteNotice(cleared
+                  ? '路线数据已清除，后续操作将从当前局面重新记录。'
+                  : '清除失败，路线仍保留，请先导出备份。');
+                if (cleared) setConfirmRouteClear(false);
+                refreshRecording(value => value + 1);
+              }}>确认清除</button>
+            </div>
+          </div>
+        ) : null}
+        {routeNotice ? <p aria-live="polite">{routeNotice}</p> : null}
       </section>
     </main>
   );

@@ -22,6 +22,9 @@ import { e05GoalHandoff } from '../levels/lab/e05-goal-handoff';
 import { e05SharedBridge } from '../levels/lab/e05-shared-bridge';
 import { e05LowerLanding, e05UpperLanding } from '../levels/lab/e05-route-contrast';
 import { gc01GoalReturn } from '../levels/lab/gc01-goal-return';
+import { gc03GoalHandoff } from '../levels/lab/gc03-goal-handoff';
+import { gr01RainLanding } from '../levels/lab/gr01-rain-landing';
+import { rs01RainStaging } from '../levels/lab/rs01-rain-staging';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
 import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
@@ -300,7 +303,19 @@ export const masteryV2Catalog: CourseCatalog = {
     title: 'Goal 空间协调实验',
     branch: 'goal',
     prerequisites: [],
-    levelIds: [gc01GoalReturn.id],
+    levelIds: [gc03GoalHandoff.id, gc01GoalReturn.id],
+  }, {
+    id: 'lab-goal-rain',
+    title: 'Goal 与 Rain 迁移实验',
+    branch: 'rain',
+    prerequisites: [],
+    levelIds: [gr01RainLanding.id],
+  }, {
+    id: 'lab-rain-staging',
+    title: 'Rain 空间协调实验',
+    branch: 'rain',
+    prerequisites: [],
+    levelIds: [rs01RainStaging.id],
   }],
   labLevels: [
     ...labLevels,
@@ -324,6 +339,9 @@ export const masteryV2Catalog: CourseCatalog = {
     e05LowerLanding,
     e05UpperLanding,
     gc01GoalReturn,
+    gc03GoalHandoff,
+    gr01RainLanding,
+    rs01RainStaging,
   ],
 };
 

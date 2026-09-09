@@ -1,12 +1,35 @@
 import { fireEvent, render, screen, cleanup } from '@testing-library/react';
-import { afterEach, expect, it } from 'vitest';
+import { afterEach, expect, it, vi } from 'vitest';
 import { App } from './App';
 
-afterEach(cleanup);
+afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 function exported() {
   const link = screen.getByRole('link', { name: '导出完整路线' });
   return JSON.parse(decodeURIComponent(link.getAttribute('href')!.split(',')[1]!));
 }
+
+it('confirms route deletion without changing the board and records subsequent actions from that board', () => {
+  localStorage.clear();
+  render(<App />);
+  fireEvent.click(screen.getByRole('button', { name: '开始关卡' }));
+  fireEvent.keyDown(window, { key: 'ArrowRight' });
+  const before = exported();
+  const nativeConfirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+  fireEvent.click(screen.getByRole('button', { name: '清除路线数据' }));
+  expect(screen.getByRole('group', { name: '确认清除路线' })).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: '取消清除' }));
+  expect(exported()).toEqual(before);
+  fireEvent.click(screen.getByRole('button', { name: '清除路线数据' }));
+  fireEvent.click(screen.getByRole('button', { name: '确认清除' }));
+  expect(exported().sessions).toEqual([]);
+  expect(screen.getByText(/完整路线：0 条操作/)).toBeTruthy();
+  expect(nativeConfirm).not.toHaveBeenCalled();
+  fireEvent.keyDown(window, { key: 'z' });
+  const session = exported().sessions[0];
+  expect(session.initial).toEqual(before.sessions[0].entries[0].state);
+  expect(session.entries[0].action.type).toBe('undo');
+  expect(session.entries[0].state.player).toEqual(before.sessions[0].initial.player);
+});
 
 it('exports real inputs, keeps undo branches and separates sessions when selecting another level', () => {
   localStorage.clear();

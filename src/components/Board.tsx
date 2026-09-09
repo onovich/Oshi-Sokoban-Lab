@@ -11,6 +11,7 @@ import type {
   ShapedEntityDefinition,
 } from '../engine/types';
 import { GameGlyph } from './GameGlyph';
+import { RainEffect } from './RainEffect';
 import type { GameGlyphKind } from './GameGlyph';
 import { SPIKE_RESET_WINDOWS } from '../rendering/spike-reset-presentation';
 import { BOARD_MOTION_TIMING } from '../rendering/board-motion-timing';
@@ -507,7 +508,7 @@ export function Board({ gateTraversal, state, turnEvents = [] }: BoardProps) {
         state={state}
       />
       <ResetPresentationLayer events={turnEvents} state={state} />
-      {state.level.weather === 'rain' ? <span aria-hidden="true" className="board__weather-film" /> : null}
+      {state.level.weather === 'rain' ? <RainEffect /> : null}
       {cells.map((cell) => {
         const tokens = cellTokens(state, cell);
         return (

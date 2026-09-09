@@ -27,8 +27,15 @@ const shelves: readonly LaboratoryShelf[] = [
     'lab-e02-shared-bay', 'lab-e02-independent-bay', 'lab-e03-alcove',
     'lab-e03-side-court', 'lab-e04-small-court',
   ] },
-  { id: 'goal-candidate', title: '新候选 · Goal 空间协调（待试玩）', levelIds: [
+  { id: 'goal-candidate', title: 'Goal 空间协调 · 转岸 → 涉岸', levelIds: [
+    'lab-gc03-goal-handoff',
     'lab-gc01-goal-return',
+  ] },
+  { id: 'goal-rain', title: '新候选 · Goal × Rain（待试玩）', levelIds: [
+    'lab-gr01-rain-landing',
+  ] },
+  { id: 'rain-staging', title: '新候选 · Rain 空间协调（待试玩）', levelIds: [
+    'lab-rs01-rain-staging',
   ] },
   { id: 'archive', title: '历史实验 · 不推荐为挑战前置，仍可重玩', levelIds: [
     'lab-spike-clear', 'lab-spike-rebirth', 'lab-spike-progress',

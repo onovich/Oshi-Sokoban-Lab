@@ -9,7 +9,7 @@
 
 ## 当前执行入口
 
-- [Goal 条件动作平行探索](../../high-difficulty/goal-condition-exploration.md)：[GC01-V 涉岸 / LAB 28](../../high-difficulty/gc01-goal-return.md) 已加入“新候选”，等待试玩。它收敛为 Goal 落点与回程协调，不冒充原强命题；GC02 暂缓。旧 27 实验关及正式目录不变。
+- [Goal 条件动作平行探索](../../high-difficulty/goal-condition-exploration.md)：作者独立解出转岸，初见约 D6，随后据此重解涉岸（初见 D7）。[路线 (8) 与口述](../../playtests/2026-09-08-goal-reverse-transfer.md)支持个体反向迁移，推荐顺序改为转岸 → 涉岸，历史 LAB 29／28 不变。没有新演示不等于陌生初见，长期掌握仍未知。GC02 暂缓；[GR01 雨岸 / LAB 30](../../high-difficulty/gr01-rain-landing.md) 已作为独立雨天旁支通过机器检查，等待试玩，不是 E02 多阶段刹车卡的完整实现。现有 30 实验关，正式目录不变。
 
 - [高难设计总纲](../../high-difficulty/design-guide.md)：资源冲突、六条策略主线、两条扩展方向、相似底板、D5–10 目标及认知铺垫。
 - [首批六张实验任务书](../../high-difficulty/experiment-briefs.md)：纯空间 D5–6 假设、必要中间态、解耦对照与淘汰条件；不是已完成地图。

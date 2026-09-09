@@ -21,7 +21,7 @@ export const gc01GoalReturn: LevelSpec = {
     { techniqueId: 'return-route-reservation', role: 'support' },
     { techniqueId: 'delayed-completion', role: 'support' },
   ],
-  difficulty: { target: 5, confidence: 'design-target', sampleSize: 0 },
+  difficulty: { target: 5, authorRating: 7, confidence: 'playtest-provisional', sampleSize: 0 },
   board: {
     id,
     title: '涉岸',

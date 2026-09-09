@@ -32,6 +32,8 @@ export const RainEffect = memo(function RainEffect() {
           '--rain-travel-y': `${travelY}px` } as CSSProperties;
         return <Fragment key={index}>
         <line className={`rain-drop${drop.landingY === undefined ? '' : ' rain-drop--landing'}`} x1={drop.x} y1={0}
+          data-impact-x={drop.landingY === undefined ? undefined : (drop.x - drop.length * .09 + travelX) / 1000}
+          data-impact-y={drop.landingY === undefined ? undefined : drop.landingY / 1000}
           x2={drop.x - drop.length * 0.09} y2={drop.length}
           stroke={`url(#${gradientId})`} strokeWidth={index % 3 === 0 ? 2.2 : 1.4}
           vectorEffect="non-scaling-stroke" strokeLinecap="round"

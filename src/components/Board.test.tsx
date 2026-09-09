@@ -114,14 +114,34 @@ describe('Board glyph system', () => {
     const state = gameFor(rainLevel);
     const { container, rerender } = render(<Board state={state} />);
     const rain = container.querySelector('.board__weather-film');
+    const water = container.querySelector('.board__water-surface');
+    expect(container.querySelector('.board__water-surface')?.getAttribute('aria-hidden')).toBe('true');
     expect(rain?.getAttribute('aria-hidden')).toBe('true');
     expect(rain?.getAttribute('focusable')).toBe('false');
     const drop = rain?.querySelector('line');
     expect(drop).toBeTruthy();
     rerender(<Board state={move(state, 'right').state} />);
     expect(container.querySelector('.board__weather-film line')).toBe(drop);
+    expect(container.querySelector('.board__water-surface')).toBe(water);
     rerender(<Board state={gameFor({ ...rainLevel, weather: 'clear' })} />);
     expect(container.querySelector('.board__weather-film')).toBeNull();
+    expect(container.querySelector('.board__water-surface')).toBeNull();
+  });
+  it('ties water impacts to the actual landing positions of rain, not unrelated random positions', () => {
+    const { container } = render(<Board state={gameFor(rainLevel)} />);
+    const drops = [...container.querySelectorAll<SVGElement>('.rain-drop--landing')];
+    const splashes = [...container.querySelectorAll('.rain-splash')];
+    expect(drops.length).toBeGreaterThan(0);
+    expect(splashes).toHaveLength(drops.length);
+    drops.forEach((drop, index) => {
+      const x = Number(drop.dataset.impactX) * 1000;
+      const y = Number(drop.dataset.impactY) * 1000;
+      const transform = splashes[index]!.parentElement!.getAttribute('transform')!;
+      const coordinates = transform.match(/[-\d.]+/g)!.map(Number);
+      expect(x).toBeCloseTo(coordinates[0]!);
+      expect(y).toBeCloseTo(coordinates[1]!);
+    });
+    expect(container.querySelector('.rain-drop:not(.rain-drop--landing)')?.hasAttribute('data-impact-x')).toBe(false);
   });
   it('renders Oshi projection marks instead of Unicode symbols or a visible grid', () => {
     const { container } = render(<Board state={gameFor(rainLevel)} />);

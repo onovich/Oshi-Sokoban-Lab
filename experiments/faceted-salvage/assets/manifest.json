@@ -1,0 +1,15 @@
+{
+  "revision": 3,
+  "generator": "5.2.1 LTS",
+  "seed": 701,
+  "actor": "Original mesh; Humanoid T pose",
+  "bones": 52,
+  "animations": [
+    "Idle",
+    "Walk",
+    "Push"
+  ],
+  "staticObjects": 1146,
+  "movableObjects": 3,
+  "puzzleEngineConnected": false
+}

@@ -25,6 +25,10 @@ import { gc01GoalReturn } from '../levels/lab/gc01-goal-return';
 import { gc03GoalHandoff } from '../levels/lab/gc03-goal-handoff';
 import { gr01RainLanding } from '../levels/lab/gr01-rain-landing';
 import { rs01RainStaging } from '../levels/lab/rs01-rain-staging';
+import { rainPreludes } from '../levels/lab/rs02-rain-prelude';
+import { rainStopPrelude } from '../levels/lab/rs04-rain-stop';
+import { rainBerth } from '../levels/lab/rs05-rain-berth';
+import { rainHandoff } from '../levels/lab/rs06-rain-handoff';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
 import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
@@ -316,6 +320,18 @@ export const masteryV2Catalog: CourseCatalog = {
     branch: 'rain',
     prerequisites: [],
     levelIds: [rs01RainStaging.id],
+  }, {
+    id: 'lab-rain-prelude', title: '泊庭前导实验', branch: 'rain',
+    prerequisites: [], levelIds: rainPreludes.map(level => level.id),
+  }, {
+    id: 'lab-rain-stop', title: 'Rain 停靠前导', branch: 'rain',
+    prerequisites: [], levelIds: [rainStopPrelude.id],
+  }, {
+    id: 'lab-rain-berth', title: 'Rain 停靠建立实验', branch: 'rain',
+    prerequisites: [], levelIds: [rainBerth.id],
+  }, {
+    id: 'lab-rain-handoff', title: 'Rain 交接实验', branch: 'rain',
+    prerequisites: [], levelIds: [rainHandoff.id],
   }],
   labLevels: [
     ...labLevels,
@@ -342,6 +358,10 @@ export const masteryV2Catalog: CourseCatalog = {
     gc03GoalHandoff,
     gr01RainLanding,
     rs01RainStaging,
+    ...rainPreludes,
+    rainStopPrelude,
+    rainBerth,
+    rainHandoff,
   ],
 };
 

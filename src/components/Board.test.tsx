@@ -114,15 +114,14 @@ describe('Board glyph system', () => {
     const state = gameFor(rainLevel);
     const { container, rerender } = render(<Board state={state} />);
     const rain = container.querySelector('.board__weather-film');
-    const water = container.querySelector('.board__water-surface');
-    expect(container.querySelector('.board__water-surface')?.getAttribute('aria-hidden')).toBe('true');
+    expect(container.querySelector('.board__water-surface')).toBeNull();
     expect(rain?.getAttribute('aria-hidden')).toBe('true');
     expect(rain?.getAttribute('focusable')).toBe('false');
     const drop = rain?.querySelector('line');
     expect(drop).toBeTruthy();
     rerender(<Board state={move(state, 'right').state} />);
     expect(container.querySelector('.board__weather-film line')).toBe(drop);
-    expect(container.querySelector('.board__water-surface')).toBe(water);
+    expect(container.querySelector('.board__water-surface')).toBeNull();
     rerender(<Board state={gameFor({ ...rainLevel, weather: 'clear' })} />);
     expect(container.querySelector('.board__weather-film')).toBeNull();
     expect(container.querySelector('.board__water-surface')).toBeNull();

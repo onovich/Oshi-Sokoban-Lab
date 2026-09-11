@@ -1,0 +1,36 @@
+{
+  "mesh": "Original modeled salvage robot; no Blade mesh or texture loaded",
+  "skeleton": "52 mapped Humanoid bones, T-pose bind",
+  "sourceFile": "D:\\LabProjects\\LearnSokoban\\experiments\\wasteland-3d\\assets\\blade-actor.blend",
+  "sourceSHA256": "9a193e987fe18b80f25ca5f01547bcb15c60e9fbe5d505d2a75d8dff18014b76",
+  "Idle": "Reference task / Blade KungFu Idle",
+  "Walk": "Reference task / Blade MOVE FORWARD IN PLACE",
+  "Push": "Reference task authored Push, based on Blade lower-body gait; not a Blade-supplied push animation",
+  "retarget": "Anatomical frame conversion with target limb lengths; foot grounding; push palm stabilization",
+  "reports": {
+    "Idle": {
+      "sourceAction": "Idle",
+      "frames": 60,
+      "palmRangeY": [
+        0.24902620911598206,
+        0.4390999972820282
+      ]
+    },
+    "Walk": {
+      "sourceAction": "Walk",
+      "frames": 60,
+      "palmRangeY": [
+        0.2519287168979645,
+        0.6445326805114746
+      ]
+    },
+    "Push": {
+      "sourceAction": "Push",
+      "frames": 60,
+      "palmRangeY": [
+        0.5049998164176941,
+        0.5050001740455627
+      ]
+    }
+  }
+}

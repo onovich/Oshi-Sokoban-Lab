@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>切面废土 · 方案 01</title></head>
+<body><div id="app">
+  <main id="stage" tabindex="0" aria-label="3D 试验场，WASD 移动角色">
+    <header class="mast"><div class="wordmark">OSHI<span>FACETED SALVAGE</span></div><div class="experiment">切面废土 <small>01 / 低多边形视觉实验</small></div><button id="toggle-panel" aria-expanded="true">相机面板</button></header>
+    <div id="viewport"></div>
+    <div class="yard-title"><span>ART DIRECTION — 01</span><h1>切面废土。</h1><p>砂岩、锈铁与一台拾荒机械人。</p></div>
+    <div id="deadzone"><span>DEAD ZONE</span></div>
+    <div id="loading" role="status">正在装载切面废土与机械人…</div>
+    <div class="scene-caption"><span class="live-dot"></span><span id="camera-caption">正交 · 等距观察</span></div>
+    <footer><div class="keys"><kbd>W A S D</kbd><span>移动 / 推箱</span><kbd>R</kbd><span>复位</span></div><div class="hint">右键拖拽旋转 · 滚轮缩放 · 自由观察时中键平移</div></footer>
+    <div id="touch-controls" aria-label="触屏方向键"><button data-key="KeyW" aria-label="向前">↑</button><button data-key="KeyA" aria-label="向左">←</button><button data-key="KeyS" aria-label="向后">↓</button><button data-key="KeyD" aria-label="向右">→</button></div>
+  </main>
+  <aside id="panel" aria-label="相机实验控制面板">
+    <div class="panel-head"><span>观察台</span><small>CAMERA / ACTOR</small></div>
+    <section><h2>视角预设</h2><div class="presets"><button data-preset="overview" class="active">全景 ISO</button><button data-preset="follow">近景跟随</button><button data-preset="top">俯视</button><button data-preset="perspective">透视漫游</button></div></section>
+    <section><h2>镜头</h2>
+      <label>投影模式<select id="projection"><option value="ortho">正交 Orthographic</option><option value="perspective">透视 Perspective</option></select></label>
+      <label>相机行为<select id="behavior"><option value="fixed">固定中心</option><option value="follow">跟随角色</option><option value="free">自由观察</option></select></label>
+      <label>水平角 <output id="yaw-out"></output><input id="yaw" type="range" min="-180" max="180" step="1"/></label>
+      <label>俯仰角 <output id="pitch-out"></output><input id="pitch" type="range" min="20" max="89" step=".1"/></label>
+      <label>正交半高 <output id="size-out"></output><input id="size" type="range" min="3" max="15" step=".1"/></label>
+      <label>透视距离 <output id="distance-out"></output><input id="distance" type="range" min="6" max="45" step=".1"/></label>
+      <label>视野 FOV <output id="fov-out"></output><input id="fov" type="range" min="25" max="85" step="1"/></label>
+    </section>
+    <section><h2>跟随与死区</h2>
+      <label>跟随阻尼（秒）<output id="damping-out"></output><input id="damping" type="range" min="0" max="2" step=".05"/></label>
+      <label>死区宽度 <output id="deadX-out"></output><input id="deadX" type="range" min="0" max=".75" step=".01"/></label>
+      <label>死区高度 <output id="deadY-out"></output><input id="deadY" type="range" min="0" max=".75" step=".01"/></label>
+      <label class="check"><input id="guides" type="checkbox"/>显示死区与边界</label>
+      <p class="note">死区按画面比例计算；角色离开死区后，相机才开始跟随。</p>
+    </section>
+    <section><h2>边界限制 <small>CONFINER</small></h2>
+      <label class="check"><input id="confiner" type="checkbox"/>启用相机边界</label>
+      <label>限制对象<select id="confineMode"><option value="target">相机观察中心</option><option value="viewport">地面可见范围</option></select></label>
+      <label>边界半宽 X <output id="boundX-out"></output><input id="boundX" type="range" min="4" max="35" step=".5"/></label>
+      <label>边界半深 Z <output id="boundZ-out"></output><input id="boundZ" type="range" min="4" max="35" step=".5"/></label>
+      <p id="confiner-status" class="note"></p>
+    </section>
+    <section><h2>角色与场景</h2>
+      <label>行走速度 <output id="speed-out"></output><input id="speed" type="range" min=".5" max="3" step=".1"/></label>
+      <label>动作观察<select id="motion"><option value="auto">自动：待机 / 行走 / 推行</option><option value="Idle">预览待机</option><option value="Walk">预览行走</option><option value="Push">预览推行</option></select></label>
+      <label class="check"><input id="cameraRelative" type="checkbox"/>按屏幕方向移动</label>
+      <div class="readouts"><span>角色 <b id="actor-state">加载中</b></span><span>坐标 <b id="position">—</b></span><span>帧率 <b id="fps">—</b></span></div>
+      <div class="presets"><button id="reset">复位角色和箱子</button><button id="center">镜头对准角色</button><button id="demo">演示推箱</button><button id="save">导出相机设置</button><button id="screenshot">保存画面</button></div>
+      <p id="demo-status" class="note"></p>
+      <p class="source">方案 01 / 硬边低多边形<br/>角色与场景 / Blender 原创建模<br/>Humanoid 骨架 · 已有动作重定向<br/>单箱、L 形箱、空心箱可推动</p>
+    </section>
+  </aside>
+</div><script type="module" src="/main.js"></script></body></html>

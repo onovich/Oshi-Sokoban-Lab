@@ -9,7 +9,10 @@
   "validationCommands": [
     "npx vitest run --maxWorkers=2",
     "npm run typecheck",
-    "npm run build"
+    "npm run build",
+    "node --test experiments/wasteland-3d/physics.test.mjs experiments/faceted-salvage/movement.test.js",
+    "npm run 3d:build",
+    "npx vite build --config experiments/faceted-salvage/vite.config.js"
   ],
   "stagingPolicy": "selected files only",
   "commitCommand": "",

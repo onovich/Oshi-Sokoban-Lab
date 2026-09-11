@@ -34,10 +34,12 @@ const shelves: readonly LaboratoryShelf[] = [
   { id: 'goal-rain', title: '新候选 · Goal × Rain（待试玩）', levelIds: [
     'lab-gr01-rain-landing',
   ] },
-  { id: 'rain-staging', title: '新候选 · Rain 空间协调（待试玩）', levelIds: [
+  { id: 'rain-staging', title: 'Rain 空间协调 · 汊岸 → 交岸 → 候岸 → 泊庭（前导待验证）', levelIds: [
+    'lab-rs02-inner-bank', 'lab-rs06-crossing-bank', 'lab-rs03-waiting-bank',
     'lab-rs01-rain-staging',
   ] },
   { id: 'archive', title: '历史实验 · 不推荐为挑战前置，仍可重玩', levelIds: [
+    'lab-rs04-still-bank', 'lab-rs05-borrowed-berth',
     'lab-spike-clear', 'lab-spike-rebirth', 'lab-spike-progress',
     'lab-e01-shared-passage', 'lab-e01-independent-passage', 'lab-e03-west-court',
     'lab-e04-side-route', 'lab-e05-return-route', 'lab-e05-goal-handoff',

@@ -1,5 +1,7 @@
 # Oshi-Sokoban-Lab
 
+Continuing on another computer? Start with the [handoff](HANDOFF.md) (2026-09-12: task history, decisions, pending work, and asset index).
+
 [简体中文](README.zh-CN.md)
 
 A playable web lab created by the original author of Oshi to reconstruct and extend its grid-push mechanics. It focuses on the puzzle layer only—without the visual-novel narrative or original art and audio assets—and provides a test-driven space for mechanics fidelity and level-design research.

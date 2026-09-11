@@ -1,0 +1,88 @@
+{
+  "repository": "https://github.com/onovich/Blade",
+  "commit": "8449b5c2698c49b02c666554732633887fc85c4f",
+  "tree": "fd9db3ff5e5371e37fa9046c86c6dfac7ce35729",
+  "scope": "targeted asset snapshot, not a complete Unity checkout",
+  "files": [
+    {
+      "path": "Assets/Res_Runtime/KungFu/Mod_Role_KungFu1.fbx",
+      "git_blob": "d519e95a85cb85ebefee3a1d57229667dc0942f4",
+      "sha256": "556cd09bdde0a6ef4afaa3a07be20d32068f097c536351dc9a220b763ea47ad2"
+    },
+    {
+      "path": "Assets/Res_Runtime/KungFu/Mod_Role_KungFu1.fbx.meta",
+      "git_blob": "3b4069fa59890e465f5441669fb5fdf8c248f53f",
+      "sha256": "3c85b7bad4a363ca12510e97127c966cea3b6ec0fb00d1f5797e6596a4a83908"
+    },
+    {
+      "path": "Assets/Res_Runtime/KungFu/Tex_Role_KungFu1_Diffuse.png",
+      "git_blob": "2998b24b9602a3bb4d40fcda2629ae50be2a57b0",
+      "sha256": "d58bedabfbd34a0ae67a107c0f985870d73f5c249c550e44f14f6c5b770a3a33"
+    },
+    {
+      "path": "Assets/Res_Runtime/KungFu/Tex_Role_KungFu1_Diffuse.png.meta",
+      "git_blob": "3f7068a03e9b73cd446569827b0e4bd6d1443180",
+      "sha256": "5216d002ffcdcf7c3435f6b09d7c4fd7e378347badc6536419862b6440722337"
+    },
+    {
+      "path": "Assets/Res_Runtime/KungFu/RoleEntity_KungFu1.prefab",
+      "git_blob": "2134cf392018652924f0a6c013ffca4de1e09739",
+      "sha256": "4c4d355ca54632c5cdff78e1ac2e6b501360839e002a3519a8a562a5a96b1356"
+    },
+    {
+      "path": "Assets/Res_Runtime/KungFu/RoleEntity_KungFu1.prefab.meta",
+      "git_blob": "2338c575ac4031af2fa470e7ee03245a42b2985a",
+      "sha256": "1037fa6b21eef10a9f7f26f44560c557bef497b8cb3ba5f65771cf6a770ebba2"
+    },
+    {
+      "path": "Assets/Res_Runtime/KungFu/Animator_Role_KungFu1.controller",
+      "git_blob": "d79fc5aaad5d331301c65c49900e043e841824ac",
+      "sha256": "e5a547cf731d71bf1e3bfa0d68383252d1dfb16d1fc15b31e9b8693915f020ca"
+    },
+    {
+      "path": "Assets/Res_Runtime/KungFu/Animator_Role_KungFu1.controller.meta",
+      "git_blob": "8820eea754e2989aa5be715adc98f13e585cfde0",
+      "sha256": "4b43af47b6aa16d0ac55a04f9778e72faaeee8fecca3925ba49601ec12094cad"
+    },
+    {
+      "path": "Assets/Res_Runtime/KungFu/Anim_Role_KungFu1_Idle1.anim",
+      "git_blob": "bab958629aeb9634854cfffdcf74c850df5cb6b9",
+      "sha256": "f0bd7ef2aaa8fb08ea45397be4edca30c8d6baa864c16e9d8feaca0848880546"
+    },
+    {
+      "path": "Assets/Res_Runtime/KungFu/Anim_Role_KungFu1_Idle1.anim.meta",
+      "git_blob": "30cab21c2dd3e80d0660782d58f45083613d940d",
+      "sha256": "95321c7ee7b1b29b271fe2b64d09536973c37e8483ffcf8fe02d52a80483e638"
+    },
+    {
+      "path": "Assets/Res_Runtime/KungFu/Anim_Role_KungFu1_Move.anim",
+      "git_blob": "cf66c8799c90023eecc2210d89c20c8873d176e5",
+      "sha256": "6c2f4647477b80094f5d1403d56854382f82f8a7f024dcd4c53ca67bf82ad2cb"
+    },
+    {
+      "path": "Assets/Res_Runtime/KungFu/Anim_Role_KungFu1_Move.anim.meta",
+      "git_blob": "c86ba7e0e51767def9b1d52a6ad2a32da88a0dcb",
+      "sha256": "bfdb36dc23323aae0521fc767d98a6cd5010b3c908cfb5c96c2dd8f3e2797ab2"
+    },
+    {
+      "path": "Assets/Combat animations - Kung fu V1/Animations/IDLE.fbx",
+      "git_blob": "130fb8bb4d773304784ea2c85855161af401c079",
+      "sha256": "810f8ef086cbb256b7231c2184153e8b7ee625dc13fb81df7e2d0a2f4fdc02ee"
+    },
+    {
+      "path": "Assets/Combat animations - Kung fu V1/Animations/IDLE.fbx.meta",
+      "git_blob": "f630f82105943b988db595996d4bee81b3c5f21e",
+      "sha256": "471ca038dcee1b3353416ad405c5cff61c6abd0625252b905089a6bad224722e"
+    },
+    {
+      "path": "Assets/Combat animations - Kung fu V1/Animations/IN PLACE/MOVE FORWARD IN PLACE.fbx",
+      "git_blob": "7194eba2040e7db77ac05233bb34b18ef6de78c4",
+      "sha256": "793eb3a74f575bdad81b3ff2d0929b5a172dc58cbd294a2e281f5e0a22e77f5d"
+    },
+    {
+      "path": "Assets/Combat animations - Kung fu V1/Animations/IN PLACE/MOVE FORWARD IN PLACE.fbx.meta",
+      "git_blob": "05fdce0b9040120ac9873f6fc18f414d2a0762c8",
+      "sha256": "3a981790b7ed0c22f31c17dfee6ac05f69f93081366b02004a4928e577ba2d40"
+    }
+  ]
+}

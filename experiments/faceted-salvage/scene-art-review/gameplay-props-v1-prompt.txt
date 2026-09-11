@@ -1,0 +1,18 @@
+Use case: stylized-concept.
+Create a high-resolution LANDSCAPE production concept sheet for the game FACETED SALVAGE, using the attached original concept ONLY as the locked visual style and prop design reference. This is a supplemental sheet about six physical gameplay props, no characters and no scene redesign. Matte faceted 3D render look feasible in Blender: chipped gray concrete, oxidized rusty steel, bone-white painted markings, restrained mustard-yellow corner hardware. Preserve the source designs, not generic sci-fi. Cream-gray artboard with elegant restrained technical labels and generous spacing.
+
+Layout exactly 2 rows x 3 columns. Each of six panels has ONE large orthographic isometric asset plus ONE small aligned TOP FOOTPRINT plan below it. Upper row = (A) single cargo, (B) integral L cargo, (C) scrap dummy. Lower row = (D) universal fixed goal, (E) numbered fixed goal, (F) numbered movable goal. Use a consistent world CELL unit, all one-cell props the same width. L is 2x2 cells with precisely one corner absent, total 3 cells. Goal height only 0.06 CELL; crates height 0.8 CELL. No millimeter dimensions.
+
+A: Preserve original dark gray solid cargo box, chipped face, mustard-yellow guards and small bolts. Large bone-white stencil 3 on top and visible face. 1 CELL square footprint.
+B: Preserve original rusty red L cargo: ONE CONTINUOUS CONNECTED L-shaped solid, not separate or stacked boxes. Exactly a 2x2 square with rear-right cell removed in TOP view; total 3 filled cells. Make the ISO shape match the top view exactly. One uninterrupted flat L-shaped rusty lid, continuous perimeter frame with only perimeter seams and fittings; NO internal dark seam or gap dividing it into three crates. Large stencil 3 on lid, other thin white identity stripe if helpful. Top footprint: draw one filled L silhouette, grid as pale underlying diagram, NO heavy internal borders.
+C: Preserve the original hollow gray scrap dummy, a chunky low cubic frame with small square apertures and thick beams, add a low internal cross-brace. NOT an archway or passage: apertures too narrow for a person. It occupies the ENTIRE 1 CELL despite being hollow. No numeral, no yellow identity marker. Solid square filled footprint, not a ring.
+D: Universal fixed goal: low gray inset square tile, four bone-white corner brackets flush-bolted into surrounding pavement. No numeral, no symbol in center. 1 CELL whole footprint.
+E: Numbered fixed goal: same low gray inset square tile and bone-white corner brackets as D, large numeral 3 at center. Flush anchors, no lifting hardware. 1 CELL footprint.
+F: Numbered movable goal: a shallow gray steel sled-plate, original mustard-yellow corner brackets with tiny handles and skid under-edge, large numeral 3 at center. LOW and traversable, NOT a crate or raised pedestal. 1 CELL footprint.
+The top footprints for all 1-cell props must each be a single complete square; small digit 3 inside matching numbered plans only. No arrows between props, no puzzle solution, no state sequences, no exploded duplicates.
+
+Exact panel titles: "A / CARGO", "B / L-CARGO", "C / SCRAP DUMMY", "D / UNIVERSAL GOAL", "E / FIXED GOAL", "F / MOVABLE GOAL".
+Exact compact panel captions: A "1 CELL · PUSHABLE"; B "3 CELLS · ONE BODY"; C "1 CELL · NON-TASK · PUSHABLE"; D "1 CELL · FIXED · NO ID"; E "1 CELL · FIXED · ID 3"; F "1 CELL · MOVABLE · ID 3".
+Header "FACETED SALVAGE / GAMEPLAY PROPS".
+Footer "DIGITS = MATCH ID, NOT WEIGHT" and "RELATIVE SCALE PROPOSAL · GOALS ARE LOW PROFILE".
+Avoid shiny plastic, neon glow, steampunk, floating objects, magical glyphs, overly complex hoses, giant text, decorative cargo duplicates, changed original palette, or separate cubes in L shape.

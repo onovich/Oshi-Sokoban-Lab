@@ -1,3 +1,4 @@
+import { SHALLOW_WATER_UPDATE, SHALLOW_WATER_LIGHTING } from '../rendering/shallow-water-model';
 // Independent algorithm sketches; references and scope: research/interactive-water-study.md.
 export const vertex = `#version 300 es
 in vec2 a; out vec2 uv;
@@ -82,14 +83,7 @@ void main(){
  }
  // Linearized shallow water: elevation + horizontal velocity, staggered in two passes.
  // Constant base depth and damping, not full nonlinear SWE / wet-dry conservation.
- if(pass==0){
-   vec2 v=(c.gb-dt*.9*gradient)*.992;
-   v=mix(v,velocity,edge*.22);
-   result=vec4(c.r,clamp(v,vec2(-1.),vec2(1.)),0.);
- }else{
-   float h=c.r-dt*.025*divergence+impact*.0008;
-   result=vec4(clamp(h*.999,-.02,.02),c.gb,0.);
- }
+ ${SHALLOW_WATER_UPDATE}
 }`;
 export const display = common + `
 uniform float debugView;
@@ -110,10 +104,8 @@ void main(){
  vec2 rp=vec2(q.x,(block.y-.065-q.y)/.38);
  float reflection=(1.-smoothstep(.061,.071,abs(rp.x-block.x)))*
    (1.-smoothstep(.10,.13,rp.y))*step(0.,rp.y);
- vec3 n=normalize(vec3(normal,1.));
- float light=pow(max(dot(n,normalize(vec3(-.28,.38,1.))),0.),48.);
- float fill=pow(max(dot(n,normalize(vec3(.5,-.3,1.))),0.),16.);
- vec3 color=floorColor+reflection*.23+light*vec3(.48,.56,.58)+fill*.075;
+ ${SHALLOW_WATER_LIGHTING}
+ vec3 color=floorColor+reflection*.23+surfaceLight;
  if(mode==1)color+=vec3(.12,.27,.28)*s.a;
  if(debugView>.5){
    color=mode==1?vec3(.08)+vec3(abs(s.g)*2.,s.a,abs(s.b)*2.):

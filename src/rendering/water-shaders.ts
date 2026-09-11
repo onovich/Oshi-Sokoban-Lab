@@ -1,3 +1,4 @@
+import { SHALLOW_WATER_LIGHTING } from './shallow-water-model';
 export const WATER_VERTEX = `#version 300 es
 in vec2 a_position;
 out vec2 uv;
@@ -30,7 +31,14 @@ void main(){
   vec2 normal=vec2(cos(p.x*34.+p.y*19.+u_time*.7),sin(p.y*39.-p.x*13.-u_time*.6))*.08;
   if(u_flowEnabled>.5){
     normal=vec2(flowDetail(uv+vec2(1./128.,0))-flowDetail(uv-vec2(1./128.,0)),
-      flowDetail(uv+vec2(0,1./128.))-flowDetail(uv-vec2(0,1./128.)))*100.;
+      flowDetail(uv-vec2(0,1./128.))-flowDetail(uv+vec2(0,1./128.)))*70.;
+    // Simulation texture uses screen-down Y; lab lighting uses screen-up Y.
+    vec2 q=uv+normal*vec2(.018,-.018);
+    vec4 reflection=texture(u_reflection,clamp(q,vec2(.001),vec2(.999)));
+    ${SHALLOW_WATER_LIGHTING}
+    // Lab C material and lighting; real glyph reflection replaces the demo rectangle.
+    color=vec4(vec3(.105,.145,.15)+reflection.rgb*reflection.a*.23+surfaceLight,floorMask);
+    return;
   }
   float crest=0.;
   for(int i=0;i<32;i++){

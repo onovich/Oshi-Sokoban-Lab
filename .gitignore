@@ -1,5 +1,8 @@
 node_modules/
 dist/
+dist-wasteland-3d/
+experiments/wasteland-3d/*.log
+experiments/wasteland-3d/assets/*.blend1
 coverage/
 *.tsbuildinfo
 .env

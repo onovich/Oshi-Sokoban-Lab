@@ -63,11 +63,11 @@ export function startWaterSurface(canvas: HTMLCanvasElement, board: HTMLElement)
     const now = ms / 1000;
     const size = Math.max(1, Math.min(768, Math.round(board.clientWidth)));
     const state = scene.update(size);
-    const flowTexture=flow?.update(state.moving,now,!reduced.matches);
     if (canvas.width !== state.width || canvas.height !== state.height) {
       canvas.width = state.width; canvas.height = state.height;
     }
     gl.viewport(0, 0, canvas.width, canvas.height);
+    const newDrops:number[][]=[];
     for (const drop of board.querySelectorAll<SVGElement>('[data-impact-x]')) {
       const animation = drop.getAnimations()[0];
       const timing = animation?.effect?.getTiming();
@@ -76,9 +76,12 @@ export function startWaterSurface(canvas: HTMLCanvasElement, board: HTMLElement)
       const cycle = Math.floor(phase - .78);
       if (!reduced.matches && cycles.has(drop) && cycles.get(drop) !== cycle) {
         rainImpulses.push({ x: Number(drop.dataset.impactX), y: Number(drop.dataset.impactY), time: now, strength: .8 });
+        newDrops.push([Number(drop.dataset.impactX),Number(drop.dataset.impactY)]);
       }
       cycles.set(drop, cycle);
     }
+    const flowTexture=flow?.update(state.moving,now,!reduced.matches,newDrops);
+    gl.viewport(0,0,canvas.width,canvas.height);
     while (rainImpulses.length && (rainImpulses.length > 32 || now-rainImpulses[0]!.time > 1.4)) rainImpulses.shift();
     const values = new Float32Array(128);
     for (let i = 0; i < 32; i++) {

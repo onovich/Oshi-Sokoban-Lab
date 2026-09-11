@@ -1,0 +1,8 @@
+{
+  "source": "https://github.com/onovich/Blade",
+  "model": "Assets/Res_Runtime/KungFu/Mod_Role_KungFu1.fbx",
+  "texture": "Assets/Res_Runtime/KungFu/Tex_Role_KungFu1_Diffuse.png",
+  "Idle": "original Kung fu V1 IDLE.fbx",
+  "Walk": "original Kung fu V1 MOVE FORWARD IN PLACE.fbx; martial-arts forward gait",
+  "Push": "new experimental bone animation; original walking lower body with baked two-handed pushing upper body; not a Blade-supplied push clip"
+}

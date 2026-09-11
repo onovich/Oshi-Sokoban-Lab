@@ -1,0 +1,545 @@
+{
+  "snapshot": "2026-09-12",
+  "files": [
+    {
+      "path": "experiments/faceted-salvage/art-review/joints-v1-prompt.txt",
+      "bytes": 2859,
+      "sha256": "2845991c39b642fe63322dc88536f8602d16ae35665d06e07faa0b751340ea99"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/joints-v1.png",
+      "bytes": 1862197,
+      "sha256": "9caffeae2d0e05174be43b802b09ee245aebbeacc2b084d65d314abb2021368a"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/joints-v2-prompt.txt",
+      "bytes": 2751,
+      "sha256": "03d7d0eebc87b69b3cdfa93cb39080dd1cd05645358faab6626cf63d62b36d28"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/joints-v2.png",
+      "bytes": 1668268,
+      "sha256": "eb636189c46d2b29e2af6769d08b2610b065f5d5a455efd3695a4b7e5656579b"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/joints-v3-prompt.txt",
+      "bytes": 1972,
+      "sha256": "c553cf48d209cf24d8742b8cfce6a5c8670fa4d6d709b8d6cd1bb9d150abb51e"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/joints-v3.png",
+      "bytes": 1659313,
+      "sha256": "44a7c5396a9752d8079ffa3361e124de5081e9d7e22f6cf08e3d9bb912c27a77"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/joints-v4-prompt.txt",
+      "bytes": 1457,
+      "sha256": "a4c78fb5b40e0659a191df77ab2407f823a00267c0c056117be6103495d65441"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/joints-v4.png",
+      "bytes": 1648663,
+      "sha256": "a0e86e0f3f0179b01889d68b9cc36403e496561f4537a9d726dbbccf7f0f131d"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/joints-v5-prompt.txt",
+      "bytes": 901,
+      "sha256": "6f51e0cc3b9c472d410b3fb04b255dacc30dfa7814adbddb25a58b997fc12b55"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/joints-v5.png",
+      "bytes": 1624479,
+      "sha256": "af5c9fc240f08ed4dc0289f5a073ddb1690ee3284058aece10e5303522214121"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/model-v3-back.png",
+      "bytes": 867193,
+      "sha256": "b6d75fdf22a5b5ff2d822bb697c193ae462f6ff616bd3ffa54dd56ff96a5e475"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/model-v3-front.png",
+      "bytes": 862102,
+      "sha256": "3290e9561fe5282d4b5707f11f9ad5ae18d8cf59cfc24d0e24acdbb902687727"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/model-v3-side.png",
+      "bytes": 816876,
+      "sha256": "3e90857adeef189f7fae20798ed728227e0a85481b1437f11aa6c3cafc42d2ff"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/turnaround-v1-prompt.txt",
+      "bytes": 2173,
+      "sha256": "cef84aa44b37b083d8d23409cb0fa1ff97e9f9e091ca2f154eb200e97b1599b0"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/turnaround-v1.png",
+      "bytes": 1731756,
+      "sha256": "2752bb1ad2d6e9ce2050ced572d40e8fd99a2028c7de4e4f8487cb16ed36aa32"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/turnaround-v2-prompt.txt",
+      "bytes": 1901,
+      "sha256": "f4ddc1e9bc022d0e237df55bf8799ee29ef01f1ac318e72905985393d48e15d4"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/turnaround-v2.png",
+      "bytes": 1773772,
+      "sha256": "9e5501aeffb5a1a2f357411a63ab926ae7b5ff80f8016db6306ce625ca747055"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/turnaround-v3-first-attempt-failure.txt",
+      "bytes": 340,
+      "sha256": "55d37983bcd97c7de990bec11a8e57994fc31fdd6ef679cbbc0d54d9bf116a9d"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/turnaround-v3-prompt.txt",
+      "bytes": 976,
+      "sha256": "7b53e36dedaa1b8695d209158d5fe4e696f392f2da6a13ef443d762efd83b907"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/turnaround-v3-retry-prompt.txt",
+      "bytes": 1214,
+      "sha256": "5c964915a1519cc2e795cfa0c1ce9c03aa623ad8f22dc9d9bd002db0082f4581"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/turnaround-v3.png",
+      "bytes": 1764198,
+      "sha256": "f272c3bdf4544649e816fc62adba08d652367c1dae86dede2e4b88d1102e731a"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/turnaround-v4-prompt.txt",
+      "bytes": 1650,
+      "sha256": "88f8a8e41d0dac0b50d8a531f89f11764619659670221dc4d8cd1cb5315e0037"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/turnaround-v4.png",
+      "bytes": 1766907,
+      "sha256": "75e4be3cd0f5d47cc0cd3be17fa0901743d738239dbdfdcd0264e5aa31c8e3d4"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/turnaround-v5-prompt.txt",
+      "bytes": 1129,
+      "sha256": "717e424aefb47b7c8e4d9f5cabcf9ad0facb6a61d2ebaf572b70f4512b265b7e"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/turnaround-v5.png",
+      "bytes": 1770005,
+      "sha256": "e2b752dc8cb6bb9891b647bb7b8448d982fef84dc671a7a998600463058c0e09"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/turnaround-v6-prompt.txt",
+      "bytes": 1029,
+      "sha256": "63bb578d4ba95ff4d9614b69e5433a46b2167242bfd013f78d43404f50b9dd98"
+    },
+    {
+      "path": "experiments/faceted-salvage/art-review/turnaround-v6.png",
+      "bytes": 1794738,
+      "sha256": "3af2c1aee15bf54016c03e1a747d6c48e65eec9f32336cdc157b586640b88cd0"
+    },
+    {
+      "path": "experiments/faceted-salvage/assets/SalvageHumanoid-Animated.fbx",
+      "bytes": 2259596,
+      "sha256": "d499dc9a9beb18f24ddf18569b6ed30f69412faf6068ae3e0efe7470304a7d4d"
+    },
+    {
+      "path": "experiments/faceted-salvage/assets/SalvageHumanoid-Tpose.fbx",
+      "bytes": 1413996,
+      "sha256": "5cd3f6bff4a4c7cabe9fe9c5713663c720df6f8d1a444625698b63fa2b551358"
+    },
+    {
+      "path": "experiments/faceted-salvage/assets/collision.json",
+      "bytes": 2473,
+      "sha256": "4fa81deee173cfef1ed914dfe8d9d7f77f0b2c7c80e04d509e3c10068bc7f472"
+    },
+    {
+      "path": "experiments/faceted-salvage/assets/crate.glb",
+      "bytes": 689476,
+      "sha256": "5428790fd74e15f9530ef20fceeb57ec890fe0f78c8f2b1556577307c95928a2"
+    },
+    {
+      "path": "experiments/faceted-salvage/assets/dummy.glb",
+      "bytes": 449716,
+      "sha256": "500488ad00838a4296c4e69bd35de0a10cfe5f7af37cf33e64684938d2c04975"
+    },
+    {
+      "path": "experiments/faceted-salvage/assets/environment.glb",
+      "bytes": 12056028,
+      "sha256": "f9a025c2c310bf69db0c086d1a63f5231c561402220ba35d6cd61b02a8c26471"
+    },
+    {
+      "path": "experiments/faceted-salvage/assets/faceted-salvage.blend",
+      "bytes": 3259839,
+      "sha256": "6ca68b9c4aa6dfa2cd6354984117c85ceb888ad77a51f9238ae826ed27189906"
+    },
+    {
+      "path": "experiments/faceted-salvage/assets/geometry-validation.json",
+      "bytes": 499,
+      "sha256": "d7645f4d504f9bdd74862f1b5ea0a2409b68758d8e32376d0ba452ff3d0028b2"
+    },
+    {
+      "path": "experiments/faceted-salvage/assets/humanoid-map.json",
+      "bytes": 2093,
+      "sha256": "ca90f885320179583dd781cc01f78db1745de3005b2f609753c222bc9253d629"
+    },
+    {
+      "path": "experiments/faceted-salvage/assets/humanoid-validation.json",
+      "bytes": 81,
+      "sha256": "f25b5e7e925c0abe20b3723f4cb13a619b0607da58503c64f13c14adf5abd1a1"
+    },
+    {
+      "path": "experiments/faceted-salvage/assets/l-cargo.glb",
+      "bytes": 1269096,
+      "sha256": "3f781674cd1717dfb369627a6df785488ec61740a2342d23e62913e4f7649cb8"
+    },
+    {
+      "path": "experiments/faceted-salvage/assets/manifest.json",
+      "bytes": 276,
+      "sha256": "1606041a6250f8f51b15076357a2b03e6565203b41d8cd6c501cafe9bf3549af"
+    },
+    {
+      "path": "experiments/faceted-salvage/assets/motion-provenance.json",
+      "bytes": 1174,
+      "sha256": "b35d9e3769d521266bc9a7e3c41014b15f581953c06f53a77b31759f73ac056e"
+    },
+    {
+      "path": "experiments/faceted-salvage/assets/robot.glb",
+      "bytes": 7247848,
+      "sha256": "7d1997adb3ae4da8aa1b05e79da4db5ac5f51689c00bbf8a8d5758c5aec4c0eb"
+    },
+    {
+      "path": "experiments/faceted-salvage/blender-preview.png",
+      "bytes": 2319528,
+      "sha256": "cfa1ba461a613d47a6e6f46e4cfac8f03da25280a7b09175deef05eaa5e1cc4a"
+    },
+    {
+      "path": "experiments/faceted-salvage/construction-study-v1-prompt.txt",
+      "bytes": 1296,
+      "sha256": "beef9b8871b3ebc0e82e898ff62e7a820c45766a2128a9de8ff6e884ef20c6ee"
+    },
+    {
+      "path": "experiments/faceted-salvage/construction-study-v1.png",
+      "bytes": 2313868,
+      "sha256": "4ce8d64be6d05dc614bd054498e10a422d31c8efb1667e840fdee05f0d2c1f7c"
+    },
+    {
+      "path": "experiments/faceted-salvage/detail-sheet-prompt.txt",
+      "bytes": 1697,
+      "sha256": "b2ae4d662a6cb3d19e2c9f37a5e59a192934bf584209265fd5493023737bb5bc"
+    },
+    {
+      "path": "experiments/faceted-salvage/revisions/v1/blender-preview.png",
+      "bytes": 1886823,
+      "sha256": "218e833fe990659ad1685f7bf52db361f71e226cd100d368613a904e9012b52f"
+    },
+    {
+      "path": "experiments/faceted-salvage/revisions/v1/build_scene.py",
+      "bytes": 19768,
+      "sha256": "791f62d15b3251f09d7e5b9f4f4ca4b6a83ade5311c71e20802717cff1d64a78"
+    },
+    {
+      "path": "experiments/faceted-salvage/revisions/v1/faceted-salvage.blend",
+      "bytes": 442385,
+      "sha256": "484a8e42ec68a42312dc101d80584689f5c2952241cae20b7e3f048e11caceea"
+    },
+    {
+      "path": "experiments/faceted-salvage/revisions/v2/art_geometry.py",
+      "bytes": 4654,
+      "sha256": "c04bd10b557c0a7fc55e9cb08289f6106fa2973a8cd4c1c45066fe21cdc25ec6"
+    },
+    {
+      "path": "experiments/faceted-salvage/revisions/v2/blender-preview.png",
+      "bytes": 2361683,
+      "sha256": "ff5159ca6c5760a3938e418261347f190b2297570cb308b1d6337f2de030d621"
+    },
+    {
+      "path": "experiments/faceted-salvage/revisions/v2/build_scene.py",
+      "bytes": 3099,
+      "sha256": "79dd1c79102d4d7488661fda694e3704982deb78955c64c9c3fb2d59fc1ea576"
+    },
+    {
+      "path": "experiments/faceted-salvage/revisions/v2/inspect_motion.py",
+      "bytes": 1218,
+      "sha256": "ad323380b441072fe3e789ef948517cc894c931a356c3a8a2f76aa47593887b5"
+    },
+    {
+      "path": "experiments/faceted-salvage/revisions/v2/robot-detail.png",
+      "bytes": 983869,
+      "sha256": "976e3a9e01c070611c5cc86f3ee53579ba0da97b314fb4fd6728e938054d5c21"
+    },
+    {
+      "path": "experiments/faceted-salvage/revisions/v2/salvage_environment.py",
+      "bytes": 9153,
+      "sha256": "da5b7bcccf88b4956d3997df073a7881426a1daa3588f1fb5d590d180fb7d573"
+    },
+    {
+      "path": "experiments/faceted-salvage/revisions/v2/salvage_robot.py",
+      "bytes": 15125,
+      "sha256": "d3c5b96c7e587ff192b288de30bda2b936c77a0df0be1612363175e331ab701c"
+    },
+    {
+      "path": "experiments/faceted-salvage/robot-back.png",
+      "bytes": 1108967,
+      "sha256": "0396c598d1a096a4dd4680378a74ec5fcd0164dc05f3c5c30c91079733442511"
+    },
+    {
+      "path": "experiments/faceted-salvage/robot-detail.png",
+      "bytes": 1004153,
+      "sha256": "57ae2299efcda5aa17a39306b77452493d1d664b603e630ee5a0be3335f01a2b"
+    },
+    {
+      "path": "experiments/faceted-salvage/robot-head.png",
+      "bytes": 1137368,
+      "sha256": "f5cb411089ba4dcc36c824ed6d42016efdda7ccc3b36af214993327659005764"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/build-prop-guide.py",
+      "bytes": 3426,
+      "sha256": "05233e3decd57e7570683a3521566f8ff50ee8fd0d26c3945abf56014fbcbbcf"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/devices-v1-prompt.txt",
+      "bytes": 3329,
+      "sha256": "607f2e9acc89f2a9d34d93dc588727f0a1dc814d4d2b32e22b59fea76e6b7ed4"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/gameplay-props-v1-prompt.txt",
+      "bytes": 3726,
+      "sha256": "6df8de40ce6218bba992ce7afd43bce89774fa24d1eff5bfa1c043be2af37751"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/gameplay-props-v1.png",
+      "bytes": 1742140,
+      "sha256": "04641598538112f3b72a08b7e8a6b5404fa5d3e5aef9b8599d92d6b77710b5b1"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/gameplay-props-v2-prompt.txt",
+      "bytes": 2574,
+      "sha256": "32a237601cf1dc8d66ac0edda2281e1fda294e9e7726936abb24b539adb80826"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/gameplay-props-v2.png",
+      "bytes": 1663767,
+      "sha256": "704d5f74dd0b09070f00af1aedd5da0b292174c141becc17f7e5e9c7e7aa17f8"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/gameplay-props-v3-prompt.txt",
+      "bytes": 4282,
+      "sha256": "56559a1a4a2df59a3be312c1919464fb047c02ad4f2ff107ee9336c6401cc529"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/gameplay-props-v3.png",
+      "bytes": 1921196,
+      "sha256": "81b9ef7f61a324b51adfe21f4c03b5e4557ea909de6dd82b26dc838b5a419b73"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/gameplay-props-v4-prompt.txt",
+      "bytes": 4087,
+      "sha256": "7f3bd4dff4b425fa6ec3bc935ceb6d5a137a9a1ef105fa8664710aa21865b254"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/gameplay-props-v4.png",
+      "bytes": 2468274,
+      "sha256": "c23a34005e049c3b47c109c51365945d47eda7eff1d6eb94d479d87bfaa243c9"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/geometry-L.png",
+      "bytes": 673198,
+      "sha256": "07d915406e737bf7df5b00336ab3115ce50841593b5469427673b00def619ad3"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/geometry-goal-states.png",
+      "bytes": 1014062,
+      "sha256": "cf51015345cb48e3b758d7fe2ac53d733f3035a40fa9a4cabccb99362df52dae"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/scene-kit-v1-prompt.txt",
+      "bytes": 2862,
+      "sha256": "5b0b3757a11223c82259432a84f5aa638bfa1d603d352bed3143f7f9e99d1dd7"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/scene-kit-v1.png",
+      "bytes": 2346009,
+      "sha256": "2fd58c0f80278fab35b685205b60cf1eabb90e92fbbf37d4dc709a388a1f75e8"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/scene-kit-v2-prompt.txt",
+      "bytes": 1517,
+      "sha256": "2a9cae426667b6b9679b04c7e497b3ee4b8d63544e5d037a1e063e85b4585486"
+    },
+    {
+      "path": "experiments/faceted-salvage/scene-art-review/scene-kit-v2.png",
+      "bytes": 2266498,
+      "sha256": "a79b4ef92fbaff07e31f555975fccdbb66460b7e0e212d4f599ac48e28421e18"
+    },
+    {
+      "path": "experiments/faceted-salvage/tools/art_geometry.py",
+      "bytes": 4926,
+      "sha256": "55105bac837e8fd161cce765fdf19bf53829f9f45e51fbf0e442bf18f8f95bbe"
+    },
+    {
+      "path": "experiments/faceted-salvage/tools/build_scene.py",
+      "bytes": 3099,
+      "sha256": "ca749efadfd05650ba643d8960021eebf16127d14b49b5787e64ae10d383e356"
+    },
+    {
+      "path": "experiments/faceted-salvage/tools/inspect_motion.py",
+      "bytes": 1218,
+      "sha256": "ad323380b441072fe3e789ef948517cc894c931a356c3a8a2f76aa47593887b5"
+    },
+    {
+      "path": "experiments/faceted-salvage/tools/render_details.py",
+      "bytes": 1329,
+      "sha256": "cc23e6735a1876be0f76a3a36d8e36b7f481806106b1307fa2f9225d701746a5"
+    },
+    {
+      "path": "experiments/faceted-salvage/tools/render_orthographic.py",
+      "bytes": 1474,
+      "sha256": "1e70b28fcef4952372a6b588ca6b89aad24c985626c575b0045d7d8b3eb8c62a"
+    },
+    {
+      "path": "experiments/faceted-salvage/tools/salvage_details.py",
+      "bytes": 6432,
+      "sha256": "7dd2630f04d2c8e398fccd25092dab7d785d52139d2ed65a7cc61a2c797dd033"
+    },
+    {
+      "path": "experiments/faceted-salvage/tools/salvage_environment.py",
+      "bytes": 11215,
+      "sha256": "e69b3533bf9dc71260c07d0619deea6f3868ae0a42f7df9e561efa153f05c831"
+    },
+    {
+      "path": "experiments/faceted-salvage/tools/salvage_robot.py",
+      "bytes": 15209,
+      "sha256": "fff5bff939dfece010f82ff27da1a0bfe4df4052734146b1f442e11aad675e5f"
+    },
+    {
+      "path": "experiments/faceted-salvage/unity/ValidateHumanoid.cs",
+      "bytes": 1892,
+      "sha256": "d25762d86454965c2e438a0088f6092016a7c7514fb26610c4cd690750cb96cf"
+    },
+    {
+      "path": "experiments/wasteland-3d/assets/actor-provenance.json",
+      "bytes": 464,
+      "sha256": "cbdbd0913bacc17adac384bb2df7b9dbef270f411b24c5f195a6ea5da6115baf"
+    },
+    {
+      "path": "experiments/wasteland-3d/assets/actor.glb",
+      "bytes": 2567524,
+      "sha256": "e197fb7980aa01462ccd4ec4afbe83cf701c2d7666a7d83bf92dddcbf1c6b847"
+    },
+    {
+      "path": "experiments/wasteland-3d/assets/blade-actor.blend",
+      "bytes": 2720972,
+      "sha256": "9a193e987fe18b80f25ca5f01547bcb15c60e9fbe5d505d2a75d8dff18014b76"
+    },
+    {
+      "path": "experiments/wasteland-3d/assets/blade-source-manifest.json",
+      "bytes": 4105,
+      "sha256": "e0dc9ab1923f86aa3c3149a6170bf4cee369ab00944c107497c08723a3f2e75f"
+    },
+    {
+      "path": "experiments/wasteland-3d/assets/collision.json",
+      "bytes": 1201,
+      "sha256": "05099a2691e867c298e84d07a253ab5a3938cfae3bb485a7a3239701a38918af"
+    },
+    {
+      "path": "experiments/wasteland-3d/assets/crate.glb",
+      "bytes": 40592,
+      "sha256": "065354034361960def0c65ede0a46e07c9d638f06b51028d8a6ea13ef1664e34"
+    },
+    {
+      "path": "experiments/wasteland-3d/assets/environment.glb",
+      "bytes": 1576028,
+      "sha256": "215bec425a6e3698c94a1e08a21033c004ccd5991b3982323e8273ad67c8a678"
+    },
+    {
+      "path": "experiments/wasteland-3d/assets/wasteland.blend",
+      "bytes": 543489,
+      "sha256": "9d50b8465adb6e615e6026d21b4f77128d884ac6e0ff0ea33507f70d28ce4a3f"
+    },
+    {
+      "path": "experiments/wasteland-3d/preview.png",
+      "bytes": 1913150,
+      "sha256": "43fe35737f693efcc9a508d0640102454cf2e91e0076bf0ea5f2deeeacea2028"
+    },
+    {
+      "path": "experiments/wasteland-3d/source-blade/Assets/Combat animations - Kung fu V1/Animations/IDLE.fbx",
+      "bytes": 445836,
+      "sha256": "810f8ef086cbb256b7231c2184153e8b7ee625dc13fb81df7e2d0a2f4fdc02ee"
+    },
+    {
+      "path": "experiments/wasteland-3d/source-blade/Assets/Combat animations - Kung fu V1/Animations/IN PLACE/MOVE FORWARD IN PLACE.fbx",
+      "bytes": 461180,
+      "sha256": "793eb3a74f575bdad81b3ff2d0929b5a172dc58cbd294a2e281f5e0a22e77f5d"
+    },
+    {
+      "path": "experiments/wasteland-3d/source-blade/Assets/Res_Runtime/KungFu/Mod_Role_KungFu1.fbx",
+      "bytes": 1469580,
+      "sha256": "556cd09bdde0a6ef4afaa3a07be20d32068f097c536351dc9a220b763ea47ad2"
+    },
+    {
+      "path": "experiments/wasteland-3d/source-blade/Assets/Res_Runtime/KungFu/Tex_Role_KungFu1_Diffuse.png",
+      "bytes": 468885,
+      "sha256": "d58bedabfbd34a0ae67a107c0f985870d73f5c249c550e44f14f6c5b770a3a33"
+    },
+    {
+      "path": "experiments/wasteland-3d/source-blade/asset-manifest.json",
+      "bytes": 4105,
+      "sha256": "e0dc9ab1923f86aa3c3149a6170bf4cee369ab00944c107497c08723a3f2e75f"
+    },
+    {
+      "path": "experiments/wasteland-3d/source-blade/source-tree.json",
+      "bytes": 910877,
+      "sha256": "2efd2811191f756d3933195a9e1d6c5bdeebefbe72981c9e0fdc8c60d86d375f"
+    },
+    {
+      "path": "experiments/wasteland-3d/tools/build_assets.py",
+      "bytes": 13893,
+      "sha256": "05001ca6ff6095b8aec26a4041347318380fb78c125d1bd206658765a9dce1f6"
+    },
+    {
+      "path": "experiments/wasteland-3d/tools/fetch_blade.py",
+      "bytes": 2354,
+      "sha256": "1ae3c5ee048b94fb5519e2d83d42a882366c4ed19ae4148609a430d4303f5558"
+    },
+    {
+      "path": "experiments/wasteland-3d/tools/render_preview.py",
+      "bytes": 985,
+      "sha256": "c042abf96b668caa339a30e5e1c27ffaad5a3e14452da624605efba168fbcaf3"
+    },
+    {
+      "path": "experiments/wasteland-art-directions-20260911/01-faceted.png",
+      "bytes": 2308559,
+      "sha256": "c2742243f2c3391482de695625745b65789a46ede666a912b28230d3f136a4eb"
+    },
+    {
+      "path": "experiments/wasteland-art-directions-20260911/02-cel-ink.png",
+      "bytes": 2646519,
+      "sha256": "3582c602a607e1b897daae63364ba08cb4c642a19139fed8e26acd326195039d"
+    },
+    {
+      "path": "experiments/wasteland-art-directions-20260911/03-painted.png",
+      "bytes": 2573599,
+      "sha256": "1a58c9fe241dfbd3c3edaad49368917491c0a9015d63d31a95422b9c4575683c"
+    },
+    {
+      "path": "experiments/wasteland-art-directions-20260911/04-engraved.png",
+      "bytes": 3808316,
+      "sha256": "336e0d3838039a7d7dd6feec7d67425e45a417cb8d52d3c23a8fe19070bf354e"
+    },
+    {
+      "path": "experiments/wasteland-art-directions-20260911/05-pixel.png",
+      "bytes": 2318026,
+      "sha256": "5e01dddd3f77d8b82791e6d18e37edd88c981e79c34e600ee2b4d9b2214da5a2"
+    },
+    {
+      "path": "experiments/wasteland-art-directions-20260911/06-clay.png",
+      "bytes": 2872471,
+      "sha256": "7587adf05882ff9b5ca2b537807e2960dabe4181ea756d4ced31414251be4c19"
+    },
+    {
+      "path": "experiments/wasteland-art-directions-20260911/prompts.json",
+      "bytes": 14546,
+      "sha256": "847d13222853946e8120cfa9055252388569ca62b35d02fb74f7ce42303f0c27"
+    }
+  ]
+}

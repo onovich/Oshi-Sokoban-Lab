@@ -1,0 +1,20 @@
+Use case: stylized-concept.
+Create a landscape FACETED SALVAGE production concept sheet with very high fidelity to supplied reference geometry.
+IMAGE 1 = EXACT, MANDATORY L-CARGO GEOMETRY AND TOP DIGIT ORIENTATION. Copy its THREE cube positions and identical top digit3 projection precisely.
+IMAGE 2 = EXACT, MANDATORY GOAL GEOMETRY, TOP DIGIT ORIENTATION AND RIGID TRANSLATION. Left fixed tile, middle raised cube, right submerged cube.
+IMAGE 3 = ONLY style/material/graphic layout reference: faceted wasteland, chipped gray concrete, rust steel, matte bone-white paint, mustard yellow corner hardware, beige technical paper. Do not copy its possibly inconsistent cube shapes or rotated glyphs.
+
+Layout: upper half a LARGE L-cargo illustration matching Image1, with small top occupancy plan on its right. Bottom half three aligned illustrations: FIXED GOAL, RAISED / PUSHABLE, LOWERED / PASSABLE. No single crate or fake panels, focus on these corrections. Small side-section diagram along bottom shows SAME full cube above and below ground with identical dimensions.
+
+L cargo: EXACTLY THREE equally sized CUBES joined face-to-face in an L, exactly as Image1. Two cubes across front, one additional cube behind left one, right rear cell empty. All cube width=depth=height=1CELL, all three top surfaces fully visible as in Image1. Fine module seams encouraged, flush contact with no physical separation. NOT 2boxes, NOT custom monolithic L-shell, NOT long rectangular boxes. Apply rusty red steel with worn gray edge frames and small bolts, original material style. Use GRAY corner hardware for L. One numeral3 centered on EACH of the three tops. Copy glyph projection and WORLD ORIENTATION directly from Image1. May change the font to original stencil, but not its direction, perspective or plane. Sidewalls no numbers. Top occupancy plan exactly [3, empty] over [3,3], thin equal-square borders. Caption "THREE STANDARD CUBES / MOVE AS ONE".
+
+Goal row: copy relative camera, geometry and projected glyph3 orientation from Image2 exactly. All cubes same 1 CELL scale.
+Left FIXED GOAL: flat dark gray square flush in surrounding concrete, bone-white four corner markers flush too. No thickness sticking up. No other shape.
+Middle RAISED / PUSHABLE: full dark gray 1x1x1 cube entirely above pavement, bottom at ground, top height1. Yellow FOUR top corner markers; back far corner must be yellow too. Flush inlay corner patches, tiny bolts, no protruding handles. Large flat bone-white 3 at center.
+Right LOWERED / PASSABLE: EXACTLY SAME cube moved vertically down one cube height; unchanged top face now flush with pavement, including all yellow patches and screws completely flush. Same top patch geometry, same 3 size, location and orientation. Entire volume under opaque ground; do NOT show underside in this main ISO view. It is not a thin replacement tile, not compressed geometry, not a hole, not a floating island. Use a fading ground context edge to indicate normal continuous pavement, not isolated platform.
+
+Small bottom side-section: two IDENTICAL SQUARE gray cube cross-sections, same drawn width AND height, yellow top strips. One entirely ABOVE a horizontal ground line with bottom touching line. Second entirely BELOW same ground line with TOP touching line. Underground region drawn pale beige soil section. Keep full second square visible in section, NOT cropped or compressed. Label "SAME CUBE / TRANSLATION ONLY".
+Critical shared top3 rule: all numeral glyphs must exactly use the same projected tilt as reference images1/2, flat on horizontal plane, top of glyph toward world far side, baseline parallel common worldX edge. Do NOT rotate90degrees to face screen. Same orientation on all three L tops, fixed, raised and lowered. All top corners of raised and lowered movable cube YELLOW, including back corner. No model silhouette redesign.
+Header "FACETED SALVAGE / PROP CONSTRUCTION V4".
+Footer "1 CELL = CUBE EDGE / DIGITS = MATCH ID".
+Clean detailed feasible Blender render concept, restrained faceted wear, no neon, no extra mechanism, no screens, no characters.

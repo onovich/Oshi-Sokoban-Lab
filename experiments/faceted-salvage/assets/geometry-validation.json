@@ -1,0 +1,33 @@
+{
+  "environment": {
+    "bytes": 12056028,
+    "triangles": 113510,
+    "meshes": 1146
+  },
+  "robot": {
+    "bytes": 7247848,
+    "triangles": 62602,
+    "meshes": 1,
+    "bones": 52,
+    "animations": [
+      "Idle",
+      "Walk",
+      "Push"
+    ]
+  },
+  "crate": {
+    "bytes": 689476,
+    "triangles": 8732,
+    "meshes": 30
+  },
+  "l-cargo": {
+    "bytes": 1269096,
+    "triangles": 16344,
+    "meshes": 66
+  },
+  "dummy": {
+    "bytes": 449716,
+    "triangles": 4912,
+    "meshes": 20
+  }
+}

@@ -17,7 +17,7 @@ describe('curated laboratory navigation', () => {
   it('keeps every historical level accessible but separates archives from learning chains', () => {
     const shelves = laboratoryShelf(masteryV2Catalog.labLevels);
     const ids = shelves.flatMap(shelf => shelf.levelIds);
-    expect(ids).toHaveLength(31);
+    expect(ids).toHaveLength(36);
     expect(new Set(ids)).toEqual(new Set(masteryV2Catalog.labLevels.map(level => level.id)));
     expect(shelves[0]!.levelIds).toEqual([
       'lab-e06-small-court', 'lab-e06-independent-return', 'lab-e06-interleaved',

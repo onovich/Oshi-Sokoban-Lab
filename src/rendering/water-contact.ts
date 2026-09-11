@@ -11,6 +11,6 @@ export function contactVelocity(current: WaterContact, previous: WaterContact | 
   if (!previous || seconds <= 0 || seconds > .1 ||
     Math.abs(current.x-previous.x)>current.width*.75 ||
     Math.abs(current.y-previous.y)>current.height*.75) return [0,0];
-  return [Math.max(-1,Math.min(1,(current.x-previous.x)/seconds)),
-    Math.max(-1,Math.min(1,(current.y-previous.y)/seconds))];
+  // Like lab C, clamp the resulting fluid velocity in the solver, not wall input.
+  return [(current.x-previous.x)/seconds,(current.y-previous.y)/seconds];
 }

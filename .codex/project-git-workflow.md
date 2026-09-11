@@ -55,6 +55,8 @@ npm run build
 
 ## Staging Policy
 
+2026-09-12: validation also runs both independent 3D Node test suites and both Vite experiment builds, as listed in the machine config. Main Vitest excludes experiments because those suites use node:test.
+
 selected files only
 
 Inspect status before staging. Preserve unrelated user changes unless the user explicitly asks to include them.

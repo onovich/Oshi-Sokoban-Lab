@@ -1,0 +1,5 @@
+dist/
+unity-validation/
+**/__pycache__/
+*.log
+assets/*.blend1

@@ -33,6 +33,7 @@ import { rainRelease } from '../levels/lab/rs07-rain-release';
 import { rainPlacement } from '../levels/lab/rs08-rain-placement';
 import { rainAlignment } from '../levels/lab/rs09-rain-alignment';
 import { rainSelfStop } from '../levels/lab/rs10-rain-self-stop';
+import { ba1ReturnPassage } from '../levels/lab/ba1-return-passage';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
 import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
@@ -348,6 +349,9 @@ export const masteryV2Catalog: CourseCatalog = {
   }, {
     id: 'lab-rain-self-stop', title: 'Rain 推侧实验', branch: 'rain',
     prerequisites: [], levelIds: [rainSelfStop.id],
+  }, {
+    id: 'batch-a-return', title: '空间章节候选', branch: 'shape',
+    prerequisites: [], levelIds: [ba1ReturnPassage.id],
   }],
   labLevels: [
     ...labLevels,
@@ -382,6 +386,7 @@ export const masteryV2Catalog: CourseCatalog = {
     rainPlacement,
     rainAlignment,
     rainSelfStop,
+    ba1ReturnPassage,
   ],
 };
 

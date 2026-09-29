@@ -4,6 +4,7 @@ import type {
   LevelSpec,
   TeachingRole,
 } from '../course/types';
+import { levelAcceptance } from '../course/level-acceptance';
 
 const roleLabels: Readonly<Record<TeachingRole, string>> = {
   establish: '建立关',
@@ -24,6 +25,7 @@ type CurriculumMapProps = Readonly<{
   levels: readonly LevelSpec[];
   onSelect: (levelId: string) => void;
   unlockedLevelIds: ReadonlySet<string>;
+  showAcceptance?: boolean;
 }>;
 
 export function CurriculumMap({
@@ -35,6 +37,7 @@ export function CurriculumMap({
   levels,
   onSelect,
   unlockedLevelIds,
+  showAcceptance = false,
 }: CurriculumMapProps) {
   const levelsById = new Map(levels.map((level) => [level.id, level]));
 
@@ -100,6 +103,7 @@ export function CurriculumMap({
                                 type="button"
                               >
                                 {number} {roleLabels[level.role]}
+                                {showAcceptance ? <small className="curriculum-lesson__acceptance">{levelAcceptance(level).label}</small> : null}
                               </button>
                             );
                           })}

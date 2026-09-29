@@ -1,0 +1,62 @@
+import { ACCEPTED_LEVEL_FREEZE_MANIFEST, frozenLevelHash } from './accepted-freeze';
+import { LABORATORY_FREEZE_MANIFEST } from './lab-freeze';
+import type { LevelSpec } from './types';
+
+export type AcceptanceRecord = Readonly<{
+  levelId: string;
+  hash: string;
+  reviewer: 'ai' | 'author';
+  verdict: 'passed' | 'changes-requested';
+  evidence: string;
+}>;
+
+export type AcceptanceState = 'pending' | 'ai-passed' | 'ai-changes' | 'author-passed' | 'author-changes' | 'outdated';
+export const acceptanceLabels: Readonly<Record<AcceptanceState, string>> = {
+  pending: '待验收',
+  'ai-passed': 'AI 初审通过 · 待作者验收',
+  'ai-changes': 'AI 初审待改进',
+  'author-passed': '作者验收通过 · 最终',
+  'author-changes': '作者退回 · 待改进',
+  outdated: '盘面已变更 · 待重新验收',
+};
+
+// Chronological ledger. Preservation and a difficulty score alone are not approval.
+export const levelAcceptanceRecords: readonly AcceptanceRecord[] = [
+  { levelId: 'lab-ba1-return-passage', hash: '6065d08c', reviewer: 'ai', verdict: 'changes-requested',
+    evidence: 'docs/playtests/2026-09-29-ai-ba1.md' },
+  { levelId: 'lab-gc01-goal-return', hash: 'a329d43a', reviewer: 'author', verdict: 'passed',
+    evidence: 'docs/playtests/2026-09-08-goal-reverse-transfer.md' },
+  { levelId: 'lab-gc03-goal-handoff', hash: '5748c5bb', reviewer: 'author', verdict: 'passed',
+    evidence: 'docs/playtests/2026-09-08-goal-reverse-transfer.md' },
+  ...Object.entries(ACCEPTED_LEVEL_FREEZE_MANIFEST).map(([levelId, hash]) => ({
+    levelId, hash, reviewer: 'author' as const, verdict: 'passed' as const,
+    evidence: 'docs/high-difficulty/level-library.md#总量与边界',
+  })),
+  ...[
+    'lab-e06-small-court', 'lab-e06-independent-return', 'lab-e06-interleaved',
+    'lab-e02-return-door', 'lab-e02-return-reservation', 'lab-e02-return-loan',
+    'lab-e04-upper-route', 'lab-e04-middle-court', 'lab-e04-shared-court',
+  ].map(levelId => ({
+    levelId, hash: LABORATORY_FREEZE_MANIFEST[levelId]!,
+    reviewer: 'author' as const, verdict: 'passed' as const,
+    evidence: 'docs/high-difficulty/level-library.md#推荐浏览顺序',
+  })),
+];
+
+/** Latest author decision wins even over a later AI pass. Revised content needs review again. */
+export function levelAcceptance(spec: LevelSpec, records = levelAcceptanceRecords): Readonly<{
+  state: AcceptanceState;
+  label: string;
+  evidence?: string;
+}> {
+  const history = records.filter(record => record.levelId === spec.id);
+  const current = history.filter(record => record.hash === frozenLevelHash(spec));
+  const author = current.filter(record => record.reviewer === 'author').at(-1);
+  const decision = author ?? current.at(-1);
+  const state: AcceptanceState = decision
+    ? decision.reviewer === 'author'
+      ? decision.verdict === 'passed' ? 'author-passed' : 'author-changes'
+      : decision.verdict === 'passed' ? 'ai-passed' : 'ai-changes'
+    : history.length ? 'outdated' : 'pending';
+  return { state, label: acceptanceLabels[state], evidence: decision?.evidence };
+}

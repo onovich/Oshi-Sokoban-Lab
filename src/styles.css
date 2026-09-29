@@ -1614,3 +1614,10 @@ kbd {
   flex-wrap: wrap;
   gap: 1rem;
 }
+.curriculum-lesson__acceptance {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: normal;
+  line-height: 1.4;
+  margin-top: 0.25rem;
+}

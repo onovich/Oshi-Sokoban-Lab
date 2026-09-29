@@ -15,19 +15,20 @@ type LessonBriefingProps = Readonly<{
   groupTitle: string;
   onStart: () => void;
   spec: LevelSpec;
+  hideCurriculum?: boolean;
 }>;
 
-export function LessonBriefing({ displayTitle, groupTitle, onStart, spec }: LessonBriefingProps) {
+export function LessonBriefing({ displayTitle, groupTitle, onStart, spec, hideCurriculum = false }: LessonBriefingProps) {
   const { board } = spec;
   return (
     <section aria-label="关卡说明" className="lesson-briefing">
       <p className="eyebrow">BEFORE YOU PLAY</p>
       <h2>{displayTitle ?? board.title}</h2>
       <p className="lesson-briefing__rule">{board.description}</p>
-      <p className="lesson-briefing__curriculum">
+      {!hideCurriculum ? <p className="lesson-briefing__curriculum">
         <span>关卡组：{groupTitle}</span>
         <span>阶段：{roleLabels[spec.role]}</span>
-      </p>
+      </p> : null}
 
       <div className="lesson-briefing__details">
         <section aria-labelledby="lesson-briefing-objective">

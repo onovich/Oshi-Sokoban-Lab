@@ -14,6 +14,7 @@ import {
 } from './course/course-catalog';
 import { summarizeCourseCompletion } from './course/course-completion';
 import { laboratoryShelf, nextLibraryLevelId } from './course/lab-library';
+import { levelAcceptance } from './course/level-acceptance';
 import {
   loadCourseProgress,
   saveCourseProgress,
@@ -89,6 +90,8 @@ type AppProps = Readonly<{
   lessonAccessMode?: LessonAccessMode;
   authoringMode?: boolean;
   initialCatalogId?: CourseCatalogId;
+  initialLevelId?: string;
+  blindPlaytest?: boolean;
   progressStorage?: Storage;
   solutionLoader?: SolutionLoader;
 }>;
@@ -115,6 +118,8 @@ export function App({
   lessonAccessMode = import.meta.env.DEV ? 'free' : 'progression',
   authoringMode = import.meta.env.DEV,
   initialCatalogId = 'accepted-foundation-v1',
+  initialLevelId,
+  blindPlaytest = false,
   progressStorage,
   solutionLoader = requestSolution,
 }: AppProps = {}) {
@@ -126,7 +131,7 @@ export function App({
   const [selection, setSelection] = useState<Readonly<{
     catalogId: CourseCatalogId;
     scope: CourseScope;
-  }>>({ catalogId: initialCatalogId, scope: 'formal' });
+  }>>({ catalogId: initialCatalogId, scope: catalogFor(initialCatalogId).labLevels.some(level => level.id === initialLevelId) ? 'lab' : 'formal' });
   const catalog = catalogFor(selection.catalogId);
   const levels = selection.scope === 'formal' ? catalog.levels : catalog.labLevels;
   const groups = selection.scope === 'formal' ? catalog.groups : catalog.labGroups;
@@ -137,7 +142,7 @@ export function App({
   const acts = selection.scope === 'formal'
     ? catalog.acts
     : [{ id: 'lab', title: '实验关卡库 · 按用途整理', levelIds: library.flatMap(shelf => shelf.levelIds) }];
-  const firstSpec = levels[0];
+  const firstSpec = levels.find(level => level.id === initialLevelId) ?? levels[0];
   if (!firstSpec) throw new Error(`${catalog.id}/${selection.scope} contains no playable levels.`);
 
   const [gameView, setGameView] = useState<GameView>(() => ({ state: createGame(firstSpec.board) }));
@@ -370,7 +375,7 @@ export function App({
         </p>
       </header>
 
-      {authoringMode ? (
+      {authoringMode && !blindPlaytest ? (
         <>
         <section aria-label="作者工具" className="author-tools">
           <label htmlFor="catalog-picker">课程目录</label>
@@ -393,12 +398,13 @@ export function App({
             <option value="lab">开发实验室</option>
           </select>
           <DifficultySummary difficulty={activeSpec.difficulty} />
+          <p aria-label="关卡验收">关卡验收：{levelAcceptance(activeSpec).label}</p>
         </section>
         <AuthorAnalysisPanel key={`${catalog.id}:${selection.scope}:${activeSpec.id}`} spec={activeSpec} />
         </>
       ) : null}
 
-      <section className="lesson-strip" aria-label="Lesson selection">
+      {!blindPlaytest ? <section className="lesson-strip" aria-label="Lesson selection">
         <label htmlFor="lesson-picker">关卡</label>
         <select id="lesson-picker" onChange={(event) => loadLesson(event.target.value)} value={activeSpec.id}>
           {selection.scope === 'lab' ? library.map(shelf => (
@@ -417,9 +423,10 @@ export function App({
         <p className="lesson-strip__progress">{progressLabel} {completedLevelIds.length} / {levels.length}</p>
         {layeredProgress ? <p className="lesson-strip__completion">{layeredProgress}</p> : null}
         <p className="lesson-strip__weather">{state.level.weather === 'rain' ? 'RAIN RULESET' : 'CLEAR RULESET'}</p>
-      </section>
+      </section> : null}
 
-      <CurriculumMap
+      {!blindPlaytest ? <CurriculumMap
+        showAcceptance={authoringMode}
         activeLevelId={activeSpec.id}
         acts={acts}
         completedLevelIds={completedSet}
@@ -428,11 +435,12 @@ export function App({
         levels={levels}
         onSelect={loadLesson}
         unlockedLevelIds={selectableLevelIds}
-      />
+      /> : null}
 
       <div className="game-layout game-layout--course">
         {isBriefingOpen ? (
           <LessonBriefing
+            hideCurriculum={blindPlaytest}
             displayTitle={activeTitle}
             groupTitle={activeGroup.title}
             key={`${catalog.id}:${selection.scope}:${activeSpec.id}`}
@@ -443,7 +451,7 @@ export function App({
           <section aria-labelledby="lesson-title" className="play-area">
             <div className="play-area__heading">
               <div>
-                <p className="eyebrow">{activeGroup.title} · {activeSpec.role.toUpperCase()}</p>
+                <p className="eyebrow">{blindPlaytest ? 'OSHI · PLAYTEST' : `${activeGroup.title} · ${activeSpec.role.toUpperCase()}`}</p>
                 <h2 id="lesson-title">{activeTitle}</h2>
               </div>
               {!isDemonstrating ? (
@@ -472,7 +480,7 @@ export function App({
                   movementDisabled={isResetPresenting}
                   nextLessonTitle={nextSpec ? displayTitle(catalog, selection.scope, nextSpec) : undefined}
                   onMove={applyMove}
-                  onDemonstrate={() => {
+                  onDemonstrate={blindPlaytest ? undefined : () => {
                     recordRoute({ type: 'demo-start', source: 'demo' }, createGame(activeSpec.board));
                     setGameView((previous) => ({ ...previous, demonstrating: true }));
                   }}

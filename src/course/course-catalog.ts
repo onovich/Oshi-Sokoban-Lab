@@ -40,6 +40,7 @@ import { ba3TwoStageParking } from '../levels/lab/ba3-two-stage-parking';
 import { bc2BorrowedStop } from '../levels/lab/bc2-borrowed-stop';
 import { bb1GoalWorkspace } from '../levels/lab/bb1-goal-workspace';
 import { bd1DirectionChoice } from '../levels/lab/bd1-direction-choice';
+import { bd2ShiftedEntry } from '../levels/lab/bd2-shifted-entry';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
 import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
@@ -366,7 +367,7 @@ export const masteryV2Catalog: CourseCatalog = {
     prerequisites: [], levelIds: [bb1GoalWorkspace.id],
   }, {
     id: 'batch-d-entry', title: '传送门入射章节候选', branch: 'gate',
-    prerequisites: [], levelIds: [bd1DirectionChoice.id],
+    prerequisites: [], levelIds: [bd1DirectionChoice.id, bd2ShiftedEntry.id],
   }],
   labLevels: [
     ...labLevels,
@@ -408,6 +409,7 @@ export const masteryV2Catalog: CourseCatalog = {
     bc2BorrowedStop,
     bb1GoalWorkspace,
     bd1DirectionChoice,
+    bd2ShiftedEntry,
   ],
 };
 

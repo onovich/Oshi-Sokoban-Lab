@@ -110,6 +110,16 @@ function gameFor(level: LevelDefinition) {
 }
 
 describe('Board glyph system', () => {
+  it('describes joined cells as parts of the same object without exposing design metadata', () => {
+    const state = gameFor({ ...baseLevel, blocks: [{ ...baseLevel.blocks[0]!,
+      shape: [{ x: 0, y: 0 }, { x: 0, y: 1 }],
+    }] });
+    const { getByRole } = render(<Board state={state} />);
+    expect(getByRole('gridcell', { name: 'Cell 2, 2: 真实方块' }).getAttribute('aria-description'))
+      .toBe('物件 1，共 2 格；占据 (2,2)、(2,3)');
+    expect(getByRole('gridcell', { name: 'Cell 2, 3: 真实方块' }).getAttribute('aria-description'))
+      .toBe('物件 1，共 2 格；占据 (2,2)、(2,3)');
+  });
   it('keeps decorative rain mounted across moves and removes it in clear weather', () => {
     const state = gameFor(rainLevel);
     const { container, rerender } = render(<Board state={state} />);

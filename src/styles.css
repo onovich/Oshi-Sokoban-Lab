@@ -840,6 +840,22 @@ kbd {
   z-index: 1;
 }
 
+/* Separate SVG tiles can round shared edges differently at fractional cell
+   sizes. Underpaint only the interior joins of one solid object. Never extend
+   over an exterior edge (including an edge touching a different object). */
+.board__entity[data-outline-edges]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #f4f4ee;
+  pointer-events: none;
+}
+
+.board__entity--fake-block[data-outline-edges]::before {
+  background: #6c6c6c;
+}
+
+
 /* Draw inward on the full-cell face, never as a physical gap. A strong exterior
    contour distinguishes touching objects; joined cells have no internal line. */
 .board__entity[data-outline-edges]::after {
@@ -866,6 +882,15 @@ kbd {
 .board__entity[data-outline-edges~="left"]::after {
   border-left-width: var(--board-piece-outline-width);
 }
+
+.board__entity[data-outline-edges]:not([data-outline-edges~="top"])::before,
+.board__entity[data-outline-edges]:not([data-outline-edges~="top"])::after { top: -0.5px; }
+.board__entity[data-outline-edges]:not([data-outline-edges~="right"])::before,
+.board__entity[data-outline-edges]:not([data-outline-edges~="right"])::after { right: -0.5px; }
+.board__entity[data-outline-edges]:not([data-outline-edges~="bottom"])::before,
+.board__entity[data-outline-edges]:not([data-outline-edges~="bottom"])::after { bottom: -0.5px; }
+.board__entity[data-outline-edges]:not([data-outline-edges~="left"])::before,
+.board__entity[data-outline-edges]:not([data-outline-edges~="left"])::after { left: -0.5px; }
 
 .board__entity--block,
 .board__entity--fake-block,

@@ -512,9 +512,15 @@ export function Board({ gateTraversal, state, turnEvents = [] }: BoardProps) {
       {state.level.weather === 'rain' ? <RainEffect /> : null}
       {cells.map((cell) => {
         const tokens = cellTokens(state, cell);
+        const blockIndex = state.blocks.findIndex((block) => occupies(block, cell));
+        const block = state.blocks[blockIndex];
+        const description = block
+          ? `物件 ${blockIndex + 1}，共 ${block.shape.length} 格；占据 ${block.shape.map((part) => `(${block.position.x + part.x + 1},${block.position.y + part.y + 1})`).join('、')}`
+          : undefined;
         return (
           <div
             aria-label={labelFor(cell, tokens)}
+            aria-description={description}
             className={`board__cell ${tokens.map((token) => `board__cell--${token}`).join(' ')}`}
             data-terrain={tokens.includes('wall') ? 'wall' : undefined}
             key={`${cell.x}:${cell.y}`}

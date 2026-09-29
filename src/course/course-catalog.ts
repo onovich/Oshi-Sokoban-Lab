@@ -29,6 +29,10 @@ import { rainPreludes } from '../levels/lab/rs02-rain-prelude';
 import { rainStopPrelude } from '../levels/lab/rs04-rain-stop';
 import { rainBerth } from '../levels/lab/rs05-rain-berth';
 import { rainHandoff } from '../levels/lab/rs06-rain-handoff';
+import { rainRelease } from '../levels/lab/rs07-rain-release';
+import { rainPlacement } from '../levels/lab/rs08-rain-placement';
+import { rainAlignment } from '../levels/lab/rs09-rain-alignment';
+import { rainSelfStop } from '../levels/lab/rs10-rain-self-stop';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
 import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
@@ -332,6 +336,18 @@ export const masteryV2Catalog: CourseCatalog = {
   }, {
     id: 'lab-rain-handoff', title: 'Rain 交接实验', branch: 'rain',
     prerequisites: [], levelIds: [rainHandoff.id],
+  }, {
+    id: 'lab-rain-release', title: 'Rain 可退出布局实验', branch: 'rain',
+    prerequisites: [], levelIds: [rainRelease.id],
+  }, {
+    id: 'lab-rain-placement', title: 'Rain 停放对照实验', branch: 'rain',
+    prerequisites: [], levelIds: [rainPlacement.id],
+  }, {
+    id: 'lab-rain-alignment', title: 'Rain 站位迁移实验', branch: 'rain',
+    prerequisites: [], levelIds: [rainAlignment.id],
+  }, {
+    id: 'lab-rain-self-stop', title: 'Rain 推侧实验', branch: 'rain',
+    prerequisites: [], levelIds: [rainSelfStop.id],
   }],
   labLevels: [
     ...labLevels,
@@ -362,6 +378,10 @@ export const masteryV2Catalog: CourseCatalog = {
     rainStopPrelude,
     rainBerth,
     rainHandoff,
+    rainRelease,
+    rainPlacement,
+    rainAlignment,
+    rainSelfStop,
   ],
 };
 

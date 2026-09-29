@@ -34,7 +34,19 @@ const shelves: readonly LaboratoryShelf[] = [
   { id: 'goal-rain', title: '新候选 · Goal × Rain（待试玩）', levelIds: [
     'lab-gr01-rain-landing',
   ] },
-  { id: 'rain-staging', title: 'Rain 空间协调 · 汊岸 → 交岸 → 候岸 → 泊庭（前导待验证）', levelIds: [
+  { id: 'rain-release', title: '新候选 · 回汀（独立试玩，迁移待验证）', levelIds: [
+    'lab-rs07-release-bank',
+  ] },
+  { id: 'rain-placement', title: '新候选 · 择汀（回汀的对照，教学待验证）', levelIds: [
+    'lab-rs08-placement-bank',
+  ] },
+  { id: 'rain-alignment', title: '新候选 · 隔汀（回汀的变式，迁移待验证）', levelIds: [
+    'lab-rs09-alignment-bank',
+  ] },
+  { id: 'rain-self-stop', title: '新候选 · 寻汀（独立试玩，教学待验证）', levelIds: [
+    'lab-rs10-self-stop-bank',
+  ] },
+  { id: 'rain-staging', title: 'Rain 空间协调实验 · 含交岸挑战，不代表已验证教学链', levelIds: [
     'lab-rs02-inner-bank', 'lab-rs06-crossing-bank', 'lab-rs03-waiting-bank',
     'lab-rs01-rain-staging',
   ] },

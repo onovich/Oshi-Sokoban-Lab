@@ -17,13 +17,21 @@ describe('curated laboratory navigation', () => {
   it('keeps every historical level accessible but separates archives from learning chains', () => {
     const shelves = laboratoryShelf(masteryV2Catalog.labLevels);
     const ids = shelves.flatMap(shelf => shelf.levelIds);
-    expect(ids).toHaveLength(36);
+    expect(ids).toHaveLength(40);
     expect(new Set(ids)).toEqual(new Set(masteryV2Catalog.labLevels.map(level => level.id)));
     expect(shelves[0]!.levelIds).toEqual([
       'lab-e06-small-court', 'lab-e06-independent-return', 'lab-e06-interleaved',
     ]);
     expect(shelves.find(shelf => shelf.id === 'archive')!.levelIds).toContain('lab-e03-west-court');
     expect(nextLibraryLevelId(shelves, 'lab-e05-upper-landing')).toBeUndefined();
+    expect(nextLibraryLevelId(shelves, 'lab-rs07-release-bank')).toBeUndefined();
+    expect(masteryV2Catalog.labLevels[36]!.id).toBe('lab-rs07-release-bank');
+    expect(masteryV2Catalog.labLevels[37]!.id).toBe('lab-rs08-placement-bank');
+    expect(nextLibraryLevelId(shelves, 'lab-rs08-placement-bank')).toBeUndefined();
+    expect(masteryV2Catalog.labLevels[38]!.id).toBe('lab-rs09-alignment-bank');
+    expect(nextLibraryLevelId(shelves, 'lab-rs09-alignment-bank')).toBeUndefined();
+    expect(masteryV2Catalog.labLevels[39]!.id).toBe('lab-rs10-self-stop-bank');
+    expect(nextLibraryLevelId(shelves, 'lab-rs10-self-stop-bank')).toBeUndefined();
     expect(nextLibraryLevelId(shelves, 'lab-e05-lower-landing')).toBe('lab-e05-upper-landing');
   });
 });

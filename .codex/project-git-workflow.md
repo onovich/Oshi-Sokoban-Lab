@@ -74,7 +74,7 @@ git -c safe.directory=D:/LabProjects/LearnSokoban push -u origin HEAD
 
 ## Docs And TODO
 
-None configured.
+2026-09-29 作者要求：批量制关期间，每完成一个关卡便单独验证、提交并推送；提交范围包含该关地图、测试、审计与评审记录。每个提交节点检查工作区干净、HEAD 与 upstream 一致。未通过 AI 初审的实验可保存为待改进，但不能标为作者已验收。详见 `docs/high-difficulty/level-acceptance.md`。探索过程不等于完成关卡，不跳过既定验证。
 
 ## Safety And Branch Policy
 

@@ -22,4 +22,8 @@ it('distinguishes final author acceptance from pending review without using comp
   fireEvent.change(screen.getByRole('combobox', { name: '课程区域' }), { target: { value: 'lab' } });
   fireEvent.change(screen.getByRole('combobox', { name: '关卡' }), { target: { value: 'lab-rs10-self-stop-bank' } });
   expect(screen.getByLabelText('关卡验收').textContent).toContain('待验收');
+  fireEvent.change(screen.getByRole('combobox', { name: '关卡' }), { target: { value: 'lab-ba1-return-passage' } });
+  expect(screen.getByLabelText('关卡验收').textContent).toContain('AI 初审待改进');
+  fireEvent.change(screen.getByRole('combobox', { name: '关卡' }), { target: { value: 'lab-ba2-shared-bay' } });
+  expect(screen.getByLabelText('关卡验收').textContent).toContain('AI 初审通过 · 待作者验收');
 });

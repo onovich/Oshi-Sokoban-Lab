@@ -39,6 +39,7 @@ import { bc1OffsetBank } from '../levels/lab/bc1-offset-bank';
 import { ba3TwoStageParking } from '../levels/lab/ba3-two-stage-parking';
 import { bc2BorrowedStop } from '../levels/lab/bc2-borrowed-stop';
 import { bb1GoalWorkspace } from '../levels/lab/bb1-goal-workspace';
+import { bd1DirectionChoice } from '../levels/lab/bd1-direction-choice';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
 import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
@@ -363,6 +364,9 @@ export const masteryV2Catalog: CourseCatalog = {
   }, {
     id: 'batch-b-workspace', title: '目标工作空间章节候选', branch: 'goal',
     prerequisites: [], levelIds: [bb1GoalWorkspace.id],
+  }, {
+    id: 'batch-d-entry', title: '传送门入射章节候选', branch: 'gate',
+    prerequisites: [], levelIds: [bd1DirectionChoice.id],
   }],
   labLevels: [
     ...labLevels,
@@ -403,6 +407,7 @@ export const masteryV2Catalog: CourseCatalog = {
     ba3TwoStageParking,
     bc2BorrowedStop,
     bb1GoalWorkspace,
+    bd1DirectionChoice,
   ],
 };
 

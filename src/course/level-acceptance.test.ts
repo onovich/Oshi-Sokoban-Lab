@@ -3,6 +3,7 @@ import { frozenLevelHash } from './accepted-freeze';
 import { levelAcceptance, type AcceptanceRecord } from './level-acceptance';
 import { rainSelfStop } from '../levels/lab/rs10-rain-self-stop';
 import { bc1OffsetBank } from '../levels/lab/bc1-offset-bank';
+import { ba3TwoStageParking } from '../levels/lab/ba3-two-stage-parking';
 
 const ai: AcceptanceRecord = {
   levelId: rainSelfStop.id, hash: frozenLevelHash(rainSelfStop), reviewer: 'ai',
@@ -27,4 +28,8 @@ it('records the played rain candidate as AI-only, never author acceptance', () =
   expect(levelAcceptance(bc1OffsetBank)).toMatchObject({
     state: 'ai-passed', evidence: 'docs/playtests/2026-09-29-ai-bc1.md',
   });
+});
+
+it('does not call the revised return puzzle accepted using an older playtest', () => {
+  expect(levelAcceptance(ba3TwoStageParking).state).toBe('outdated');
 });

@@ -51,7 +51,7 @@ const shelves: readonly LaboratoryShelf[] = [
     'lab-rs01-rain-staging',
   ] },
   { id: 'batch-a-return', title: '批次 A · 空间章节候选（制作中）', levelIds: [
-    'lab-ba1-return-passage', 'lab-ba2-shared-bay',
+    'lab-ba1-return-passage', 'lab-ba2-shared-bay', 'lab-ba3-two-stage-parking',
   ] },
   { id: 'batch-c-berth', title: '批次 C · 雨中站位候选（制作中）', levelIds: [
     'lab-bc1-offset-bank',

@@ -36,6 +36,7 @@ import { rainSelfStop } from '../levels/lab/rs10-rain-self-stop';
 import { ba1ReturnPassage } from '../levels/lab/ba1-return-passage';
 import { ba2SharedBay } from '../levels/lab/ba2-shared-bay';
 import { bc1OffsetBank } from '../levels/lab/bc1-offset-bank';
+import { ba3TwoStageParking } from '../levels/lab/ba3-two-stage-parking';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
 import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
@@ -353,7 +354,7 @@ export const masteryV2Catalog: CourseCatalog = {
     prerequisites: [], levelIds: [rainSelfStop.id],
   }, {
     id: 'batch-a-return', title: '空间章节候选', branch: 'shape',
-    prerequisites: [], levelIds: [ba1ReturnPassage.id, ba2SharedBay.id],
+    prerequisites: [], levelIds: [ba1ReturnPassage.id, ba2SharedBay.id, ba3TwoStageParking.id],
   }, {
     id: 'batch-c-berth', title: '雨中站位章节候选', branch: 'rain',
     prerequisites: [], levelIds: [bc1OffsetBank.id],
@@ -394,6 +395,7 @@ export const masteryV2Catalog: CourseCatalog = {
     ba1ReturnPassage,
     ba2SharedBay,
     bc1OffsetBank,
+    ba3TwoStageParking,
   ],
 };
 

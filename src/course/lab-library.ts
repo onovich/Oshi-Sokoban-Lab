@@ -53,6 +53,9 @@ const shelves: readonly LaboratoryShelf[] = [
   { id: 'batch-a-return', title: '批次 A · 空间章节候选（制作中）', levelIds: [
     'lab-ba1-return-passage', 'lab-ba2-shared-bay',
   ] },
+  { id: 'batch-c-berth', title: '批次 C · 雨中站位候选（制作中）', levelIds: [
+    'lab-bc1-offset-bank',
+  ] },
   { id: 'archive', title: '历史实验 · 不推荐为挑战前置，仍可重玩', levelIds: [
     'lab-rs04-still-bank', 'lab-rs05-borrowed-berth',
     'lab-spike-clear', 'lab-spike-rebirth', 'lab-spike-progress',

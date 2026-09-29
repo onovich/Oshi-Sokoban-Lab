@@ -17,7 +17,7 @@ describe('curated laboratory navigation', () => {
   it('keeps every historical level accessible but separates archives from learning chains', () => {
     const shelves = laboratoryShelf(masteryV2Catalog.labLevels);
     const ids = shelves.flatMap(shelf => shelf.levelIds);
-    expect(ids).toHaveLength(42);
+    expect(ids).toHaveLength(43);
     expect(new Set(ids)).toEqual(new Set(masteryV2Catalog.labLevels.map(level => level.id)));
     expect(shelves[0]!.levelIds).toEqual([
       'lab-e06-small-court', 'lab-e06-independent-return', 'lab-e06-interleaved',
@@ -33,5 +33,7 @@ describe('curated laboratory navigation', () => {
     expect(masteryV2Catalog.labLevels[39]!.id).toBe('lab-rs10-self-stop-bank');
     expect(nextLibraryLevelId(shelves, 'lab-rs10-self-stop-bank')).toBeUndefined();
     expect(nextLibraryLevelId(shelves, 'lab-e05-lower-landing')).toBe('lab-e05-upper-landing');
+    expect(masteryV2Catalog.labLevels[42]!.id).toBe('lab-bc1-offset-bank');
+    expect(shelves.find(shelf => shelf.id === 'batch-c-berth')!.levelIds).toEqual(['lab-bc1-offset-bank']);
   });
 });

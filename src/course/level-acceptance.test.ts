@@ -2,6 +2,7 @@ import { expect, it } from 'vitest';
 import { frozenLevelHash } from './accepted-freeze';
 import { levelAcceptance, type AcceptanceRecord } from './level-acceptance';
 import { rainSelfStop } from '../levels/lab/rs10-rain-self-stop';
+import { bc1OffsetBank } from '../levels/lab/bc1-offset-bank';
 
 const ai: AcceptanceRecord = {
   levelId: rainSelfStop.id, hash: frozenLevelHash(rainSelfStop), reviewer: 'ai',
@@ -20,4 +21,10 @@ it('does not transfer acceptance to a revised puzzle or another stable id', () =
   expect(levelAcceptance(changed, [ai]).state).toBe('outdated');
   expect(levelAcceptance({ ...rainSelfStop, id: 'new-level' }, [ai]).state).toBe('pending');
   expect(levelAcceptance({ ...rainSelfStop, board: { ...rainSelfStop.board, title: 'New title' } }, [ai]).state).toBe('ai-passed');
+});
+
+it('records the played rain candidate as AI-only, never author acceptance', () => {
+  expect(levelAcceptance(bc1OffsetBank)).toMatchObject({
+    state: 'ai-passed', evidence: 'docs/playtests/2026-09-29-ai-bc1.md',
+  });
 });

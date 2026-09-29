@@ -30,6 +30,8 @@ it('records the played rain candidate as AI-only, never author acceptance', () =
   });
 });
 
-it('does not call the revised return puzzle accepted using an older playtest', () => {
-  expect(levelAcceptance(ba3TwoStageParking).state).toBe('outdated');
+it('keeps the return puzzle under revision after the current-version visual review', () => {
+  expect(levelAcceptance(ba3TwoStageParking)).toMatchObject({
+    state: 'ai-changes', evidence: 'docs/playtests/2026-09-29-ai-ba3.md',
+  });
 });

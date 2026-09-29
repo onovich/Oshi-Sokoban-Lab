@@ -54,7 +54,7 @@ const shelves: readonly LaboratoryShelf[] = [
     'lab-ba1-return-passage', 'lab-ba2-shared-bay', 'lab-ba3-two-stage-parking',
   ] },
   { id: 'batch-c-berth', title: '批次 C · 雨中站位候选（制作中）', levelIds: [
-    'lab-bc1-offset-bank',
+    'lab-bc1-offset-bank', 'lab-bc2-borrowed-stop',
   ] },
   { id: 'archive', title: '历史实验 · 不推荐为挑战前置，仍可重玩', levelIds: [
     'lab-rs04-still-bank', 'lab-rs05-borrowed-berth',

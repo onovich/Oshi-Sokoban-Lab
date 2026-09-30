@@ -8,6 +8,31 @@ import { Board } from './Board';
 
 const oneCell = [{ x: 0, y: 0 }] as const;
 
+it('keeps stationary and movable Goal corner marks in the foreground when occupied', () => {
+  const state = createGame({ ...baseLevel, player: { x: 2, y: 1 },
+    blocks: [{ id: 'covered', position: { x: 3, y: 1 }, shape: oneCell, number: 0, isFake: false }],
+    goals: [{ id: 'under-player', position: { x: 2, y: 1 }, shape: oneCell, number: 0, movable: true }],
+  });
+  const { container, getByRole } = render(<Board state={state} />);
+  for (const kind of ['terrain-goal', 'movable-goal']) {
+    const mark = container.querySelector(`.board__entity-layer [data-glyph="${kind}"]`);
+    expect(mark).toBeTruthy();
+    expect(mark?.querySelector('.game-glyph__goal-contrast')).toBeTruthy();
+  }
+  expect(getByRole('gridcell', { name: 'Cell 3, 2: 可推动 Goal，角色' })).toBeTruthy();
+});
+
+it('keeps every Goal cell readable without breaking a multi-cell Block into smaller solids', () => {
+  const state = createGame({ ...baseLevel,
+    blocks: [{ id: 'long', position: { x: 1, y: 1 }, shape: [{ x: 0, y: 0 }, { x: 1, y: 0 }], number: 0, isFake: false }],
+    terrainGoals: [{ x: 1, y: 1 }, { x: 2, y: 1 }],
+  });
+  const { container } = render(<Board state={state} />);
+  expect(container.querySelectorAll('.board__entity-layer [data-glyph="terrain-goal"]')).toHaveLength(2);
+  expect(container.querySelector('[data-entity-id="long"][data-grid-cell="1:1"]')?.getAttribute('data-outline-edges')).toBe('top bottom left');
+  expect(container.querySelector('[data-entity-id="long"][data-grid-cell="2:1"]')?.getAttribute('data-outline-edges')).toBe('top right bottom');
+});
+
 const baseLevel: LevelDefinition = {
   id: 'board-fixture',
   title: 'Board fixture',

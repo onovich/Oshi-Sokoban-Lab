@@ -120,7 +120,6 @@ function cellTokens(state: GameState, cell: Cell): readonly string[] {
 
 function terrainGlyphsFor(tokens: readonly string[]): readonly GlyphDefinition[] {
   const glyphs: GlyphDefinition[] = [];
-  if (tokens.includes('terrain-goal')) glyphs.push({ key: 'terrain-goal', kind: 'terrain-goal' });
   if (tokens.includes('terrain-spike')) glyphs.push({ key: 'terrain-spike', kind: 'spike' });
   return glyphs;
 }
@@ -187,7 +186,10 @@ function visualEntitiesFor(state: GameState): readonly VisualEntity[] {
     shape: spike.shape,
   }));
 
-  return [...goals, ...blocks, ...spikes, ...gates, player];
+  const terrainGoals: VisualEntity[] = state.level.terrainGoals.map((position) => ({
+    id: `terrain-goal:${position.x}:${position.y}`, kind: 'terrain-goal', position, shape: unitShape,
+  }));
+  return [...terrainGoals, ...goals, ...blocks, ...spikes, ...gates, player];
 }
 
 function motionFor(entity: VisualEntity, previousEntities: ReadonlyMap<string, VisualEntity>): EntityMotion {

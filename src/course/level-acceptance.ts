@@ -28,6 +28,8 @@ export const levelAcceptanceRecords: readonly AcceptanceRecord[] = [
     evidence: 'docs/playtests/2026-09-30-ai-be1.md' },
   { levelId: 'lab-bb2-goal-permission', hash: '60603a18', reviewer: 'ai', verdict: 'changes-requested',
     evidence: 'docs/playtests/2026-09-30-ai-bb2.md' },
+  { levelId: 'lab-bb2-goal-permission', hash: '60603a18', reviewer: 'ai', verdict: 'passed',
+    evidence: 'docs/playtests/2026-09-30-goal-overlap.md' },
   { levelId: 'lab-bd2-shifted-entry', hash: '715697b1', reviewer: 'ai', verdict: 'passed',
     evidence: 'docs/playtests/2026-09-29-ai-bd2.md' },
   { levelId: 'lab-bd1-direction-choice', hash: '967598e0', reviewer: 'ai', verdict: 'passed',

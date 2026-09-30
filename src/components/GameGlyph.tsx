@@ -26,7 +26,11 @@ type GameGlyphProps = Readonly<{
 }>;
 
 function GoalCorners() {
-  return <path className="game-glyph__goal-corners" d="M2 12V2h10M20 2h10v10M30 20v10H20M12 30H2V20" />;
+  const corners = 'M2 12V2h10M20 2h10v10M30 20v10H20M12 30H2V20';
+  return <>
+    <path className="game-glyph__goal-contrast" d={corners} />
+    <path className="game-glyph__goal-corners" d={corners} />
+  </>;
 }
 
 function fillsCell(kind: GameGlyphKind): boolean {

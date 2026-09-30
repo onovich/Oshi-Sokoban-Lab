@@ -836,8 +836,11 @@ kbd {
 }
 
 .board__entity--goal,
-.board__entity--movable-goal {
-  z-index: 1;
+.board__entity--movable-goal,
+.board__entity--terrain-goal {
+  /* Goal corners are occupancy marks, not an opaque object: preserve them
+     above both player and Block, including during the same grid tween. */
+  z-index: 5;
 }
 
 /* Separate SVG tiles can round shared edges differently at fractional cell
@@ -1130,6 +1133,11 @@ kbd {
 .game-glyph--movable-goal {
   color: var(--role-yellow);
   filter: drop-shadow(0 0 0.28rem rgb(252 255 0 / 52%));
+}
+
+.game-glyph__goal-contrast {
+  stroke: var(--field-charcoal);
+  stroke-width: 3.5;
 }
 
 .game-glyph--wall {

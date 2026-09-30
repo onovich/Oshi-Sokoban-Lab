@@ -7,6 +7,7 @@ import { ba3TwoStageParking } from '../levels/lab/ba3-two-stage-parking';
 import { bd2ShiftedEntry } from '../levels/lab/bd2-shifted-entry';
 import { bd3ControlledEntry } from '../levels/lab/bd3-controlled-entry';
 import { be1OriginLoan } from '../levels/lab/be1-origin-loan';
+import { bb2GoalPermission } from '../levels/lab/bb2-goal-permission';
 
 const ai: AcceptanceRecord = {
   levelId: rainSelfStop.id, hash: frozenLevelHash(rainSelfStop), reviewer: 'ai',
@@ -16,6 +17,12 @@ const ai: AcceptanceRecord = {
 it('records actual Gate and Spike playtests as intermediate approval only', () => {
   expect(levelAcceptance(bd3ControlledEntry).state).toBe('ai-passed');
   expect(levelAcceptance(be1OriginLoan).state).toBe('ai-passed');
+});
+
+it('preserves the original Goal review and follows its completed visual repair check', () => {
+  expect(levelAcceptance(bb2GoalPermission)).toMatchObject({
+    state: 'ai-passed', evidence: 'docs/playtests/2026-09-30-goal-overlap.md',
+  });
 });
 
 it('keeps AI acceptance intermediate and lets author rejection override a later AI pass', () => {

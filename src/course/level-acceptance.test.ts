@@ -5,11 +5,18 @@ import { rainSelfStop } from '../levels/lab/rs10-rain-self-stop';
 import { bc1OffsetBank } from '../levels/lab/bc1-offset-bank';
 import { ba3TwoStageParking } from '../levels/lab/ba3-two-stage-parking';
 import { bd2ShiftedEntry } from '../levels/lab/bd2-shifted-entry';
+import { bd3ControlledEntry } from '../levels/lab/bd3-controlled-entry';
+import { be1OriginLoan } from '../levels/lab/be1-origin-loan';
 
 const ai: AcceptanceRecord = {
   levelId: rainSelfStop.id, hash: frozenLevelHash(rainSelfStop), reviewer: 'ai',
   verdict: 'passed', evidence: 'test-only AI report',
 };
+
+it('records actual Gate and Spike playtests as intermediate approval only', () => {
+  expect(levelAcceptance(bd3ControlledEntry).state).toBe('ai-passed');
+  expect(levelAcceptance(be1OriginLoan).state).toBe('ai-passed');
+});
 
 it('keeps AI acceptance intermediate and lets author rejection override a later AI pass', () => {
   expect(levelAcceptance(rainSelfStop, [ai]).state).toBe('ai-passed');

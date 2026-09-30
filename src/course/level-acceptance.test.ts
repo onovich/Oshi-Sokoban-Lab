@@ -8,6 +8,7 @@ import { bd2ShiftedEntry } from '../levels/lab/bd2-shifted-entry';
 import { bd3ControlledEntry } from '../levels/lab/bd3-controlled-entry';
 import { be1OriginLoan } from '../levels/lab/be1-origin-loan';
 import { bb2GoalPermission } from '../levels/lab/bb2-goal-permission';
+import { ba1ReturnPassage } from '../levels/lab/ba1-return-passage';
 
 const ai: AcceptanceRecord = {
   levelId: rainSelfStop.id, hash: frozenLevelHash(rainSelfStop), reviewer: 'ai',
@@ -45,9 +46,15 @@ it('records the played rain candidate as AI-only, never author acceptance', () =
   });
 });
 
-it('keeps the return puzzle under revision after the current-version visual review', () => {
+it('combines the current-version return puzzle playtest with its later visual repair review', () => {
   expect(levelAcceptance(ba3TwoStageParking)).toMatchObject({
-    state: 'ai-changes', evidence: 'docs/playtests/2026-09-29-ai-ba3.md',
+    state: 'ai-passed', evidence: 'docs/playtests/2026-09-30-return-visual-review.md',
+  });
+});
+
+it('records the return-passage replay after its grouping repair without calling it author approval', () => {
+  expect(levelAcceptance(ba1ReturnPassage)).toMatchObject({
+    state: 'ai-passed', evidence: 'docs/playtests/2026-09-30-return-visual-review.md',
   });
 });
 

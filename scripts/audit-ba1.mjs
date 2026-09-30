@@ -35,6 +35,11 @@ try {
   const base = run('base', spec);
   assert.equal(base.status, 'solved');
   assert.equal(replay(spec.board, base.bestPlan.directions).status, 'won');
+  const reviewDirections = [...'RURRRUULDRDLLLLRRRUUULLDDD'].map(letter =>
+    ({ R: 'right', U: 'up', L: 'left', D: 'down' })[letter]);
+  const reviewed = replay(spec.board, reviewDirections);
+  assert.equal(reviewed.status, 'won');
+  assert.equal(reviewed.moves, 26);
   for (const [name, forbidden] of [
     ['without-opening', condition('3,3', '3,2')],
     ['without-middle-return', condition('3,2', '3,3')],

@@ -58,6 +58,7 @@ const shelves: readonly LaboratoryShelf[] = [
   ] },
   { id: 'batch-b-workspace', title: '批次 B · 目标工作空间候选（制作中）', levelIds: [
     'lab-bb1-goal-workspace',
+    'lab-bb2-goal-permission',
   ] },
   { id: 'batch-d-entry', title: '批次 D · 传送门入射候选（制作中）', levelIds: [
     'lab-bd1-direction-choice', 'lab-bd2-shifted-entry',

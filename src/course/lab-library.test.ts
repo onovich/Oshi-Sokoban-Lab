@@ -17,7 +17,7 @@ describe('curated laboratory navigation', () => {
   it('keeps every historical level accessible but separates archives from learning chains', () => {
     const shelves = laboratoryShelf(masteryV2Catalog.labLevels);
     const ids = shelves.flatMap(shelf => shelf.levelIds);
-    expect(ids).toHaveLength(51);
+    expect(ids).toHaveLength(52);
     expect(new Set(ids)).toEqual(new Set(masteryV2Catalog.labLevels.map(level => level.id)));
     expect(shelves[0]!.levelIds).toEqual([
       'lab-e06-small-court', 'lab-e06-independent-return', 'lab-e06-interleaved',
@@ -45,5 +45,9 @@ describe('curated laboratory navigation', () => {
     expect(shelves.find(shelf => shelf.id === 'batch-d-entry')!.levelIds).toEqual(['lab-bd1-direction-choice', 'lab-bd2-shifted-entry', 'lab-bd3-controlled-entry']);
     expect(masteryV2Catalog.labLevels[47]!.id).toBe('lab-bd2-shifted-entry');
     expect(nextLibraryLevelId(shelves, 'lab-bd1-direction-choice')).toBe('lab-bd2-shifted-entry');
+    expect(masteryV2Catalog.labLevels[51]!.id).toBe('lab-h1-detour');
+    expect(shelves.find(shelf => shelf.id === 'lab-hazard-bridges')!.levelIds).toEqual(['lab-h1-detour']);
+    expect(nextLibraryLevelId(shelves, 'lab-h1-detour')).toBeUndefined();
+    expect(masteryV2Catalog.formalLevelOrder).not.toContain('lab-h1-detour');
   });
 });

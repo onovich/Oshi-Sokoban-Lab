@@ -66,6 +66,9 @@ const shelves: readonly LaboratoryShelf[] = [
   { id: 'batch-e-origin', title: '批次 E · 回位调度候选（揭示后实验）', levelIds: [
     'lab-be1-origin-loan',
   ] },
+  { id: 'lab-hazard-bridges', title: '早期桥接候选 · 与挑战批次分开评估', levelIds: [
+    'lab-h1-detour',
+  ] },
   { id: 'archive', title: '历史实验 · 不推荐为挑战前置，仍可重玩', levelIds: [
     'lab-rs04-still-bank', 'lab-rs05-borrowed-berth',
     'lab-spike-clear', 'lab-spike-rebirth', 'lab-spike-progress',

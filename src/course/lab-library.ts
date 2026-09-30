@@ -69,6 +69,9 @@ const shelves: readonly LaboratoryShelf[] = [
   { id: 'lab-hazard-bridges', title: '早期桥接候选 · 与挑战批次分开评估', levelIds: [
     'lab-h1-detour',
   ] },
+  { id: 'lab-shape-bridges', title: '形状桥接候选 · 穿插于形状课程', levelIds: [
+    'lab-h2-clearance',
+  ] },
   { id: 'archive', title: '历史实验 · 不推荐为挑战前置，仍可重玩', levelIds: [
     'lab-rs04-still-bank', 'lab-rs05-borrowed-berth',
     'lab-spike-clear', 'lab-spike-rebirth', 'lab-spike-progress',

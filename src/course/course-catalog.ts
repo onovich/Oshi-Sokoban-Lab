@@ -45,6 +45,7 @@ import { bb2GoalPermission } from '../levels/lab/bb2-goal-permission';
 import { bd3ControlledEntry } from '../levels/lab/bd3-controlled-entry';
 import { be1OriginLoan } from '../levels/lab/be1-origin-loan';
 import { h1Detour } from '../levels/lab/h1-detour';
+import { h2Clearance } from '../levels/lab/h2-clearance';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
 import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
@@ -378,6 +379,9 @@ export const masteryV2Catalog: CourseCatalog = {
   }, {
     id: 'lab-hazard-bridges', title: '空间桥接候选', branch: 'foundation',
     prerequisites: [], levelIds: [h1Detour.id],
+  }, {
+    id: 'lab-shape-bridges', title: '形状桥接候选', branch: 'shape',
+    prerequisites: [], levelIds: [h2Clearance.id],
   }],
   labLevels: [
     ...labLevels,
@@ -424,6 +428,7 @@ export const masteryV2Catalog: CourseCatalog = {
     bd3ControlledEntry,
     be1OriginLoan,
     h1Detour,
+    h2Clearance,
   ],
 };
 

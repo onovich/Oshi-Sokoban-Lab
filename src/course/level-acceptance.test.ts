@@ -1,4 +1,11 @@
 import { expect, it } from 'vitest';
+import { h2Clearance } from '../levels/lab/h2-clearance';
+
+it('keeps the played footprint bridge at AI-only acceptance', () => {
+  expect(levelAcceptance(h2Clearance)).toMatchObject({
+    state: 'ai-passed', evidence: 'docs/playtests/2026-09-30-ai-h2.md',
+  });
+});
 import { frozenLevelHash } from './accepted-freeze';
 import { levelAcceptance, type AcceptanceRecord } from './level-acceptance';
 import { rainSelfStop } from '../levels/lab/rs10-rain-self-stop';

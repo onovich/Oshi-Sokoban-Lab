@@ -17,6 +17,14 @@ try {
     state = turn.state;
   }
   assert.equal(state.status, 'won');
+  let played = createGame(spec.board);
+  for (const letter of 'RDDRULURRUURD') {
+    const turn = move(played, { R: 'right', L: 'left', U: 'up', D: 'down' }[letter]);
+    assert.ok(turn.didMove);
+    assert.ok(!turn.events.some(e => e.type === 'object-reset' || e.type === 'death-reset'));
+    played = turn.state;
+  }
+  assert.equal(played.status, 'won');
   const forbidden = solveLevel(spec, { ...options, forbiddenConditions: spec.theorem.proofConditions });
   assert.equal(forbidden.status, 'proven-unsolved');
   console.log(JSON.stringify({ hash: frozenLevelHash(spec), moves: solved.bestPlan.moves,

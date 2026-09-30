@@ -43,6 +43,7 @@ import { bd1DirectionChoice } from '../levels/lab/bd1-direction-choice';
 import { bd2ShiftedEntry } from '../levels/lab/bd2-shifted-entry';
 import { bb2GoalPermission } from '../levels/lab/bb2-goal-permission';
 import { bd3ControlledEntry } from '../levels/lab/bd3-controlled-entry';
+import { be1OriginLoan } from '../levels/lab/be1-origin-loan';
 import type { CourseActDefinition, CourseCatalog, CourseGroupDefinition } from './types';
 import type { LevelSpec } from './types';
 import { MASTERY_V2_BLUEPRINT } from './mastery-blueprint';
@@ -370,6 +371,9 @@ export const masteryV2Catalog: CourseCatalog = {
   }, {
     id: 'batch-d-entry', title: '传送门入射章节候选', branch: 'gate',
     prerequisites: [], levelIds: [bd1DirectionChoice.id, bd2ShiftedEntry.id, bd3ControlledEntry.id],
+  }, {
+    id: 'batch-e-origin', title: '回位调度候选', branch: 'spike',
+    prerequisites: [], levelIds: [be1OriginLoan.id],
   }],
   labLevels: [
     ...labLevels,
@@ -414,6 +418,7 @@ export const masteryV2Catalog: CourseCatalog = {
     bd2ShiftedEntry,
     bb2GoalPermission,
     bd3ControlledEntry,
+    be1OriginLoan,
   ],
 };
 

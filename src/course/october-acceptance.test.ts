@@ -12,3 +12,7 @@ it('does not turn incomplete attempts or a visual-only review into puzzle accept
     expect(levelAcceptance(octoberBatch.find(level => level.id === id)!).state).toBe('pending');
   }
 });
+it('records independently transferred movable-goal understanding without upgrading unsolved allocation levels', () => {
+  for (const id of ['lab-oct-m07', 'lab-oct-m09']) expect(levelAcceptance(octoberBatch.find(l => l.id === id)!).state).toBe('ai-passed');
+  for (const id of ['lab-oct-m06', 'lab-oct-m08']) expect(levelAcceptance(octoberBatch.find(l => l.id === id)!).state).toBe('pending');
+});

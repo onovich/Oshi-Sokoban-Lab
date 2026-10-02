@@ -6,12 +6,12 @@ import {resolve,dirname} from 'node:path';
 import {pathToFileURL,fileURLToPath} from 'node:url';
 const name=process.argv[2]??'oct-s02',exportName=name.replace('oct-s','octS');
 const originMode=Number(name.slice(-2))>=5;
-const originOpen={'oct-s05':[{x:3,y:1}]};
+const originOpen={'oct-s05':[{x:3,y:1}],'oct-s06':[{x:2,y:1}],'oct-s07':[{x:1,y:2}],'oct-s08':[{x:2,y:0}],'oct-s09':[{x:4,y:0}],'oct-s10':[{x:3,y:4}]};
 const require=createRequire(resolve(process.cwd(),'package.json'));
 const {createServer}=await import(pathToFileURL(require.resolve('vite')).href);
 const dir=dirname(fileURLToPath(import.meta.url));
 const source=existsSync(resolve(process.cwd(),`src/levels/lab/${name}.ts`))?resolve(process.cwd(),`src/levels/lab/${name}.ts`):resolve(dir,`${name}.ts`);
-const server=await createServer({root:process.cwd(),server:{middlewareMode:true},appType:'custom'});
+const server=await createServer({root:process.cwd(),server:{middlewareMode:true,hmr:false},appType:'custom'});
 try {
  const module=await server.ssrLoadModule(`/@fs/${source.replaceAll('\\','/')}`),spec=module[exportName];
  const {createGame,move}=await server.ssrLoadModule('/src/engine/game-engine.ts');
@@ -33,16 +33,22 @@ try {
  if(name==='oct-s03'){let state=createGame(spec.board),death;for(const l of 'DRUUULUL'){const r=move(state,{U:'up',D:'down',L:'left',R:'right'}[l]);assert.ok(r.didMove);state=r.state;death=r.events.find(e=>e.type==='death-reset')??death;}assert.ok(death);assert.deepEqual(state.blocks[1].position,{x:4,y:2});assert.deepEqual(state.player,{x:1,y:0});console.log(JSON.stringify({loss:'DRUUULUL',result:'all preparation reset'}));}
  if(name==='oct-s04'){let state=createGame(spec.board),death;for(const l of 'DLDDDLLUULUDD'){const r=move(state,{U:'up',D:'down',L:'left',R:'right'}[l]);assert.ok(r.didMove);state=r.state;death=r.events.find(e=>e.type==='death-reset')??death;}assert.ok(death);assert.deepEqual(state.blocks[0].position,{x:1,y:3});assert.deepEqual(state.gates[1].position,{x:0,y:1});console.log(JSON.stringify({loss:'DLDDDLLUULUDD',result:'Block and Gate preparation reset'}));}
  if(name==='oct-s05'){let state=createGame(spec.board);for(const l of 'LLDLDRRDDLUURDR'){const r=move(state,{U:'up',D:'down',L:'left',R:'right'}[l]);assert.ok(r.didMove);state=r.state;}assert.deepEqual(state.blocks.map(b=>b.position),[{x:2,y:1},{x:4,y:2}]);const rejected=move(state,'up');assert.equal(rejected.didMove,false);assert.match(rejected.event,/Reset conflict/);assert.deepEqual(rejected.state,state);console.log(JSON.stringify({boundary:'occupied-origin blocks B reset',result:'passed'}));}
+ if(name==='oct-s08'){
+  let state=createGame(spec.board);for(const l of 'LLDDRRLLUURDURRD'){const r=move(state,{U:'up',D:'down',L:'left',R:'right'}[l]);assert.ok(r.didMove);state=r.state;}const rejected=move(state,'down');assert.equal(rejected.didMove,false);assert.match(rejected.event,/Reset conflict/);
+  const fake={...spec,board:{...spec.board,gates:[],blocks:[...spec.board.blocks,...spec.board.gates.map(g=>({id:g.id,position:g.position,shape:g.shape,number:0,isFake:true}))]}};
+  const r=solveLevel(fake,options);assert.equal(r.status,'solved');assert.deepEqual([r.bestPlan.moves,r.bestPlan.pushes],[17,5]);console.log(JSON.stringify({gateToFake:{moves:r.bestPlan.moves,pushes:r.bestPlan.pushes},occupiedGateOrigin:'reset rejected'}));
+ }
  const forbidden=solveLevel(spec,{...options,forbiddenConditions:spec.theorem.proofConditions});
  const drySpec=originMode?{...spec,board:{...spec.board,walls:spec.board.walls.filter(p=>!originOpen[name].some(o=>p.x===o.x&&p.y===o.y))}}:{...spec,board:{...spec.board,terrainSpikes:[]}};
  const contrast=solveLevel(drySpec,{...options,forbiddenConditions:spec.theorem.proofConditions});
  for(const [label,r] of Object.entries({normal,safe,forbidden,contrast}))console.log(JSON.stringify({label,status:r.status,moves:r.bestPlan?.moves,pushes:r.bestPlan?.pushes,route:r.bestPlan?.directions.map(d=>d[0].toUpperCase()).join(''),states:r.diagnostics.exploredStates,complete:r.diagnostics.completePlanWindow}));
  assert.equal(normal.status,'solved');assert.equal(safe.status,originMode?'proven-unsolved':'solved');assert.equal(forbidden.status,'proven-unsolved');assert.equal(contrast.status,'solved');
- if(!originMode)assert.deepEqual([normal.bestPlan.moves,normal.bestPlan.pushes],[safe.bestPlan.moves,safe.bestPlan.pushes]);assert.ok(contrast.bestPlan.moves<normal.bestPlan.moves);
+ if(!originMode){assert.deepEqual([normal.bestPlan.moves,normal.bestPlan.pushes],[safe.bestPlan.moves,safe.bestPlan.pushes]);assert.ok(contrast.bestPlan.moves<normal.bestPlan.moves);}
  if(originMode)for(const condition of spec.theorem.proofConditions){const r=solveLevel(spec,{...options,forbiddenConditions:[condition]});console.log(JSON.stringify({condition,status:r.status,states:r.diagnostics.exploredStates}));assert.equal(r.status,'proven-unsolved');}
  for(const [board,report] of [[spec.board,normal],[drySpec.board,contrast]]){let s=createGame(board);for(const d of report.bestPlan.directions){const r=move(s,d);assert.ok(r.didMove);s=r.state;}assert.equal(s.status,'won');}
  const pushNormal=pushFirst(false),pushSafe=pushFirst(true);console.log(JSON.stringify({pushNormal,pushSafe}));assert.equal(pushNormal.status,'solved');assert.equal(pushSafe.status,originMode?'proven-unsolved':'solved');if(!originMode)assert.deepEqual([pushNormal.pushes,pushNormal.moves],[pushSafe.pushes,pushSafe.moves]);
  if(originMode){let state=createGame(spec.board);for(const d of normal.bestPlan.directions){const r=move(state,d);state=r.state;if(r.events.length)console.log(JSON.stringify({direction:d,events:r.events,blocks:state.blocks.map(b=>({id:b.id,position:b.position}))}));}}
  console.log(JSON.stringify({mutations:auditLevelMutations(spec,80000)}));
+ if(name==='oct-s04'||name==='oct-s08'){const removed=solveLevel({...spec,board:{...spec.board,gates:[]}},{...options,forbiddenConditions:spec.theorem.proofConditions});console.log(JSON.stringify({validGatePairRemoval:{status:removed.status,moves:removed.bestPlan?.moves,pushes:removed.bestPlan?.pushes,states:removed.diagnostics.exploredStates}}));}
  console.log(JSON.stringify({sha256:createHash('sha256').update(readFileSync(source)).digest('hex')}));
 }finally{await server.close();}

@@ -2,6 +2,7 @@
 // Copy together with oracle.mjs; all candidate sources resolve from the repository first.
 import assert from 'node:assert/strict';
 import {server,loadCandidate,search,replay,mutations,key,dirs} from './oct-gate-oracle.mjs';
+import {searchResetAfterControl} from './oct-gate-history-oracle.mjs';
 const name=process.argv[2]??'g02',n=Number(name.replace(/\D/g,''));
 try {
   const spec=(await loadCandidate(`oct-g${String(n).padStart(2,'0')}`))[`octG${String(n).padStart(2,'0')}`],b=spec.board;
@@ -17,8 +18,11 @@ try {
   else if(n===5){ban=(es,s)=>movedBlockControl(es,s,block=>block.shape.slice(1));contrast={...b,walls:b.walls.filter(p=>key(p)!=='1,1')};}
   else if(n===6){ban=(es,s)=>es.some(e=>{if(e.type!=='gate-pushed')return false;const gate=s.gates.find(g=>g.id===e.entityId),exit=s.gates.find(g=>g.id===gate.nextGateId);return s.gates.some(g=>g.id!==gate.id&&g.id!==exit.id&&key(g.position)!==key(b.gates.find(v=>v.id===g.id).position)&&g.position.x===exit.position.x+e.to.x-e.from.x&&g.position.y===exit.position.y+e.to.y-e.from.y);});contrast={...b,walls:b.walls.filter(p=>key(p)!=='0,3')};}
   else if(n===7){mode='noReverse';contrast={...b,terrainGoals:[{x:2,y:2}]};}
+  else if(n===8){ban=es=>es.some(e=>e.type==='gate-traversed'&&b.terrainGoals.some(g=>key(g)===key(e.entry)));contrast={...b,walls:b.walls.filter(p=>key(p)!=='3,0')};}
+  else if(n===9){ban=(es,s)=>!es.some(e=>e.type==='gate-traversed')&&es.some(e=>{if(e.type!=='rain-slid')return false;const[dx,dy]=[[0,-1],[1,0],[0,1],[-1,0]][dirs.indexOf(e.direction)],gate=s.gates.find(g=>g.position.x===e.to.x+dx&&g.position.y===e.to.y+dy);if(!gate)return false;const exit=s.gates.find(g=>g.id===gate.nextGateId);return s.blocks.some(v=>key(v.position)!==key(b.blocks.find(bl=>bl.id===v.id).position)&&v.position.x===exit.position.x+dx&&v.position.y===exit.position.y+dy);});contrast={...b,walls:[...b.walls,{x:3,y:0}]};}
+  else if(n===10){contrast={...b,walls:b.walls.filter(p=>key(p)!=='1,2')};}
   else throw Error(`No verified audit contract for ${name}`);
-  const base=search(b),forbidden=search(b,mode,ban),decoupled=search(contrast,mode,ban);
+  const base=search(b),forbidden=n===10?searchResetAfterControl(b):search(b,mode,ban),decoupled=n===10?searchResetAfterControl(contrast):search(contrast,mode,ban,50000);
   assert.equal(base.status,'solved');assert.equal(replay(b,base.path).state.status,'won');
   assert.equal(forbidden.status,'proven-unsolved');assert.equal(decoupled.status,'solved');
   assert.equal(replay(contrast,decoupled.path).state.status,'won');

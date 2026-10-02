@@ -1,0 +1,19 @@
+import type { CourseGroupDefinition, LevelSpec } from '../../course/types';
+import { octM01 } from './oct-m01';
+
+// Append in publication order: historical LAB numbers and saved stable IDs never shift.
+export const octoberBatch: readonly LevelSpec[] = [octM01];
+const chapters: readonly Omit<CourseGroupDefinition, 'levelIds'>[] = [
+  { id: 'oct-goal', title: '十月 · 目标工作空间', branch: 'goal', prerequisites: [] },
+  { id: 'oct-gate', title: '十月 · 远端通路', branch: 'gate', prerequisites: [] },
+  { id: 'oct-rain', title: '十月 · 雨中资源', branch: 'rain', prerequisites: [] },
+  { id: 'oct-assignment', title: '十月 · 目标分配', branch: 'combination', prerequisites: [] },
+  { id: 'oct-hazard-space', title: '十月 · 空间桥接（前期）', branch: 'shape', prerequisites: [] },
+  { id: 'oct-hazard-goal', title: '十月 · 目标桥接（前期）', branch: 'goal', prerequisites: [] },
+  { id: 'oct-hazard-rain', title: '十月 · 雨中桥接（前期）', branch: 'rain', prerequisites: [] },
+  { id: 'oct-hazard-gate', title: '十月 · 通路桥接（前期）', branch: 'gate', prerequisites: [] },
+  { id: 'oct-origin', title: '十月 · 回位调度（揭示后）', branch: 'spike', prerequisites: [] },
+];
+export const octoberGroups: readonly CourseGroupDefinition[] = chapters.map(chapter => ({
+  ...chapter, levelIds: octoberBatch.filter(level => level.groupId === chapter.id).map(level => level.id),
+})).filter(chapter => chapter.levelIds.length > 0);

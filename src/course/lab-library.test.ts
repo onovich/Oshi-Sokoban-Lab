@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { masteryV2Catalog } from './course-catalog';
+import { octoberBatch } from '../levels/lab/october-batch';
 import { laboratoryShelf, nextLibraryLevelId } from './lab-library';
 
 describe('curated laboratory navigation', () => {
@@ -17,9 +18,9 @@ describe('curated laboratory navigation', () => {
   it('keeps every historical level accessible but separates archives from learning chains', () => {
     const shelves = laboratoryShelf(masteryV2Catalog.labLevels);
     const ids = shelves.flatMap(shelf => shelf.levelIds);
-    expect(ids).toHaveLength(53);
+    expect(ids).toHaveLength(53 + octoberBatch.length);
     expect(new Set(ids)).toEqual(new Set(masteryV2Catalog.labLevels.map(level => level.id)));
-    expect(shelves[0]!.levelIds).toEqual([
+    expect(shelves.find(shelf => shelf.id === 'learning-e06')!.levelIds).toEqual([
       'lab-e06-small-court', 'lab-e06-independent-return', 'lab-e06-interleaved',
     ]);
     expect(shelves.find(shelf => shelf.id === 'archive')!.levelIds).toContain('lab-e03-west-court');

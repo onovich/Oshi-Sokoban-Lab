@@ -1,4 +1,5 @@
 import type { LevelSpec } from './types';
+import { octoberGroups } from '../levels/lab/october-batch';
 
 export type LaboratoryShelf = Readonly<{
   id: string;
@@ -72,6 +73,7 @@ const shelves: readonly LaboratoryShelf[] = [
   { id: 'lab-shape-bridges', title: '形状桥接候选 · 穿插于形状课程', levelIds: [
     'lab-h2-clearance',
   ] },
+  ...octoberGroups,
   { id: 'archive', title: '历史实验 · 不推荐为挑战前置，仍可重玩', levelIds: [
     'lab-rs04-still-bank', 'lab-rs05-borrowed-berth',
     'lab-spike-clear', 'lab-spike-rebirth', 'lab-spike-progress',

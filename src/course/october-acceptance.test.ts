@@ -3,7 +3,7 @@ import { octoberBatch } from '../levels/lab/october-batch';
 import { levelAcceptance } from './level-acceptance';
 
 it('records independently played October wins as intermediate approval, not author decisions', () => {
-  for (const id of ['lab-oct-m02', 'lab-oct-m03', 'lab-oct-g01', 'lab-oct-g02']) {
+  for (const id of ['lab-oct-m02', 'lab-oct-m03', 'lab-oct-g01', 'lab-oct-g02', 'lab-oct-m04', 'lab-oct-s01', 'lab-oct-s02', 'lab-oct-s03', 'lab-oct-s04']) {
     expect(levelAcceptance(octoberBatch.find(level => level.id === id)!).state).toBe('ai-passed');
   }
 });

@@ -22,6 +22,13 @@ export const acceptanceLabels: Readonly<Record<AcceptanceState, string>> = {
 
 // Chronological ledger. Preservation and a difficulty score alone are not approval.
 export const levelAcceptanceRecords: readonly AcceptanceRecord[] = [
+  { levelId: 'lab-oct-g08', hash: 'cb240b6e', reviewer: 'ai', verdict: 'passed',
+    evidence: 'docs/playtests/2026-10-03-oct-player-four.md' },
+  ...Object.entries({
+    'lab-oct-s07': '957f6bf4', 'lab-oct-s09': 'e109cd40', 'lab-oct-s06': 'a3642b64',
+    'lab-oct-s10': 'd1797147', 'lab-oct-m10': '751f7437',
+  }).map(([levelId, hash]) => ({ levelId, hash, reviewer: 'ai' as const, verdict: 'passed' as const,
+    evidence: 'docs/playtests/2026-10-03-oct-player-five.md' })),
   ...Object.entries({ 'lab-oct-m07': 'e920c96f', 'lab-oct-m09': '9e4d7f51' }).map(([levelId, hash]) => ({
     levelId, hash, reviewer: 'ai' as const, verdict: 'passed' as const,
     evidence: 'docs/playtests/2026-10-02-oct-player-three.md',

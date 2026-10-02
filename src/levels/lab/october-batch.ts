@@ -43,6 +43,14 @@ const chapters: readonly Omit<CourseGroupDefinition, 'levelIds'>[] = [
   { id: 'oct-hazard-gate', title: '十月 · 通路桥接（前期）', branch: 'gate', prerequisites: [] },
   { id: 'oct-origin', title: '十月 · 回位调度（揭示后）', branch: 'spike', prerequisites: [] },
 ];
+// Proposed learning order, distinct from stable LAB publication numbers; author calibration is pending.
+const chapterOrder: Readonly<Record<string, readonly string[]>> = {
+  'oct-gate': ['g02', 'g01', 'g03', 'g05', 'g04', 'g06', 'g07', 'g08', 'g09', 'g10'],
+  'oct-rain': ['m04', 'm10', 'm05'],
+  'oct-origin': ['s07', 's06', 's09', 's10', 's05', 's08'],
+};
 export const octoberGroups: readonly CourseGroupDefinition[] = chapters.map(chapter => ({
-  ...chapter, levelIds: octoberBatch.filter(level => level.groupId === chapter.id).map(level => level.id),
+  ...chapter, levelIds: octoberBatch.filter(level => level.groupId === chapter.id)
+    .sort((a, b) => (chapterOrder[chapter.id]?.indexOf(a.id.replace('lab-oct-', '')) ?? 0)
+      - (chapterOrder[chapter.id]?.indexOf(b.id.replace('lab-oct-', '')) ?? 0)).map(level => level.id),
 })).filter(chapter => chapter.levelIds.length > 0);

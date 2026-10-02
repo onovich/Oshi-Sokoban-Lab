@@ -16,3 +16,13 @@ it('records independently transferred movable-goal understanding without upgradi
   for (const id of ['lab-oct-m07', 'lab-oct-m09']) expect(levelAcceptance(octoberBatch.find(l => l.id === id)!).state).toBe('ai-passed');
   for (const id of ['lab-oct-m06', 'lab-oct-m08']) expect(levelAcceptance(octoberBatch.find(l => l.id === id)!).state).toBe('pending');
 });
+it('records observed reset transfers but leaves the unsolved Gate reset case pending', () => {
+  for (const id of ['s07', 's09', 's06', 's10', 'm10']) expect(levelAcceptance(octoberBatch.find(l => l.id === `lab-oct-${id}`)!).state).toBe('ai-passed');
+  expect(levelAcceptance(octoberBatch.find(l => l.id === 'lab-oct-s08')!).state).toBe('pending');
+});
+it('accepts the observed two-task Gate win and never substitutes visual review or solver proof for play', () => {
+  expect(levelAcceptance(octoberBatch.find(l => l.id === 'lab-oct-g08')!).state).toBe('ai-passed');
+  expect(octoberBatch.filter(l => levelAcceptance(l).state === 'ai-passed')).toHaveLength(17);
+  expect(octoberBatch.filter(l => levelAcceptance(l).state === 'pending')).toHaveLength(13);
+  expect(octoberBatch.some(l => levelAcceptance(l).state.startsWith('author'))).toBe(false);
+});

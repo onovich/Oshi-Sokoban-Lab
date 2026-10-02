@@ -1,8 +1,9 @@
 import type { CourseGroupDefinition, LevelSpec } from '../../course/types';
 import { octM01 } from './oct-m01';
+import { octG01 } from './oct-g01';
 
 // Append in publication order: historical LAB numbers and saved stable IDs never shift.
-export const octoberBatch: readonly LevelSpec[] = [octM01];
+export const octoberBatch: readonly LevelSpec[] = [octM01, octG01];
 const chapters: readonly Omit<CourseGroupDefinition, 'levelIds'>[] = [
   { id: 'oct-goal', title: '十月 · 目标工作空间', branch: 'goal', prerequisites: [] },
   { id: 'oct-gate', title: '十月 · 远端通路', branch: 'gate', prerequisites: [] },

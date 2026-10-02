@@ -1,0 +1,11 @@
+# G05 横隙 — candidate, not player acceptance
+
+Frozen hash `bfd7b229`. Target D6 is a design target, no human calibration. Geometry is not a rotated earlier Gate lesson: the transported two-cell task is also the remote control footprint. Its non-anchor cell must block a remote landing after the shape has moved.
+
+Real move BFS: `RRURDLURDDLUUULDDRRDLLLURDRUURRUL`, 4468 discovered states. Initially no task is covered; replay wins. Forbid any gate push whose remote landing is occupied by a moved block's non-anchor footprint: exhausts 464 states without a win. This is broader than banning a chosen coordinate or final push. Ban all traversals also exhausts 349 states. No mandatory particular gate-entry chronology is claimed.
+
+Decoupling: open only (1,1), allowing direct upward transport. Under the same core ban `DRUU` wins, 52 states. Thus the footprint-control requirement comes from transport geometry, not the victory definition.
+
+Compression removed the former (0,0)/(0,1) pocket. The prior uncompressed prototype allowed a walking-only bypass; the final compressed version does not. 13 eligible ordinary-floor closures: 8 proven unsolved and 5 solved. Retentions: (5,1) alternative approach (not mandatory), (4,2) alternative gate staging (closure changes routing and makes a longer solution), (0,3) direct approach to the long block (closure produces a longer detour). Closing (5,2)/(5,3) creates shorter routes by adding static blocking permissions: keep these cells open as proof constraints. These are not 13 claims of unique-essential floor. Only block deletion empties the task and gives a trivial win, so it is invalid as a useful-object necessity proof; recorded as such.
+
+Run `node scripts/audit-oct-gate.mjs g05` from the repository root with the accompanying `oracle.mjs`. Script imports actual production source if present, otherwise sibling candidate source; it asserts replay, core exhaustive ban, and decoupling and prints every floor mutation and deletion. Test draft is designed to be copied to src/levels/lab beside the module; root agent performs missing-module red then source green. AI playtest pending, author acceptance pending. Main quality risk: longer navigation may disguise a simple remote-control idea; do not equate search states or route length with D6.

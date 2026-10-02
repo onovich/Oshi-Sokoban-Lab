@@ -15,6 +15,7 @@ import { RainEffect } from './RainEffect';
 import type { GameGlyphKind } from './GameGlyph';
 import { SPIKE_RESET_WINDOWS } from '../rendering/spike-reset-presentation';
 import { BOARD_MOTION_TIMING } from '../rendering/board-motion-timing';
+import { gatePairLabels } from '../rendering/gate-pair-labels';
 
 type BoardProps = Readonly<{
   state: GameState;
@@ -34,6 +35,7 @@ type VisualEntity = Readonly<{
   origin?: Cell;
   shape: readonly Cell[];
   number?: string;
+  gatePair?: string;
   isComplete?: boolean;
 }>;
 
@@ -101,6 +103,8 @@ function cellTokens(state: GameState, cell: Cell): readonly string[] {
     if (!occupies(gate, cell)) continue;
     tokens.push('gate');
     tokens.push(index % 2 === 0 ? 'gate-blue' : 'gate-orange');
+    const pair = gatePairLabels(state.gates).get(gate.id);
+    if (pair) tokens.push(`gate-pair-${pair}`);
   }
   for (const spike of state.spikes) {
     if (occupies(spike, cell)) {
@@ -136,7 +140,7 @@ function labelFor(cell: Cell, tokens: readonly string[]): string {
   if (tokens.includes('fake-block')) labels.push('Fake Block');
   if (tokens.includes('goal')) labels.push(goalNumber ? `G${goalNumber} Goal` : 'Goal');
   if (tokens.includes('movable-goal')) labels.push(goalNumber ? `M${goalNumber} 可推动 Goal` : '可推动 Goal');
-  if (tokens.includes('gate')) labels.push('Gate');
+  if (tokens.includes('gate')) labels.push(`Gate${numberFrom(tokens, 'gate-pair-') ? ` ${numberFrom(tokens, 'gate-pair-')}` : ''}`);
   if (tokens.includes('spike')) labels.push(tokens.some((token) => token.startsWith('moving-spike-')) ? '移动 Spike' : 'Spike');
   if (tokens.includes('player')) labels.push('角色');
 
@@ -178,6 +182,7 @@ function visualEntitiesFor(state: GameState): readonly VisualEntity[] {
     position: gate.position,
     origin: gate.origin,
     shape: gate.shape,
+    gatePair: gatePairLabels(state.gates).get(gate.id),
   }));
   const spikes = state.spikes.map<VisualEntity>((spike) => ({
     id: spike.id,
@@ -268,6 +273,7 @@ function EntityCells({
         style={entityCellStyle(cell, motion)}
       >
         <GameGlyph isComplete={entity.isComplete} kind={entity.kind} number={number} />
+        {entity.gatePair && isOriginCell(localCell) && <span className="board__gate-pair">{entity.gatePair}</span>}
       </span>
     );
   });
